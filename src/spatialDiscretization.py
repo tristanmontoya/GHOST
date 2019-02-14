@@ -1,5 +1,7 @@
 # Tristan Montoya - Euler 1D - Spatial Discretization
-# Maybe make this inherit from some general spatial discretization class
+
+# High-order code and this will inherit from the same base class
+# Takes in a Problem object, gets passed to temporalDiscretization which solves the resulting ODE
 
 import numpy as np
 
@@ -12,16 +14,21 @@ class SpatialDiscretization:
         self.useDiss = useDiss
         self.meshGen()
 
+    # equispaced grid not including boundary points
     def meshGen(self):
         grid_with_boundaries np.linspace(0., self.problem.length, num=(M + 2))
         self.mesh = grid_withboundaries[1:M+1]
         self.dx = self.problem.length/(M+1.)
 
+    # difference operator applied to flux. Left argument first.
+    def delta_E_j(self, Q_jm1, Q_jp1):
+        return 1./self.dx*(self.problem.E_j(Q_jp1) - self.problem.E_j(Q_jm1))
+
+    # specify/extrapolate BCs - assuming all subsonic, zeroth order extrapolation
     def getBoundaryData(self, Q):
+
         Q_inlet = np.zeros(3)
         Q_exit = np.zeros(3)
-
-        #specify/extrapolate (zeroth order) BCs - assuming all subsonic
 
         #inlet specify rho and rho u, extrapolate p
 
@@ -64,14 +71,16 @@ class SpatialDiscretization:
 
         return R
 
-    # Build flow Jacobian for entire mesh dR/dQ with no dissipation
+    # Build flow Jacobian dR/dQ for entire mesh with no dissipation
     def buildFlowJacobian(self, Q):
 
         return J
 
-    def delta_E_j(self, Q_jm1, Q_jp1):
-        # difference operator applied to flux
-        return 1./self.dx*(self.problem.E_j(Q_jp1) - self.problem.E_j(Q_jm1))
+    # Build dD/dQ for entire mesh
+    def buildDissipationJacobian(self, Q):
+
+        return L
+
 
 
 

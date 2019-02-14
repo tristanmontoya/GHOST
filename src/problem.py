@@ -1,4 +1,5 @@
 # Tristan Montoya - Euler 1D - Problem Setup
+
 # Defines all *physical* (not numerical) aspects of the problem
 
 import numpy as np
@@ -23,15 +24,18 @@ class Problem:
         self.p_exit=p
         self.exitIsSupersonic = False
 
+    # section area
     def S(self, x):
-        if self.problemType == 0 or self.problemType == 1:
+        if self.problemType == 0 or self.problemType == 1: #quasi 1D
             return self.nozzle1(x)
-        if self.problemType == 2:
+        if self.problemType == 2: #shock tube
             return 1.
+
+    # section area derivative
     def dSdx(self, x):
-        if self.problemType == 0 or self.problemType == 1:
+        if self.problemType == 0 or self.problemType == 1: #quasi 1D
             return self.nozzle1_dSdx(x)
-        if self.problemType == 2:
+        if self.problemType == 2: #shock tube
             return 0.
 
     def nozzle1(self, x):
@@ -65,7 +69,7 @@ class Problem:
         p = (self.problem.gamma - 1.)/self.problem.S(x) * (Q_j[2] - 0.5*Q_j[1]**2/Q_j[0])
         return np.array([0., p*self.problem.dSdx(x), 0.])
 
-    # diagonalization of the flux Jacobian
+    # diagonalization of the flux Jacobian (Not used currently, watch out for scaling of eigenvectors)
     def eigsA_j(self, Q_j):
         A = self.A_j(Q_j)
 
@@ -75,7 +79,6 @@ class Problem:
         idx = np.argsort(lamda)
         lamda = lamda[idx]
         X = X[:,idx]
-
 
         X_inv = np.linalg.inv(X)
         X_inv_plus = np.zeros(shape=[3,3])
