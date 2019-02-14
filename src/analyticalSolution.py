@@ -39,6 +39,13 @@ def quasi1D(x, S_star_L, p_01, T_01, gamma, R, x_shock=100):
     M = np.zeros(n)
     p = np.zeros(n)
     T = np.zeros(n)
+    rho = np.zeros(n)
+    u = np.zeros(n)
+    a = np.zeros(n)
+    e = np.zeros(n)
+    Q1 = np.zeros(n)
+    Q2 = np.zeros(n)
+    Q3 = np.zeros(n)
 
     rho_01 = p_01/(R*T_01)
     a_01 = np.sqrt(gamma*p_01/rho_01)
@@ -73,8 +80,15 @@ def quasi1D(x, S_star_L, p_01, T_01, gamma, R, x_shock=100):
         M[i] = getMach(init_M, rel_S, gamma)
         T[i] = T_01/(1. + (gamma-1)/2.*M[i]**2)
         p[i] = p_0*(1. + (gamma-1)/2.*M[i]**2)**(-1.*(gamma)/(gamma-1.))
+        rho[i] = p[i]/(R*T[i])
+        a[i] = np.sqrt(gamma*p[i]/rho[i])
+        u[i] = a[i]*M[i]
+        e[i] = rho[i]*(R/(gamma-1.)*T[i] + 0.5*u[i]**2)
+        Q1[i] = rho[i]*sectionCalc(x[i])
+        Q2[i] = rho[i]*u[i]*sectionCalc(x[i])
+        Q3[i] = e[i]*sectionCalc(x[i])
 
-    return M, T, p
+    return M, T, p, Q1, Q2, Q3
 
 def shockTube(x, x_0, p_L, p_R, rho_L, rho_R, t_f, gamma):
     n = len(x)  # number of steps
