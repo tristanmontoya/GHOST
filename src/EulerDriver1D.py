@@ -1,38 +1,47 @@
-# Tristan Montoya - Analytical Solution to the Euler Equations
+# Tristan Montoya - Driver for the 1D Euler Equations
 
 import numpy as np
 from analyticalSolution import *
 import matplotlib.pyplot as plt
 from problem import *
+from spatialDiscretization import *
 
 def quasi1D_driver(res, S_star, p_01, T_01, gamma, R, figtitle, x_shock=100):
 
+    #solve analytically first
     x = np.linspace(0., 10., res)
-    M, T, p, Q1, Q2, Q3 = quasi1D(x, S_star, p_01, T_01, gamma, R, x_shock)
+    Ma, T, p, Q1, Q2, Q3 = quasi1D(x, S_star, p_01, T_01, gamma, R, x_shock)
 
+    #extract BCs
+    p_exit = p[res-1]
+    rho_inlet = Q1[res-1]/sectionCalc(0.)
+    rhou_inlet = Q2[res-1]/sectionCalc(0.)
 
-    myProblem = Problem(0)
-    print("Area(10): ",myProblem.S(10.))
-    myProblem.setSubsonicInlet(1.0, 2.0)
-    myProblem.setSubsonicExit(1.5)
+    #set up problem physics
+    q1D = Problem(problemType=0, L=10., gamma=gamma, R=R)
+    q1D.setSubsonicInlet(rho_inlet, rhou_inlet)
+    q1D.setSubsonicExit(p_exit)
 
-    Q_j = [Q1[res-1], Q2[res-1], Q3[res-1]]
+    #test fluxes at outlet
+    Q_j = np.array([Q1[res-1], Q2[res-1], Q3[res-1]])
+    print("Testing flux calculation at exit...")
+    print("E: ", q1D.E_j(Q_j))
+    print("AQ: ", q1D.A_j(Q_j) @ Q_j)
 
-    w_plus, w_minus, X_inv_plus, X_inv_minus = myProblem.eigsA_j(Q_j)
-    X_inv = X_inv_plus + X_inv_minus
+    #set up spatial scheme
+    M = 10 #number of interior nodes
 
-    print("Wplus, Wminus: ", w_plus, w_minus)
+    Q_0 = np.ones(30)
+    fdScheme = SpatialDiscretization(q1D, M)
+    residual = fdScheme.buildFlowResidual(Q_0)
+    print("residual: ", residual)
 
-    print("w1 from pulliam (should be second w here): ", (gamma - 1.)/gamma*Q_j[0])
+    print(fdScheme.mesh)
 
-    print('W', X_inv @ Q_j)
-    print("E: ", myProblem.E_j(Q_j))
-    print("AQ: ", myProblem.A_j(Q_j) @ Q_j)
-
-
+    #plots
     mach = plt.figure()
     plt.grid()
-    plt.plot(x, M, '-r')
+    plt.plot(x, Ma, '-r')
     plt.xlim([0,10])
     plt.xlabel("$x$ (m)")
     plt.ylabel("Mach Number")
@@ -48,8 +57,6 @@ def quasi1D_driver(res, S_star, p_01, T_01, gamma, R, figtitle, x_shock=100):
     plt.ticklabel_format(style='sci', axis='y')
     plt.show()
     pressure.savefig("../plots/pressure_"+figtitle+".pdf", bbox_inches='tight')
-
-
 
     return
 

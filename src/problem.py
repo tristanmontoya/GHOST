@@ -6,11 +6,11 @@ import numpy as np
 
 class Problem:
 
-    def __init__(self, problemType):
+    def __init__(self, problemType, L, gamma, R):
         self.problemType = problemType
-        self.length = 10.0 #m
-        self.gamma = 1.4
-        self.R = 287.0 #N m/(kg K)
+        self.length = L #m
+        self.gamma = gamma
+        self.R = R #N m/(kg K)
 
         self.inletIsSupersonic = False
         self.exitIsSupersonic = False
@@ -66,8 +66,8 @@ class Problem:
 
     # source term H = p dS/dx for momentum equation
     def H_j(self, Q_j, x):
-        p = (self.problem.gamma - 1.)/self.problem.S(x) * (Q_j[2] - 0.5*Q_j[1]**2/Q_j[0])
-        return np.array([0., p*self.problem.dSdx(x), 0.])
+        p = (self.gamma - 1.)/self.S(x) * (Q_j[2] - 0.5*Q_j[1]**2/Q_j[0])
+        return np.array([0., p*self.dSdx(x), 0.])
 
     # diagonalization of the flux Jacobian (Not used currently, watch out for scaling of eigenvectors)
     def eigsA_j(self, Q_j):
