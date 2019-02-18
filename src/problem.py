@@ -12,17 +12,17 @@ class Problem:
         self.gamma = gamma
         self.R = R #N m/(kg K)
 
-        self.inletIsSupersonic = False
-        self.exitIsSupersonic = False
 
-    def setSubsonicInlet(self, rho, rhou):
+    def setBCs_rhoin_rhouin_pout(self, rho, rhou, p):
         self.rho_inlet = rho
         self.rhou_inlet = rhou
-        self.inletIsSupersonic = False
+        self.p_exit = p
+        self.bcMode = 0
 
-    def setSubsonicExit(self, p):
-        self.p_exit=p
-        self.exitIsSupersonic = False
+    def setBCs_allDirichlet(self, Q_in, Q_out):
+        self.Q_in = Q_in
+        self.Q_out = Q_out
+        self.bcMode = 1
 
     # section area
     def S(self, x):
@@ -50,12 +50,37 @@ class Problem:
         else:
             return 0.04*x - 0.2
 
-    # Local flux Jacobian - note that E_j(Q_j) = A(Q_j) Q_j due to homogeneous property
+    #evaluate the initial condition (3-vector) at point x
+
+    def evaluateInitialCondition(self, x):
+        if self.problemType == 0 or self.problemType == 1:  # quasi 1D
+            return self.S(x)*np.array([self.rho_0, self.rhou_0, self.e_0])
+        if self.problemType == 2:  # shock tube
+            return self.shockTubeInitialCondition(x)
+
+    def setUinformInitialCondition(self, rho_0, rhou_0, e_0):
+        self.rho_0 = rho_0
+        self.rhou_0 = rhou_0
+        self.e_0 = e_0
+
+    def shockTubeInitialCondition(self, x):
+
+        # TODO: Shock tube IC
+
+        return
+
+    # Local flux Jacobian dE/dQ - note that E_j(Q_j) = A(Q_j) Q_j due to homogeneous property
     def A_j(self, Q_j):
         return np.array([[0.,1.,0.],
             [0.5*(self.gamma-3.)*(Q_j[1]/Q_j[0])**2, (3. - self.gamma)*(Q_j[1]/Q_j[0]), self.gamma-1.],
             [(self.gamma - 1.)*(Q_j[1]/Q_j[0])**3 - self.gamma*(Q_j[2]/Q_j[0])*(Q_j[1]/Q_j[0]),
              self.gamma*(Q_j[2]/Q_j[0]) - 1.5*(self.gamma-1.)*(Q_j[1]/Q_j[0])**2, self.gamma*(Q_j[1]/Q_j[0])]])
+
+    # Source term Jacobian dH/dQ
+    def B_j(self, Q_j, x):
+        return (self.gamma - 1.)/self.S(x)*self.dSdx(x)*np.array([[0., 0., 0.],
+            [0.5*Q_j[1]**2/Q_j[0]**2, -Q_j[1]/Q_j[0], 1.],
+                         [0., 0., 0.]])
 
     #Local flux vector
     def E_j(self, Q_j):
@@ -69,7 +94,9 @@ class Problem:
         p = (self.gamma - 1.)/self.S(x) * (Q_j[2] - 0.5*Q_j[1]**2/Q_j[0])
         return np.array([0., p*self.dSdx(x), 0.])
 
-    # diagonalization of the flux Jacobian (Not used currently, watch out for scaling of eigenvectors)
+
+
+    # diagonalization of the flux Jacobian (use for diagonal form, must then return lambda and X)
     def eigsA_j(self, Q_j):
         A = self.A_j(Q_j)
 
@@ -95,3 +122,10 @@ class Problem:
         w_minus = X_inv_minus @ Q_j
 
         return w_plus, w_minus, X_inv_plus, X_inv_minus
+
+    #spectral radius of A_j
+    def specrA_j(self, Q_j, x):
+        q_j = Q_j/self.S(x)
+        p_j = (self.gamma - 1.) * (q_j[2] - 0.5 * q_j[1] ** 2 / q_j[0])
+        a_j = np.sqrt(self.gamma*(p_j / q_j[0]))
+        return np.abs(q_j[1] / q_j[0]) + a_j
