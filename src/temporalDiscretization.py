@@ -6,7 +6,7 @@ import numpy as np
 
 class TemporalDiscretization:
 
-    def __init__(self, runName, spatialDiscretization, method, C, isUnsteady= False, useLocalTimeStep=False, ref_u = 300, ref_a = 315, t_f = 1.0, rel_tol = 1.e-12):
+    def __init__(self, runName, spatialDiscretization, method, C, isUnsteady= False, max_its = 1000, useLocalTimeStep=False, ref_u = 300, ref_a = 315, t_f = 1.0, rel_tol = 1.e-12):
         #problem setup
         self.runName = runName
         self.spatialDiscretization = spatialDiscretization
@@ -18,36 +18,55 @@ class TemporalDiscretization:
         self.rel_tol = rel_tol
         self.ref_u = ref_u
         self.ref_a = ref_a
+        self.max_its = max_its
 
         #initialization
         self.t = 0.0 #initialize time at 0.0
         self.n = 0 # no time steps taken
         self.Q = spatialDiscretization.Q_0
+        self.setTimeStepMatrix()
 
-    # return matrix of inverse local time steps
-    #this replaces the identity matrix term in the LHS because I divided both sides by the time step (h)
-    def timeStepMatrix(self):
+    #update matrix of inverse local time steps
+    #this replaces the identity matrix term in the LHS because we have divided both sides by the time step
+    def setTimeStepMatrix(self):
 
         self.T = np.zeros(shape=[3*(self.spatialDiscretization.M), 3*self.spatialDiscretization.M])
 
-        if self.useLocalTimeStep == True:
-            # TODO: Local time stepping
-            print("local time stepping")
+        if self.isUnsteady:
+            self.n_f = np.int(np.ceil((self.t_f) / (self.C * self.spatialDiscretization.dx / (self.ref_u + self.ref_a))))
+            self.dt = (self.t_f) / self.n_f
+            self.T = np.eye(self.spatialDiscretization.M*3)*(1./self.dt)
         else:
-            for i in range(0, self.spatialDiscretization.M):
-                dt = self.C * self.spatialDiscretization.dx / (self.ref_u + self.ref_a)
-                self.T[(i*3):(i+1)*3, (i*3):(i+1)*3] = 1./dt*np.eye(3)
+            if self.useLocalTimeStep == True:
+                for i in range(0, self.spatialDiscretization.M):
 
-        #print("Time step matrix: \n", self.T)
+                    dt = self.C * self.spatialDiscretization.dx / \
+                         (self.spatialDiscretization.problem.specrA_j(self.Q[i * 3:(i + 1) * 3],
+                                                                      self.spatialDiscretization.mesh[i]))
+                    self.T[(i*3):(i+1)*3, (i*3):(i+1)*3] = 1./dt*np.eye(3)
+            else:
+                self.dt = self.C * self.spatialDiscretization.dx / (self.ref_u + self.ref_a)
+                self.T = np.eye(self.spatialDiscretization.M*3)*(1./self.dt)
 
     def implicitEuler(self):
-        if self.isUnsteady == False:
+        if self.isUnsteady:
+            R = self.spatialDiscretization.buildFlowResidual(self.Q)
+            for n in range(0,self.n_f):
+            #for n in range(0, 0):
+                dQ = np.linalg.solve(self.implicitEulerSystemMatrix(), R)
+                self.Q = self.Q + dQ
+                R = self.spatialDiscretization.buildFlowResidual(self.Q)
+                self.t = self.t + self.dt
+                print("step: ", n+1, "time: ", self.t)
+
+
+        else:
             R = self.spatialDiscretization.buildFlowResidual(self.Q)
             res_0 = np.linalg.norm(R)
             res = res_0
             self.resHistory = [res_0]
 
-            while res/res_0 > self.rel_tol and self.n < 1000:
+            while res/res_0 > self.rel_tol and self.n < self.max_its:
                 dQ = np.linalg.solve(self.implicitEulerSystemMatrix(), R)
                 self.Q = self.Q + dQ
                 R = self.spatialDiscretization.buildFlowResidual(self.Q)
@@ -60,6 +79,9 @@ class TemporalDiscretization:
         self.saveResults()
 
     def implicitEulerSystemMatrix(self):
+        if self.useLocalTimeStep:
+            self.setTimeStepMatrix()
+
         return self.T - self.spatialDiscretization.buildFlowJacobian(self.Q)
 
     def saveResidualHistory(self):
@@ -76,6 +98,7 @@ class TemporalDiscretization:
         p = np.zeros(self.spatialDiscretization.M) #6
         a = np.zeros(self.spatialDiscretization.M) #7
         Ma = np.zeros(self.spatialDiscretization.M) #8
+
         #9 is mesh
 
         for i in range(0, self.spatialDiscretization.M):
@@ -89,4 +112,6 @@ class TemporalDiscretization:
 
         np.save("../results/"+self.runName+"_results.npy", np.array([Q1, Q2, Q3,
                                                       rho, u, e, p,
-                                                       a, Ma, self.spatialDiscretization.mesh]))
+                                                       a, Ma, self.spatialDiscretization.mesh,
+                                                                     self.spatialDiscretization.epsilon_2,
+                                                                     self.spatialDiscretization.epsilon_4]))

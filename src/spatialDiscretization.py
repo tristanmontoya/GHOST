@@ -37,39 +37,20 @@ class SpatialDiscretization:
 
     # specify/extrapolate BCs- assuming all subsonic, zeroth order extrapolation
     def getBoundaryData(self, Q):
-
         if self.problem.bcMode == 0:
-            #rho, rho*u at inlet, p at exit
+            #Riemann
+            R_0 = self.problem.flowVariablesToRiemann(Q[0:3], self.mesh[0])
+            Q_inlet = self.problem.riemannToFlowVariables(np.array([self.problem.R1_in, R_0[1], self.problem.R3_in]), 0.)
+            R_Mm1 = self.problem.flowVariablesToRiemann(Q[(self.M-1)*3:self.M*3], self.mesh[self.M-1])
+            Q_exit = self.problem.riemannToFlowVariables(np.array([R_Mm1[0], self.problem.R2_out, R_Mm1[2]]), self.problem.length)
 
-            Q_inlet = np.zeros(3)
-            Q_exit = np.zeros(3)
-
-            #inlet specify rho and rho u, extrapolate p
-
-            Q_inlet[0] = self.problem.rho_inlet*self.problem.S(0.)
-            Q_inlet[1] = self.problem.rhou_inlet*self.problem.S(0.)
-
-            p_extrap = (self.problem.gamma - 1.)*((Q[2]/self.problem.S(self.mesh[0])) \
-                                                  - 0.5*Q[1]**2/(Q[0]*self.problem.S(self.mesh[0])))
-
-            Q_inlet[2] = (p_extrap/(self.problem.gamma - 1.) + \
-                          0.5*Q_inlet[1]**2/(Q_inlet[0]*self.problem.S(0.)))*self.problem.S(0.)
-
-            #exit specify p, extrapolate rho, rhou
-
-            Q_exit[0] = Q[(self.M*3)-3]*self.problem.S(self.problem.length)/self.problem.S(self.mesh[self.M-1])
-            Q_exit[1] = Q[(self.M * 3) - 2] * self.problem.S(self.problem.length) / self.problem.S(self.mesh[self.M - 1])
-
-            Q_exit[2] = (self.problem.p_exit / (self.problem.gamma - 1.) + \
-                          0.5 * Q_exit[1] ** 2 / (Q_exit[0] * self.problem.S(self.problem.length))) * self.problem.S(self.problem.length)
+            return Q_inlet, Q_exit
 
         if self.problem.bcMode == 1:
             #full Q specified
-
             Q_inlet = self.problem.Q_in
             Q_exit = self.problem.Q_out
-
-        return Q_inlet, Q_exit
+            return Q_inlet, Q_exit
 
     # Build R(Q) for dQ/dt = R(Q) + D(Q), D(Q) dissipation
     def buildFlowResidual(self, Q, updateDissipation=True):
@@ -83,6 +64,8 @@ class SpatialDiscretization:
 
         #get boundary condition information (must be updated based on Q)
         Q_inlet, Q_exit = self.getBoundaryData(Q)
+
+        #print("Qin, Qex", Q_inlet, Q_exit)
 
         #inlet
         R[0:3] = -self.delta_E_j(Q_inlet, Q[3:6]) + self.problem.H_j(Q[0:3], self.mesh[0])
@@ -103,32 +86,29 @@ class SpatialDiscretization:
 
     def setDissCoeff(self, Q, Q_inlet, Q_exit):
 
+        #pressure switch
+        self.setDissipationEpsilons(Q, Q_inlet, Q_exit)
+
         self.D2coeff_jphalf = np.zeros(self.M - 1)
         self.D4coeff_jphalf = np.zeros(self.M - 1)
 
         # inlet
         sigma_inlet = self.problem.specrA_j(Q_inlet, 0.)
         sigma_0 = self.problem.specrA_j(Q[0:3], self.mesh[0])
-        epsilon_2_inlet = self.k_2
-        epsilon_2_0 = self.k_2
-        epsilon_4_inlet = self.k_2
-        epsilon_4_0 = self.k_2
-        self.D2coeff_inlet = 0.5 * (epsilon_2_inlet * sigma_inlet * self.problem.S(0.) + \
-                                    epsilon_2_0 * sigma_0 * self.problem.S(self.mesh[0]))
-        self.D4coeff_inlet = 0.5 * (epsilon_4_inlet * sigma_inlet * self.problem.S(0.) + \
-                                    epsilon_4_0 * sigma_0 * self.problem.S(self.mesh[0]))
+        
+        self.D2coeff_inlet = 0.5 * (self.epsilon_2_inlet * sigma_inlet * self.problem.S(0.) + \
+                                    self.epsilon_2[0] * sigma_0 * self.problem.S(self.mesh[0]))
+        self.D4coeff_inlet = 0.5 * (self.epsilon_4_inlet * sigma_inlet * self.problem.S(0.) + \
+                                    self.epsilon_4[0] * sigma_0 * self.problem.S(self.mesh[0]))
 
         # exit
         sigma_Mm1 = self.problem.specrA_j(Q[(self.M - 1) * 3:(self.M) * 3], self.mesh[self.M - 1])
         sigma_exit = self.problem.specrA_j(Q_exit, self.problem.length)
-        epsilon_2_Mm1 = self.k_2
-        epsilon_2_exit = self.k_2
-        epsilon_4_Mm1 = self.k_4
-        epsilon_4_exit = self.k_4
-        self.D2coeff_exit = 0.5 * (epsilon_2_Mm1 * sigma_Mm1 * self.problem.S(self.mesh[self.M - 1]) + \
-                                   epsilon_2_exit * sigma_exit * self.problem.S(self.problem.length))
-        self.D4coeff_exit = 0.5 * (epsilon_4_Mm1 * sigma_Mm1 * self.problem.S(self.mesh[self.M - 1]) + \
-                                   epsilon_4_exit * sigma_exit * self.problem.S(self.problem.length))
+
+        self.D2coeff_exit = 0.5 * (self.epsilon_2[self.M-1] * sigma_Mm1 * self.problem.S(self.mesh[self.M - 1]) + \
+                                   self.epsilon_2_exit * sigma_exit * self.problem.S(self.problem.length))
+        self.D4coeff_exit = 0.5 * (self.epsilon_4[self.M-1] * sigma_Mm1 * self.problem.S(self.mesh[self.M - 1]) + \
+                                   self.epsilon_4_exit * sigma_exit * self.problem.S(self.problem.length))
 
         # interior
         for j in range(0, self.M - 1):
@@ -136,15 +116,45 @@ class SpatialDiscretization:
             sigma_j = self.problem.specrA_j(Q[j * 3:(j + 1) * 3], self.mesh[j])
             sigma_jp1 = self.problem.specrA_j(Q[(j + 1) * 3:(j + 2) * 3], self.mesh[j + 1])
 
-            epsilon_2_j = self.k_2
-            epsilon_2_jp1 = self.k_2
-            epsilon_4_j = self.k_4
-            epsilon_4_jp1 = self.k_4
+            self.D2coeff_jphalf[j] = 0.5 * (self.epsilon_2[j] * sigma_j * self.problem.S(self.mesh[j]) + \
+                                            self.epsilon_2[j+1] * sigma_jp1 * self.problem.S(self.mesh[j + 1]))
+            self.D4coeff_jphalf[j] = 0.5 * (self.epsilon_4[j] * sigma_j * self.problem.S(self.mesh[j]) + \
+                                            self.epsilon_4[j+1] * sigma_jp1 * self.problem.S(self.mesh[j + 1]))
 
-            self.D2coeff_jphalf[j] = 0.5 * (epsilon_2_j * sigma_j * self.problem.S(self.mesh[j]) + \
-                                            epsilon_2_jp1 * sigma_jp1 * self.problem.S(self.mesh[j + 1]))
-            self.D4coeff_jphalf[j] = 0.5 * (epsilon_4_j * sigma_j * self.problem.S(self.mesh[j]) + \
-                                            epsilon_4_jp1 * sigma_jp1 * self.problem.S(self.mesh[j + 1]))
+    # pressure switch calculation throughout the domain
+    def setDissipationEpsilons(self, Q, Q_inlet, Q_exit):
+
+        p = np.zeros(self.M)
+        for i in range(0, self.M):
+            p[i] = (self.problem.gamma - 1.)/self.problem.S(self.mesh[i])*(Q[(i*3)+2] - 0.5*(Q[(i*3)+1]**2/Q[(i*3)+0]))
+        p_inlet = (self.problem.gamma - 1.)/self.problem.S(0.)*(Q_inlet[2] - 0.5 * Q_inlet[1]**2/Q_inlet[0])
+        p_exit = (self.problem.gamma - 1.) / self.problem.S(self.problem.length) * (Q_exit[2] - 0.5 * Q_exit[1] ** 2 / Q_exit[0])
+
+        upsilon = np.zeros(self.M)
+        for i in range(1, self.M-1):
+            upsilon[i] = np.abs((p[i+1]- 2.*p[i] + p[i-1])/(p[i+1] + 2.*p[i] + p[i-1]))
+
+        self.epsilon_2 = np.zeros(self.M)
+        self.epsilon_4 = np.zeros(self.M)
+
+        #inlet
+        upsilon[0] = np.abs((p[1]- 2.*p[0] + p_inlet)/(p[1] + 2.*p[0] + p_inlet))
+        self.epsilon_2_inlet = self.k_2*upsilon[0]
+        self.epsilon_4_inlet = np.amax([0., self.k_4 - self.epsilon_2_inlet])
+        self.epsilon_2[0] = self.k_2*np.amax([upsilon[0], upsilon[1]])
+        self.epsilon_4[0] = np.amax([0., self.k_4 - self.epsilon_2[0]])
+
+        #exit
+        upsilon[self.M-1] = np.abs((p_exit - 2. * p[self.M-1] + p[self.M-2]) /(p_exit + 2. * p[self.M-1] + p[self.M-2]))
+        self.epsilon_2_exit = self.k_2*upsilon[self.M-1]
+        self.epsilon_4_exit = np.amax([0., self.k_4 - self.epsilon_2_exit])
+        self.epsilon_2[self.M-1] = self.k_2*np.amax([upsilon[self.M-1], upsilon[self.M-2]])
+        self.epsilon_4[self.M-1] = np.amax([0., self.k_4 - self.epsilon_2[self.M-1]])
+
+        #interior
+        for i in range(1, self.M - 1):
+            self.epsilon_2[i] = self.k_2*np.amax([upsilon[i+1], upsilon[i], upsilon[i-1]])
+            self.epsilon_4[i] = np.amax([0., self.k_4 - self.epsilon_2[i]])
 
     # second-difference (first-order) dissipation
     def buildD2Residual(self, Q, Q_inlet, Q_exit):

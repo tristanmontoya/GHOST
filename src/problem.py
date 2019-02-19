@@ -8,15 +8,14 @@ class Problem:
 
     def __init__(self, problemType, L, gamma, R):
         self.problemType = problemType
-        self.length = L #m
-        self.gamma = gamma
+        self.length = L #metres
+        self.gamma = gamma #Cp/Cv
         self.R = R #N m/(kg K)
 
-
-    def setBCs_rhoin_rhouin_pout(self, rho, rhou, p):
-        self.rho_inlet = rho
-        self.rhou_inlet = rhou
-        self.p_exit = p
+    def setBCs_subsonicRiemann(self, R1_in, R3_in, R2_out):
+        self.R1_in = R1_in # u + 2a/(gamma-1)
+        self.R3_in = R3_in # ln(p/(rho^gamma)
+        self.R2_out = R2_out # u - 2a/(gamma-1)
         self.bcMode = 0
 
     def setBCs_allDirichlet(self, Q_in, Q_out):
@@ -24,18 +23,39 @@ class Problem:
         self.Q_out = Q_out
         self.bcMode = 1
 
+
+    def riemannToFlowVariables(self, R, x):
+        u = 0.5*(R[0] + R[1])
+        a = 0.25*(self.gamma - 1.)*(R[0] - R[1])
+        rho = (a**2/(self.gamma*np.exp(R[2])))**(1./(self.gamma - 1.))
+        p = rho*a**2/self.gamma
+        e = p/(self.gamma - 1.) + 0.5*rho*u**2
+        S = self.S(x)
+
+        return np.array([rho*S, rho*u*S, e*S])
+
+    def flowVariablesToRiemann(self, Q, x):
+        S = self.S(x)
+        rho = Q[0]/S
+        u = Q[1]/Q[0]
+        e = Q[2]/S
+        p = (self.gamma - 1.)*(e - 0.5*rho*u**2)
+        a = np.sqrt(self.gamma * p/rho)
+
+        return np.array([u + 2*a/(self.gamma - 1.), u - 2*a/(self.gamma - 1.), np.log(p/(rho**self.gamma))])
+
     # section area
     def S(self, x):
-        if self.problemType == 0 or self.problemType == 1: #quasi 1D
+        if self.problemType == 0: #quasi 1D
             return self.nozzle1(x)
-        if self.problemType == 2: #shock tube
+        if self.problemType == 1: #shock tube
             return 1.
 
     # section area derivative
     def dSdx(self, x):
-        if self.problemType == 0 or self.problemType == 1: #quasi 1D
+        if self.problemType == 0 : #quasi 1D
             return self.nozzle1_dSdx(x)
-        if self.problemType == 2: #shock tube
+        if self.problemType == 1: #shock tube
             return 0.
 
     def nozzle1(self, x):
@@ -53,9 +73,9 @@ class Problem:
     #evaluate the initial condition (3-vector) at point x
 
     def evaluateInitialCondition(self, x):
-        if self.problemType == 0 or self.problemType == 1:  # quasi 1D
+        if self.problemType == 0: # quasi 1D
             return self.S(x)*np.array([self.rho_0, self.rhou_0, self.e_0])
-        if self.problemType == 2:  # shock tube
+        if self.problemType == 1:  # shock tube
             return self.shockTubeInitialCondition(x)
 
     def setUinformInitialCondition(self, rho_0, rhou_0, e_0):
@@ -63,11 +83,18 @@ class Problem:
         self.rhou_0 = rhou_0
         self.e_0 = e_0
 
+    def setShockTubeInitialCondition(self, p_L, p_R, rho_L, rho_R, x_0):
+        self.p_L = p_L
+        self.p_R = p_R
+        self.rho_L = rho_L
+        self.rho_R = rho_R
+        self.x_0 = x_0
+
     def shockTubeInitialCondition(self, x):
-
-        # TODO: Shock tube IC
-
-        return
+        if x < self.x_0:
+            return np.array([self.rho_L, 0., self.p_L/(self.gamma - 1.)])
+        else:
+            return np.array([self.rho_R, 0., self.p_R / (self.gamma - 1.)])
 
     # Local flux Jacobian dE/dQ - note that E_j(Q_j) = A(Q_j) Q_j due to homogeneous property
     def A_j(self, Q_j):
