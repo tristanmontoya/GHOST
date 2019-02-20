@@ -1,12 +1,10 @@
 # Tristan Montoya - Euler 1D - Spatial Discretization
 
-# Takes in a spatialDiscretization object, returns solution
-
 import numpy as np
 
 class TemporalDiscretization:
 
-    def __init__(self, runName, spatialDiscretization, method, C, isUnsteady= False, max_its = 1000, useLocalTimeStep=False, ref_u = 300, ref_a = 315, t_f = 1.0, rel_tol = 1.e-12):
+    def __init__(self, runName, spatialDiscretization, method, C, isUnsteady= False, max_its = 1000, useLocalTimeStep=False, useDiagonalForm = False, ref_u = 300, ref_a = 315, t_f = 1.0, rel_tol = 1.e-12):
         #problem setup
         self.runName = runName
         self.spatialDiscretization = spatialDiscretization
@@ -19,12 +17,14 @@ class TemporalDiscretization:
         self.ref_u = ref_u
         self.ref_a = ref_a
         self.max_its = max_its
+        self.useDiagonalForm=useDiagonalForm
 
         #initialization
         self.t = 0.0 #initialize time at 0.0
         self.n = 0 # no time steps taken
         self.Q = spatialDiscretization.Q_0
         self.setTimeStepMatrix()
+
 
     #update matrix of inverse local time steps
     #this replaces the identity matrix term in the LHS because we have divided both sides by the time step
@@ -48,28 +48,48 @@ class TemporalDiscretization:
                 self.dt = self.C * self.spatialDiscretization.dx / (self.ref_u + self.ref_a)
                 self.T = np.eye(self.spatialDiscretization.M*3)*(1./self.dt)
 
+    def runSolver(self):
+        if self.method == 0:
+            self.implicitEuler()
+        if self.method == 1:
+            self.secondBackwards()
+
     def implicitEuler(self):
         if self.isUnsteady:
-            R = self.spatialDiscretization.buildFlowResidual(self.Q)
+            R = self.implicitEulerRHS()
             for n in range(0,self.n_f):
-            #for n in range(0, 0):
-                dQ = np.linalg.solve(self.implicitEulerSystemMatrix(), R)
+                X = np.linalg.solve(self.implicitEulerLHS(), R)
+
+                if self.useDiagonalForm:
+                    dQ = np.zeros(3*self.spatialDiscretization.M)
+                    for j in range(0, self.spatialDiscretization.M):
+                        dQ[j*3:(j+1)*3] = self.spatialDiscretization.T_j[j, :, :] @ X[j*3:(j+1)*3]
+                else:
+                    dQ = X
+
                 self.Q = self.Q + dQ
-                R = self.spatialDiscretization.buildFlowResidual(self.Q)
+                R = self.implicitEulerRHS()
                 self.t = self.t + self.dt
                 print("step: ", n+1, "time: ", self.t)
 
-
         else:
-            R = self.spatialDiscretization.buildFlowResidual(self.Q)
+            R = self.implicitEulerRHS()
             res_0 = np.linalg.norm(R)
             res = res_0
             self.resHistory = [res_0]
 
             while res/res_0 > self.rel_tol and self.n < self.max_its:
-                dQ = np.linalg.solve(self.implicitEulerSystemMatrix(), R)
+                X = np.linalg.solve(self.implicitEulerLHS(), R)
+
+                if self.useDiagonalForm:
+                    dQ = np.zeros(3*self.spatialDiscretization.M)
+                    for j in range(0, self.spatialDiscretization.M):
+                        dQ[j*3:(j+1)*3] = self.spatialDiscretization.T_j[j, :, :] @ X[j*3:(j+1)*3]
+                else:
+                    dQ = X
+
                 self.Q = self.Q + dQ
-                R = self.spatialDiscretization.buildFlowResidual(self.Q)
+                R = self.implicitEulerRHS()
                 self.n = self.n + 1
                 res = np.linalg.norm(R)
                 self.resHistory.append(res)
@@ -78,11 +98,84 @@ class TemporalDiscretization:
             self.saveResidualHistory()
         self.saveResults()
 
-    def implicitEulerSystemMatrix(self):
+    def secondBackwards(self):
+        if self.isUnsteady:
+
+            #first step implicit Euler
+            R = self.implicitEulerRHS()
+            X = np.linalg.solve(self.implicitEulerLHS(), R)
+            if self.useDiagonalForm:
+                dQ = np.zeros(3 * self.spatialDiscretization.M)
+                for j in range(0, self.spatialDiscretization.M):
+                    dQ[j * 3:(j + 1) * 3] = self.spatialDiscretization.T_j[j, :, :] @ X[j * 3:(j + 1) * 3]
+            else:
+                dQ = X
+
+            self.dQ_previous = dQ
+            self.Q = self.Q + dQ
+            R = self.secondBackwardsRHS()
+            self.t = self.t + self.dt
+            print("step: ", 1, "time: ", self.t)
+
+            #second-order backwards
+            for n in range(1, self.n_f):
+                X = np.linalg.solve(self.secondBackwardsLHS(), R)
+
+                if self.useDiagonalForm:
+                    dQ = np.zeros(3 * self.spatialDiscretization.M)
+                    for j in range(0, self.spatialDiscretization.M):
+                        dQ[j * 3:(j + 1) * 3] = self.spatialDiscretization.T_j[j, :, :] @ X[j * 3:(j + 1) * 3]
+                else:
+                    dQ = X
+
+                self.dQ_previous = dQ
+                self.Q = self.Q + dQ
+                R = self.secondBackwardsRHS()
+                self.t = self.t + self.dt
+                print("step: ", n + 1, "time: ", self.t)
+
+        else:
+            R = self.implicitEulerRHS()
+            res_0 = np.linalg.norm(R)
+            self.resHistory = [res_0]
+
+            print("For steady problems, use implicit Euler.")
+
+            self.saveResidualHistory()
+        self.saveResults()
+
+    def implicitEulerLHS(self):
         if self.useLocalTimeStep:
             self.setTimeStepMatrix()
+        if self.useDiagonalForm:
+            return self.T - self.spatialDiscretization.buildFlowJacobianDiagonalForm(self.Q)
+        else:
+            return self.T - self.spatialDiscretization.buildFlowJacobian(self.Q)
 
-        return self.T - self.spatialDiscretization.buildFlowJacobian(self.Q)
+    def secondBackwardsLHS(self):
+        if self.useLocalTimeStep:
+            self.setTimeStepMatrix()
+        if self.useDiagonalForm:
+            return self.T - 2./3.*self.spatialDiscretization.buildFlowJacobianDiagonalForm(self.Q)
+        else:
+            return self.T - 2./3.*self.spatialDiscretization.buildFlowJacobian(self.Q)
+
+    def implicitEulerRHS(self):
+        if self.useDiagonalForm:
+            return self.spatialDiscretization.buildFlowResidualDiagonalForm(self.Q)
+        else:
+            return self.spatialDiscretization.buildFlowResidual(self.Q)
+
+    def secondBackwardsRHS(self):
+        if self.useDiagonalForm:
+            X_previous = np.zeros(3*self.spatialDiscretization.M)
+
+            # Need to have entire RHS multiplied by T^-1
+            for j in range(0, self.spatialDiscretization.M):
+                X_previous[j * 3:(j + 1) * 3] = self.spatialDiscretization.T_j_inv[j, :, :] @ self.dQ_previous[j * 3:(j + 1) * 3]
+            return 1./3.*self.T @ X_previous + 2./3.*self.spatialDiscretization.buildFlowResidualDiagonalForm(self.Q)
+        else:
+            return 1./3.*self.T @ self.dQ_previous + 2./3.*self.spatialDiscretization.buildFlowResidual(self.Q)
 
     def saveResidualHistory(self):
         resHistory = np.array([np.arange(0,len(self.resHistory)), self.resHistory])

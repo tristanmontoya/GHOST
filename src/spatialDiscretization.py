@@ -1,8 +1,5 @@
 # Tristan Montoya - Euler 1D - Spatial Discretization
 
-# High-order code and this will inherit from the same base class
-# Takes in a Problem object, gets passed to temporalDiscretization which solves the resulting ODE
-
 import numpy as np
 import scipy as sp
 
@@ -81,6 +78,23 @@ class SpatialDiscretization:
         R = R + self.buildD2Residual(Q, Q_inlet, Q_exit) + self.buildD4Residual(Q, Q_inlet, Q_exit)
 
         return R
+
+    # Only difference here is multiplication by T^-1
+    def buildFlowResidualDiagonalForm(self, Q, updateDissipation=True):
+
+        self.T_j = np.zeros(shape = (self.M, 3, 3))
+        self.T_j_inv = np.zeros(shape=(self.M, 3, 3))
+        self.Diag =  np.zeros(shape=(self.M, 3, 3))
+        R_diagform = np.zeros(self.M*3)
+
+        R = self.buildFlowResidual(Q, updateDissipation)
+
+        for i in range(0, self.M):
+            self.T_j[i, :, :], self.T_j_inv[i, :, :], self.Diag[i, :, :] = self.problem.eigsA_j(Q[i*3:(i+1)*3], self.mesh[i])
+            R_diagform[i*3:(i+1)*3] = self.T_j_inv[i, :, :] @ R[i*3:(i+1)*3]
+
+        return R_diagform
+
 
     # update (epsilon^(2)*sigma)_j+1/2 and (epsilon^(4)*sigma)_j+1/2 based on flow solution
 
@@ -242,6 +256,23 @@ class SpatialDiscretization:
 
         dRdQ = dRdQ + self.buildD2Jacobian() + self.buildD4Jacobian()
         return dRdQ
+
+    # Build flow Jacobian dR/dQ for entire mesh
+    def buildFlowJacobianDiagonalForm(self, Q):
+        dRdQ = np.zeros(shape=[3*self.M, 3*self.M])
+        for i in range(0, self.M):
+            #diagonal element zeros, neglect source term contribution
+
+            #sub-diagonal
+            if i > 0:
+                dRdQ[i * 3:(i + 1) * 3, (i-1) * 3:(i) * 3] = 1./(2.*self.dx)*self.Diag[i-1, :, :]
+            #super-diagonal
+            if i < self.M-1:
+                dRdQ[i * 3:(i + 1) * 3, (i+1) * 3:(i+2) * 3] = -1./(2.*self.dx)*self.Diag[i+1, :, :]
+
+        dRdQ = dRdQ + self.buildD2Jacobian() + self.buildD4Jacobian()
+        return dRdQ
+
 
     # Build dD2/dQ for entire mesh
     def buildD2Jacobian(self):

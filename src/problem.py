@@ -1,7 +1,5 @@
 # Tristan Montoya - Euler 1D - Problem Setup
 
-# Defines all *physical* (not numerical) aspects of the problem
-
 import numpy as np
 
 class Problem:
@@ -70,8 +68,6 @@ class Problem:
         else:
             return 0.04*x - 0.2
 
-    #evaluate the initial condition (3-vector) at point x
-
     def evaluateInitialCondition(self, x):
         if self.problemType == 0: # quasi 1D
             return self.S(x)*np.array([self.rho_0, self.rhou_0, self.e_0])
@@ -123,32 +119,25 @@ class Problem:
 
 
 
-    # diagonalization of the flux Jacobian (use for diagonal form, must then return lambda and X)
-    def eigsA_j(self, Q_j):
-        A = self.A_j(Q_j)
+    # diagonalization of the flux Jacobian (use for diagonal form)
+    def eigsA_j(self, Q_j, x):
+        S = self.S(x)
+        rho = Q_j[0]/S
+        u = Q_j[1]/Q_j[0]
+        e = Q_j[2]/S
+        p = (self.gamma - 1.)*(e - 0.5*rho*u**2)
+        a = np.sqrt(self.gamma * p/rho)
+        alpha = rho/(np.sqrt(2.)*a)
 
-        lamda, X = np.linalg.eig(A)
+        Diag = np.diag([u, u+a, u-a])
 
-        #order u-a, u, u+a
-        idx = np.argsort(lamda)
-        lamda = lamda[idx]
-        X = X[:,idx]
+        T = [[1., alpha, alpha],
+             [u, alpha*(u+a), alpha*(u-a)],
+             [0.5*u**2, alpha*(0.5*u**2 + u*a + a**2/(self.gamma - 1)), alpha*(0.5*u**2 - u*a + a**2/(self.gamma - 1))]]
 
-        X_inv = np.linalg.inv(X)
-        X_inv_plus = np.zeros(shape=[3,3])
-        X_inv_minus = np.zeros(shape=[3, 3])
+        T_inv = np.linalg.inv(T)
 
-        #split left and right running characteristics
-        for m in range(0, 3):
-            if lamda[m] > 0:
-                X_inv_plus[m, :] = X_inv[m, :]
-            else:
-                X_inv_minus[m, :] = X_inv[m, :]
-
-        w_plus = X_inv_plus @ Q_j
-        w_minus = X_inv_minus @ Q_j
-
-        return w_plus, w_minus, X_inv_plus, X_inv_minus
+        return T, T_inv, Diag
 
     #spectral radius of A_j
     def specrA_j(self, Q_j, x):
