@@ -1,4 +1,4 @@
-# Tristan Montoya - Euler 1D - Spatial Discretization
+# Tristan Montoya - Euler 1D - Temporal Discretization and Iterative Methods
 
 import numpy as np
 

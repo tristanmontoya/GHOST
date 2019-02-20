@@ -2,30 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2baa223a-abd7-41d9-be55-46b5d42979a2" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/EulerDriver1D_tosubmit.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/density_shocktube.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/density_shocktube.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/epsilon2_shocktube.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/epsilon2_shocktube.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/epsilon2_subsonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/epsilon2_subsonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/epsilon2_transonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/epsilon2_transonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/epsilon4_shocktube.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/epsilon4_shocktube.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/epsilon4_subsonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/epsilon4_subsonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/epsilon4_transonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/epsilon4_transonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/mach_shocktube.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/mach_shocktube.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/mach_subsonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/mach_subsonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/mach_transonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/mach_transonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/pressure_subsonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/pressure_subsonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/pressure_transonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/pressure_transonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/resHistory_subsonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/resHistory_subsonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/resHistory_transonic.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/resHistory_transonic.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results/shocktube_results.npy" beforeDir="false" afterPath="$PROJECT_DIR$/results/shocktube_results.npy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results/subsonic_resHistory.npy" beforeDir="false" afterPath="$PROJECT_DIR$/results/subsonic_resHistory.npy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results/subsonic_results.npy" beforeDir="false" afterPath="$PROJECT_DIR$/results/subsonic_results.npy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results/transonic_resHistory.npy" beforeDir="false" afterPath="$PROJECT_DIR$/results/transonic_resHistory.npy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/results/transonic_results.npy" beforeDir="false" afterPath="$PROJECT_DIR$/results/transonic_results.npy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/EulerDriver1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/EulerDriver1D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/problem.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/problem.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/spatialDiscretization.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/spatialDiscretization.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/temporalDiscretization.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/temporalDiscretization.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -56,11 +32,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/EulerDriver1D_tosubmit.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="558">
-              <caret line="191" selection-start-line="191" selection-end-line="193" />
+            <state relative-caret-position="258">
+              <caret line="171" column="47" lean-forward="true" selection-start-line="171" selection-start-column="47" selection-end-line="171" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -86,11 +62,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/temporalDiscretization.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1084">
-              <caret line="178" lean-forward="true" selection-start-line="178" selection-end-line="178" />
+            <state>
+              <caret column="76" selection-start-column="76" selection-end-column="76" />
             </state>
           </provider>
         </entry>
@@ -147,9 +123,9 @@
         <option value="$PROJECT_DIR$/src/analyticalSolution.py" />
         <option value="$PROJECT_DIR$/src/problem.py" />
         <option value="$PROJECT_DIR$/src/spatialDiscretization.py" />
-        <option value="$PROJECT_DIR$/src/temporalDiscretization.py" />
         <option value="$PROJECT_DIR$/src/EulerDriver1D.py" />
         <option value="$PROJECT_DIR$/src/EulerDriver1D_tosubmit.py" />
+        <option value="$PROJECT_DIR$/src/temporalDiscretization.py" />
       </list>
     </option>
   </component>
@@ -359,7 +335,7 @@
       <workItem from="1548648007994" duration="3897000" />
       <workItem from="1548726810546" duration="16983000" />
       <workItem from="1550099104530" duration="21824000" />
-      <workItem from="1550277256317" duration="104160000" />
+      <workItem from="1550277256317" duration="104874000" />
     </task>
     <servers />
   </component>
@@ -378,7 +354,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="146864000" />
+    <option name="totallyTimeSpent" value="147578000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="546" y="34" width="1812" height="1406" extended-state="0" />
@@ -389,7 +365,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.42834768" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.42834768" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -403,7 +379,7 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info active="true" anchor="right" id="SciView" order="3" visible="true" weight="0.43657985" />
+      <window_info anchor="right" id="SciView" order="3" visible="true" weight="0.43657985" />
       <window_info anchor="right" id="Database" order="4" />
     </layout>
     <layout-to-restore>
@@ -477,13 +453,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/temporalDiscretization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1084">
-          <caret line="178" lean-forward="true" selection-start-line="178" selection-end-line="178" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/EulerDriver1D.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="454">
@@ -496,8 +465,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/EulerDriver1D_tosubmit.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="191" selection-start-line="191" selection-end-line="193" />
+        <state relative-caret-position="258">
+          <caret line="171" column="47" lean-forward="true" selection-start-line="171" selection-start-column="47" selection-end-line="171" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/temporalDiscretization.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="76" selection-start-column="76" selection-end-column="76" />
         </state>
       </provider>
     </entry>
