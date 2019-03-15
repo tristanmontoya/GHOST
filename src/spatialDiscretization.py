@@ -20,6 +20,28 @@ class SpatialDiscretization:
         self.mesh = grid_with_boundaries[1:self.M+1]
         self.dx = self.problem.length/(self.M+1.)
 
+    def meshGenMultigrid(self, n_grid_levels):
+        self.meshes = []
+        self.spacings = []
+
+        if (self.M + 1) % (2**(n_grid_levels - 1)) != 0:
+            print("Incorrect number of nodes")
+            return
+
+        m = self.M
+        for i in range(0,n_grid_levels):
+            print(m)
+            mesh_i = np.linspace(0., self.problem.length, num=(m + 2))[1:m+1]
+            dx_i = self.problem.length/(m+1.)
+            self.meshes.append(np.copy(mesh_i) )
+            self.spacings.append(dx_i)
+            m = (m+1)//2 - 1
+
+    def setMeshMultigrid(self, gridLevel):
+        self.mesh = np.copy(self.meshes[gridLevel])
+        self.M = len(self.mesh)
+        self.dx = self.spacings[gridLevel]
+
     def evaluateInitialConditionOnMesh(self):
         self.Q_0 = np.ones(3*self.M)
         for i in range(0,self.M):
@@ -79,7 +101,25 @@ class SpatialDiscretization:
 
         return R
 
-    # Only difference here is multiplication by T^-1
+    #Note this is R(Q) in dQ/dt = R(Q) + R_D4(Q) + R_D2(Q)
+    def buildFlowResidualInviscid(self, Q, Q_inlet, Q_exit):
+        M = self.M
+        R = np.zeros(M * 3)
+
+        #interior points not including first and last (here indexed 0 and M-1)
+        for j in range(1, M-1):
+            R[j*3:(j+1)*3] = -self.delta_E_j(Q[(j-1)*3:j*3], Q[(j+1)*3:(j+2)*3]) \
+                   + self.problem.H_j(Q[j*3:(j+1)*3],self.mesh[j])
+
+        #inlet
+        R[0:3] = -self.delta_E_j(Q_inlet, Q[3:6]) + self.problem.H_j(Q[0:3], self.mesh[0])
+
+        #exit
+        R[(M-1)*3:(M)*3] = -self.delta_E_j(Q[(M-2)*3:(M-1)*3], Q_exit) + self.problem.H_j(Q[(M-1)*3:M*3], self.mesh[M-1])
+
+        return R
+
+    # Only difference here is multiplication by T^-1 (only used in implicit algorithm)
     def buildFlowResidualDiagonalForm(self, Q, updateDissipation=True):
 
         self.T_j = np.zeros(shape = (self.M, 3, 3))

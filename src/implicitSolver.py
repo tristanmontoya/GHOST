@@ -2,7 +2,7 @@
 
 import numpy as np
 
-class TemporalDiscretization:
+class implicitSolver:
 
     def __init__(self, runName, spatialDiscretization, method, C, isUnsteady= False, max_its = 1000, useLocalTimeStep=False, useDiagonalForm = False, ref_u = 300, ref_a = 315, t_f = 1.0, rel_tol = 1.e-12):
         #problem setup
