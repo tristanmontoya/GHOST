@@ -10,16 +10,21 @@ class Problem:
         self.gamma = gamma #Cp/Cv
         self.R = R #N m/(kg K)
 
-    def setBCs_subsonicRiemann(self, R1_in, R3_in, R2_out):
+    def setBCs_subsonicRiemann(self, R1_in, R3_in, R2_out, useLinearExtrapolation=False):
         self.R1_in = R1_in # u + 2a/(gamma-1)
         self.R3_in = R3_in # ln(p/(rho^gamma)
         self.R2_out = R2_out # u - 2a/(gamma-1)
-        self.bcMode = 0
+        if useLinearExtrapolation:
+            self.bcMode = 2
+        else:
+            self.bcMode = 0
+
 
     def setBCs_allDirichlet(self, Q_in, Q_out):
         self.Q_in = Q_in
         self.Q_out = Q_out
         self.bcMode = 1
+
 
 
     def riemannToFlowVariables(self, R, x):

@@ -8,7 +8,8 @@ from spatialDiscretization import *
 from implicitSolver import *
 from explicitSolver import *
 
-def testFLOMG(M, C, k_2, k_4, S_star, p_01, T_01, gamma, R, figtitle, x_shock=100):
+def explicitQuasi1DDriver(M, C, k_2, k_4, S_star, p_01, T_01, gamma, R, figtitle, useIRS=True,
+                          useMG=False, n_grids=4, max_its=600, x_shock=100):
     np.set_printoptions(suppress=True,linewidth=np.nan,threshold=np.nan)
     res = 1000
 
@@ -32,16 +33,15 @@ def testFLOMG(M, C, k_2, k_4, S_star, p_01, T_01, gamma, R, figtitle, x_shock=10
 
     R_in = q1D.flowVariablesToRiemann(Q_in, 0.)
     R_out = q1D.flowVariablesToRiemann(Q_out, 10.)
-    q1D.setBCs_subsonicRiemann(R_in[0], R_in[2], R_out[1])
+    q1D.setBCs_subsonicRiemann(R_in[0], R_in[2], R_out[1], useLinearExtrapolation=True)
 
     #set up spatial discretization
     fdScheme = SpatialDiscretization(q1D, M, k_2, k_4)
-    fdScheme.meshGenMultigrid(4)
 
     #run iterations and save to file
-    timeMarch = explicitSolver(figtitle, fdScheme,  C, alpha=[1./4., 1./6., 3./8., 0.5, 1.0], max_its = 4000,
-                 useLocalTimeStep=True, implicitResidualSmoothing=True, gamma_3 = 0.56, gamma_5 = 0.44,
-                 multiGrid=False, n_grids=1, ref_u = 300, ref_a = 315, rel_tol = 1.e-10)
+    timeMarch = explicitSolver(figtitle, fdScheme,  C, alpha=[1./4., 1./6., 3./8., 0.5, 1.0], max_its = max_its,
+                 useLocalTimeStep=True, implicitResidualSmoothing=useIRS, gamma_3 = 0.56, gamma_5 = 0.44,
+                 multiGrid=useMG, n_grids=n_grids, ref_u = 300, ref_a = 315, rel_tol = 1.e-12)
 
     timeMarch.runSolver()
 
@@ -120,7 +120,7 @@ def createPlotsQuasi1D(figtitle):
     plt.grid()
     plt.semilogy(resHistory[0, :], resHistory[1, :]/resHistory[1, 0], '-k', label="Block Form")
     plt.xlabel("Iteration")
-    plt.xlim(xmin = 0)
+    plt.xlim(xmin = 0, xmax = 600)
     plt.ylim(1.e-12, 1.e0)
     plt.ylabel("Relative Residual Norm")
     plt.legend()
@@ -150,8 +150,43 @@ def createPlotsQuasi1D(figtitle):
     epsilon4.savefig("../plots/epsilon4_" + figtitle + ".pdf", bbox_inches='tight')
 
 
+def createResPlots(names, labels,max_its):
+    n_plots = len(names)
+
+    resPlot = plt.figure()
+    plt.grid()
+    plt.xlabel("Iteration")
+    plt.xlim(xmin = 0, xmax = max_its)
+    plt.ylim(1.e-12, 1.e0)
+    plt.ylabel("Relative Residual Norm (Mass)")
+    nametotal = ""
+
+    for i in range(0, n_plots):
+        resHistory = np.load("../results/" + names[i] + "_resHistory.npy")
+        plt.semilogy(resHistory[0, :], resHistory[1, :]/resHistory[1, 0], '-', label=labels[i])
+        nametotal = nametotal + "_" + names[i]
+
+    plt.legend()
+    plt.show()
+    resPlot.savefig("../plots/resHistory_" + nametotal + ".pdf", bbox_inches='tight')
+
+
+
 #implicitQuasi1DDriver(99, 80., 0.0, 0.02, 0.8, 1.e5, 300., 1.4, 287, "subsonic_block_test_new", useDiagonalForm=False)
 #createPlotsQuasi1D("subsonic_block_test_new")
 
-testFLOMG(103, 7., 0.0, 1./32., 0.8, 1.e5, 300., 1.4, 287, "testFloMG")
-createPlotsQuasi1D("testFloMG")
+# explicitQuasi1DDriver(103, 3., 0.5, 1.0/32.0, 0.8, 1.e5, 300., 1.4, 287, "subsonic_C3", useIRS=False, )
+# explicitQuasi1DDriver(103, 7., 0.5, 1.0/32.0, 0.8, 1.e5, 300., 1.4, 287, "subsonic_C7_irsB0.6_smoothbounds_linear", useIRS=True)
+# createResPlots(["subsonic_C3","subsonic_C7_irsB0.6_smoothbounds_linear"], 600)
+
+
+
+# explicitQuasi1DDriver(103, 3., 0.5, 1.0/32.0, 1.0, 1.e5, 300., 1.4, 287, "transonic_C3", x_shock=7.0, useIRS=False, max_its=4000)
+#explicitQuasi1DDriver(103, 7., 0.5, 1.0/32.0, 1.0, 1.e5, 300., 1.4, 287, "transonic_C7_irsB0.6", x_shock=7.0,  useIRS=True, max_its=4000)
+#createResPlots(["transonic_C3","transonic_C7_irsB0.6"], 4000)
+#createPlotsQuasi1D("transonic_C7_irsB0.6")
+
+
+#explicitQuasi1DDriver(103, 7., 0.5, 1.0/32.0, 0.8, 1.e5, 300., 1.4, 287, "subsonic_C7_mg", useMG=True, n_grids=2, useIRS=True, max_its=600)
+createResPlots(["subsonic_C7_mg"], ["$M = 103$, 4 Grid V-Cycle, IRS with $ \\beta=0.6 $, $C_n = 7$"], 200)
+#createPlotsQuasi1D("subsonic_C7_mg_dontsmoothbounds")

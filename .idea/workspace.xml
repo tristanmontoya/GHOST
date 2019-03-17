@@ -2,14 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2baa223a-abd7-41d9-be55-46b5d42979a2" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/EulerDriverFLOMG.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/explicitSolver.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/implicitSolver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/EulerDriver1D.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/EulerDriver1D_tosubmit.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/epsilon2_testFloMG.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/epsilon2_testFloMG.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/epsilon4_testFloMG.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/epsilon4_testFloMG.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/mach_testFloMG.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/mach_testFloMG.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/pressure_testFloMG.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/pressure_testFloMG.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/resHistory_testFloMG.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/resHistory_testFloMG.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_resHistory.npy" beforeDir="false" afterPath="$PROJECT_DIR$/results/testFloMG_resHistory.npy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_results.npy" beforeDir="false" afterPath="$PROJECT_DIR$/results/testFloMG_results.npy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/EulerDriverFLOMG.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/EulerDriverFLOMG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/explicitSolver.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/explicitSolver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/problem.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/problem.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/spatialDiscretization.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/spatialDiscretization.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/temporalDiscretization.py" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,7 +23,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/Euler$temporalDiscretization.coverage" NAME="temporalDiscretization Coverage Results" MODIFIED="1550345862057" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/Euler$EulerDriverFLOMG.coverage" NAME="EulerDriverFLOMG Coverage Results" MODIFIED="1552624778323" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/Euler$EulerDriverFLOMG.coverage" NAME="EulerDriverFLOMG Coverage Results" MODIFIED="1552790324181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$EulerDriver1D_tosubmit.coverage" NAME="EulerDriver1D_tosubmit Coverage Results" MODIFIED="1550672961170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$Euler.coverage" NAME="Euler Coverage Results" MODIFIED="1550672955034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$problem.coverage" NAME="problem Coverage Results" MODIFIED="1550543387985" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
@@ -29,11 +33,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/EulerDriverFLOMG.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="580">
-              <caret line="156" column="31" lean-forward="true" selection-start-line="156" selection-start-column="31" selection-end-line="156" selection-end-column="31" />
+            <state relative-caret-position="775">
+              <caret line="150" lean-forward="true" selection-start-line="150" selection-end-line="150" />
               <folding>
                 <element signature="e#55#73#0" expanded="true" />
               </folding>
@@ -44,8 +48,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/spatialDiscretization.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="885">
-              <caret line="98" column="27" lean-forward="true" selection-start-line="98" selection-start-column="27" selection-end-line="98" selection-end-column="27" />
+            <state relative-caret-position="-450">
+              <caret line="18" column="29" selection-start-line="18" selection-start-column="29" selection-end-line="18" selection-end-column="29" />
               <folding>
                 <element signature="e#55#73#0" expanded="true" />
               </folding>
@@ -56,20 +60,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/implicitSolver.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-450">
-              <caret line="24" selection-start-line="24" selection-end-line="25" selection-end-column="32" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/explicitSolver.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="137" column="64" selection-start-line="137" selection-start-column="64" selection-end-line="137" selection-end-column="64" />
-              <folding>
-                <element signature="e#78#96#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="990">
+              <caret line="66" column="21" lean-forward="true" selection-start-line="66" selection-start-column="21" selection-end-line="66" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -77,8 +69,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/problem.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="9" column="33" lean-forward="true" selection-start-line="9" selection-start-column="33" selection-end-line="9" selection-end-column="33" />
+            <state relative-caret-position="587">
+              <caret line="123" lean-forward="true" selection-start-line="123" selection-end-line="123" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/explicitSolver.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1180">
+              <caret line="313" lean-forward="true" selection-start-line="313" selection-end-line="313" />
+              <folding>
+                <element signature="e#78#96#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -104,12 +108,20 @@
       <find>getBoundar</find>
       <find>getBo</find>
       <find>getBose</find>
+      <find>B</find>
+      <find>subsonicRi</find>
+      <find>restrict</find>
+      <find>restricted</find>
+      <find>R_</find>
     </findStrings>
     <replaceStrings>
       <replace>Q_j</replace>
       <replace>setDissCoeff</replace>
       <replace>self.epsilon_4_exit</replace>
       <replace>self.epsilon_2[j]</replace>
+      <replace>prolonged</replace>
+      <replace>R</replace>
+      <replace>Q_</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -119,11 +131,11 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/src/analyticalSolution.py" />
-        <option value="$PROJECT_DIR$/src/problem.py" />
         <option value="$PROJECT_DIR$/src/EulerDriver1D_tosubmit.py" />
         <option value="$PROJECT_DIR$/src/temporalDiscretization.py" />
         <option value="$PROJECT_DIR$/src/EulerDriver1D.py" />
         <option value="$PROJECT_DIR$/src/implicitSolver.py" />
+        <option value="$PROJECT_DIR$/src/problem.py" />
         <option value="$PROJECT_DIR$/src/spatialDiscretization.py" />
         <option value="$PROJECT_DIR$/src/explicitSolver.py" />
         <option value="$PROJECT_DIR$/src/EulerDriverFLOMG.py" />
@@ -131,10 +143,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="77" />
-    <option name="y" value="69" />
+    <option name="x" value="67" />
+    <option name="y" value="59" />
     <option name="width" value="1497" />
-    <option name="height" value="1293" />
+    <option name="height" value="1270" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -331,7 +343,7 @@
       <workItem from="1551915659962" duration="31000" />
       <workItem from="1552179048314" duration="1206000" />
       <workItem from="1552221781105" duration="81000" />
-      <workItem from="1552531714046" duration="31789000" />
+      <workItem from="1552531714046" duration="75253000" />
     </task>
     <servers />
   </component>
@@ -350,33 +362,32 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="182350000" />
+    <option name="totallyTimeSpent" value="225814000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="77" y="69" width="1497" height="1293" extended-state="0" />
-    <editor active="true" />
+    <frame x="67" y="59" width="1497" height="1270" extended-state="0" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.19601838" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.42783505" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4996554" weight="0.39948454" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Debug" order="2" sideWeight="0.4996554" weight="0.39948454" />
+      <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="5" />
+      <window_info anchor="bottom" id="Docker" order="6" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Run" order="7" weight="0.42783505" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32903782" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5010338" side_tool="true" weight="0.3676976" />
-      <window_info anchor="bottom" id="Terminal" order="11" />
-      <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.49896622" visible="true" weight="0.3676976" />
-      <window_info anchor="right" x="0" y="0" width="390" height="1206" id="Documentation" sideWeight="0.50128865" side_tool="true" weight="0.25637493" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5010338" side_tool="true" weight="0.38659793" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.3298969" />
+      <window_info anchor="bottom" x="1517" y="279" width="1461" height="852" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" visible="true" weight="0.38650307" />
+      <window_info anchor="right" x="0" y="0" width="390" height="1206" id="Documentation" sideWeight="0.5004382" side_tool="true" visible="true" weight="0.37835976" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info active="true" anchor="right" id="SciView" order="3" sideWeight="0.49871135" visible="true" weight="0.3604411" />
+      <window_info active="true" anchor="right" id="SciView" order="3" sideWeight="0.4995618" visible="true" weight="0.37835976" />
       <window_info anchor="right" id="Database" order="4" />
     </layout>
     <layout-to-restore>
@@ -426,47 +437,47 @@
   <component name="debuggerHistoryManager">
     <expressions id="evaluateExpression">
       <expression>
+        <expression-string>self.n_grids</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>self.spatialDiscretization.meshes</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>self.spatialDiscretization.spacings</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>self.spatialDiscretization.M</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>grid_level</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>Q_restricted</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>Q_mass</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>R - Rfull</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
         <expression-string>Rfull</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>R</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>self.Tmat</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>self.alpha[4]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>self.alpha[3]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>self.alpha[2]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>self.alpha[1]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>self.alpha[0]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -513,17 +524,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/problem.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="33" lean-forward="true" selection-start-line="9" selection-start-column="33" selection-end-line="9" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/spatialDiscretization.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="885">
-          <caret line="98" column="27" lean-forward="true" selection-start-line="98" selection-start-column="27" selection-end-line="98" selection-end-column="27" />
+        <state relative-caret-position="-450">
+          <caret line="18" column="29" selection-start-line="18" selection-start-column="29" selection-end-line="18" selection-end-column="29" />
           <folding>
             <element signature="e#55#73#0" expanded="true" />
           </folding>
@@ -532,27 +536,34 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/implicitSolver.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-450">
-          <caret line="24" selection-start-line="24" selection-end-line="25" selection-end-column="32" />
+        <state relative-caret-position="990">
+          <caret line="66" column="21" lean-forward="true" selection-start-line="66" selection-start-column="21" selection-end-line="66" selection-end-column="21" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/explicitSolver.py">
+    <entry file="file://$PROJECT_DIR$/src/problem.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="137" column="64" selection-start-line="137" selection-start-column="64" selection-end-line="137" selection-end-column="64" />
-          <folding>
-            <element signature="e#78#96#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="587">
+          <caret line="123" lean-forward="true" selection-start-line="123" selection-end-line="123" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/EulerDriverFLOMG.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="580">
-          <caret line="156" column="31" lean-forward="true" selection-start-line="156" selection-start-column="31" selection-end-line="156" selection-end-column="31" />
+        <state relative-caret-position="775">
+          <caret line="150" lean-forward="true" selection-start-line="150" selection-end-line="150" />
           <folding>
             <element signature="e#55#73#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/explicitSolver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1180">
+          <caret line="313" lean-forward="true" selection-start-line="313" selection-end-line="313" />
+          <folding>
+            <element signature="e#78#96#0" expanded="true" />
           </folding>
         </state>
       </provider>

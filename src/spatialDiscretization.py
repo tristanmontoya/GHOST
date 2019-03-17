@@ -57,7 +57,7 @@ class SpatialDiscretization:
     # specify/extrapolate BCs- assuming all subsonic, zeroth order extrapolation
     def getBoundaryData(self, Q):
         if self.problem.bcMode == 0:
-            #Riemann
+            #Riemann, zeroth order extrapolation
             R_0 = self.problem.flowVariablesToRiemann(Q[0:3], self.mesh[0])
             Q_inlet = self.problem.riemannToFlowVariables(np.array([self.problem.R1_in, R_0[1], self.problem.R3_in]), 0.)
             R_Mm1 = self.problem.flowVariablesToRiemann(Q[(self.M-1)*3:self.M*3], self.mesh[self.M-1])
@@ -69,6 +69,20 @@ class SpatialDiscretization:
             #full Q specified
             Q_inlet = self.problem.Q_in
             Q_exit = self.problem.Q_out
+            return Q_inlet, Q_exit
+
+        if self.problem.bcMode == 2:
+            #Riemann, linear extrapolation
+            R_0 = self.problem.flowVariablesToRiemann(Q[0:3], self.mesh[0])
+            R_1 = self.problem.flowVariablesToRiemann(Q[3:6], self.mesh[1])
+
+            Q_inlet = self.problem.riemannToFlowVariables(np.array([self.problem.R1_in,2.*R_0[1] - R_1[1],
+                                                                    self.problem.R3_in]), 0.)
+            R_Mm1 = self.problem.flowVariablesToRiemann(Q[(self.M - 1) * 3:self.M * 3], self.mesh[self.M - 1])
+            R_Mm2 = self.problem.flowVariablesToRiemann(Q[(self.M - 2) * 3:(self.M - 1)* 3], self.mesh[self.M -2])
+            Q_exit = self.problem.riemannToFlowVariables(np.array([2.*R_Mm1[0] - R_Mm2[0],
+                                                            self.problem.R2_out, 2.*R_Mm1[2] - R_Mm2[2]]),
+                                                            self.problem.length)
             return Q_inlet, Q_exit
 
     # Build R(Q) for dQ/dt = R(Q) + D(Q), D(Q) dissipation
