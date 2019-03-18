@@ -4,11 +4,13 @@ import numpy as np
 
 class Problem:
 
-    def __init__(self, problemType, L, gamma, R):
+    def __init__(self, problemType, L, gamma, R, fluxFunction='roe'):
         self.problemType = problemType
         self.length = L #metres
         self.gamma = gamma #Cp/Cv
         self.R = R #N m/(kg K)
+        self.n_eq = 3
+        self.fluxFunction = fluxFunction
 
     def setBCs_subsonicRiemann(self, R1_in, R3_in, R2_out, useLinearExtrapolation=False):
         self.R1_in = R1_in # u + 2a/(gamma-1)
@@ -24,7 +26,6 @@ class Problem:
         self.Q_in = Q_in
         self.Q_out = Q_out
         self.bcMode = 1
-
 
 
     def riemannToFlowVariables(self, R, x):
@@ -122,8 +123,6 @@ class Problem:
         p = (self.gamma - 1.)/self.S(x) * (Q_j[2] - 0.5*Q_j[1]**2/Q_j[0])
         return np.array([0., p*self.dSdx(x), 0.])
 
-
-
     # diagonalization of the flux Jacobian (use for diagonal form)
     def eigsA_j(self, Q_j, x):
         S = self.S(x)
@@ -150,3 +149,46 @@ class Problem:
         p_j = (self.gamma - 1.) * (q_j[2] - 0.5 * q_j[1] ** 2 / q_j[0])
         a_j = np.sqrt(self.gamma*(p_j / q_j[0]))
         return np.abs(q_j[1] / q_j[0]) + a_j
+
+    #roe average of states Q_L and Q_R
+    def eigsA_roe(self, Q_L, Q_R, x):
+        S = self.S(x)
+
+        #left state
+        rho_L = Q_L[0] / S
+        u_L = Q_L[1] / Q_L[0]
+        e_L = Q_L[2] / S
+        p_L = (self.gamma - 1.) * (e_L - 0.5 * rho_L * u_L ** 2)
+        H_L = (e_L + p_L)/rho_L
+
+        #right state
+        rho_R = Q_R[0] / S
+        u_R = Q_R[1] / Q_R[0]
+        e_R = Q_R[2] / S
+        p_R = (self.gamma - 1.) * (e_R - 0.5 * rho_R * u_R ** 2)
+        H_R = (e_R + p_R) / rho_R
+
+        #roe average
+        rho = np.sqrt(rho_L*rho_R)
+        u = (np.sqrt(rho_L)*u_L + np.sqrt(rho_R)*u_R)/(np.sqrt(rho_L) + np.sqrt(rho_R))
+        H = (np.sqrt(rho_L)*H_L + np.sqrt(rho_R)*H_R)/(np.sqrt(rho_L) + np.sqrt(rho_R))
+        a = np.sqrt((self.gamma - 1) * (H - 0.5*u**2))
+        alpha = rho / (np.sqrt(2.) * a)
+
+        #diagonalize
+        Diag = np.diag([u, u+a, u-a])
+        T = [[1., alpha, alpha],
+             [u, alpha * (u + a), alpha * (u - a)],
+             [0.5 * u ** 2, alpha * (0.5 * u ** 2 + u * a + a ** 2 / (self.gamma - 1)),
+              alpha * (0.5 * u ** 2 - u * a + a ** 2 / (self.gamma - 1))]]
+        T_inv = np.linalg.inv(T)
+
+        return T, T_inv, Diag
+
+    def absA_roe(self, Q_L, Q_R, x):
+        T, T_inv, Diag = self.eigsA_roe(Q_L, Q_R, x)
+        return T @ np.absolute(Diag) @ T_inv
+
+    def numericalFlux(self, Q_L, Q_R, x):
+        if self.fluxFunction == 'roe':
+            return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*self.absA_roe(Q_L, Q_R, x) @ (Q_R - Q_L)
