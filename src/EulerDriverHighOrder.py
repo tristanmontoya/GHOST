@@ -177,3 +177,10 @@ def createResPlots(names, labels,max_its):
     resPlot.savefig("../plots/resHistory_" + nametotal + ".pdf", bbox_inches='tight')
 
 ho = implicitHighOrderQuasi1DDriver("dgtest", 0.8, 1.e5, 300., 1.4, 287, "dg_dense", 3, "lgl", 4)
+u = ho.u_0_interp
+L,C, R, q_k = ho.LCRq(ho.u_0_interp, 1)
+R_mat = ho.localResidualInterior(u, 2)
+R_exp = ho.localResidualExplicitForm(u, 2)
+print("R1_Matrix: ", R_mat)
+print("Explicit Form: ", R_exp)
+print("Full residual: ", np.reshape(ho.flowResidual(u),[ho.K,ho.Np*ho.n_eq]))
