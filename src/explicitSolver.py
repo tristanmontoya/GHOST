@@ -341,6 +341,7 @@ class explicitSolver:
             a[i] = np.sqrt(self.spatialDiscretization.problem.gamma*p[i]/rho[i])
             Ma[i] = u[i]/a[i]
 
+
         np.save("../results/"+self.runName+"_results.npy", np.array([Q1, Q2, Q3,
                                                       rho, u, e, p,
                                                        a, Ma, self.spatialDiscretization.mesh,
