@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2baa223a-abd7-41d9-be55-46b5d42979a2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/mach_dgtest.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/mach_dgtest.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/pressure_dgtest.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/pressure_dgtest.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/resHistory_dgtest.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/resHistory_dgtest.pdf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/EulerDriverHighOrder.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/EulerDriverHighOrder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/explicitSolver.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/explicitSolver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/implicitSolver.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/implicitSolver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/spatialDiscHighOrder.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/spatialDiscHighOrder.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,7 +17,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/Euler$temporalDiscretization.coverage" NAME="temporalDiscretization Coverage Results" MODIFIED="1550345862057" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$EulerDriverFLOMG.coverage" NAME="EulerDriverFLOMG Coverage Results" MODIFIED="1552790324181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/Euler$EulerDriverHighOrder.coverage" NAME="EulerDriverHighOrder Coverage Results" MODIFIED="1553180683223" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/Euler$EulerDriverHighOrder.coverage" NAME="EulerDriverHighOrder Coverage Results" MODIFIED="1553214048034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$EulerDriver1D_tosubmit.coverage" NAME="EulerDriver1D_tosubmit Coverage Results" MODIFIED="1550672961170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$Euler.coverage" NAME="Euler Coverage Results" MODIFIED="1550672955034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$problem.coverage" NAME="problem Coverage Results" MODIFIED="1550543387985" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
@@ -57,8 +57,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/EulerDriverHighOrder.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="274">
-              <caret line="50" column="73" selection-start-line="50" selection-start-column="73" selection-end-line="50" selection-end-column="73" />
+            <state relative-caret-position="830">
+              <caret line="194" column="51" selection-start-line="194" selection-start-column="51" selection-end-line="194" selection-end-column="51" />
               <folding>
                 <element signature="e#55#73#0" expanded="true" />
               </folding>
@@ -96,8 +96,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/spatialDiscHighOrder.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3596">
-              <caret line="57" column="59" lean-forward="true" selection-start-line="57" selection-start-column="59" selection-end-line="57" selection-end-column="59" />
+            <state relative-caret-position="920">
+              <caret line="336" column="97" selection-start-line="336" selection-start-column="97" selection-end-line="336" selection-end-column="97" />
               <folding>
                 <element signature="e#37#55#0" expanded="true" />
               </folding>
@@ -108,8 +108,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/element.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-356">
-              <caret line="14" column="39" lean-forward="true" selection-start-line="14" selection-start-column="39" selection-end-line="14" selection-end-column="39" />
+            <state relative-caret-position="360">
+              <caret line="26" lean-forward="true" selection-start-line="26" selection-end-line="26" />
             </state>
           </provider>
         </entry>
@@ -173,10 +173,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="304" />
-    <option name="y" value="321" />
+    <option name="x" value="366" />
+    <option name="y" value="144" />
     <option name="width" value="2079" />
-    <option name="height" value="1270" />
+    <option name="height" value="1296" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -378,7 +378,7 @@
       <workItem from="1552221781105" duration="81000" />
       <workItem from="1552531714046" duration="75253000" />
       <workItem from="1553132192604" duration="7000" />
-      <workItem from="1553132643403" duration="18932000" />
+      <workItem from="1553132643403" duration="24239000" />
     </task>
     <servers />
   </component>
@@ -397,10 +397,10 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="244753000" />
+    <option name="totallyTimeSpent" value="250060000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="304" y="321" width="2079" height="1270" extended-state="0" />
+    <frame x="366" y="144" width="2079" height="1296" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.19601838" />
@@ -408,7 +408,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Debug" order="2" sideWeight="0.4996554" visible="true" weight="0.398773" />
+      <window_info anchor="bottom" id="Debug" order="2" sideWeight="0.4996554" visible="true" weight="0.025706941" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="5" />
@@ -418,13 +418,13 @@
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5010338" side_tool="true" weight="0.38659793" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.3298969" />
-      <window_info anchor="bottom" x="1023" y="359" width="2420" height="935" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" visible="true" weight="0.38650307" />
+      <window_info anchor="bottom" x="199" y="384" width="2430" height="935" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" visible="true" weight="0.38650307" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" sideWeight="0.4995618" visible="true" weight="0.44515494" />
+      <window_info active="true" anchor="right" id="SciView" order="3" sideWeight="0.49868074" visible="true" weight="0.44515494" />
       <window_info anchor="right" id="Database" order="4" />
-      <window_info anchor="right" x="0" y="0" width="390" height="1206" id="Documentation" order="5" sideWeight="0.5004382" side_tool="true" visible="true" weight="0.37835976" />
+      <window_info anchor="right" x="0" y="0" width="390" height="1206" id="Documentation" order="5" sideWeight="0.5013193" side_tool="true" visible="true" weight="0.44515494" />
     </layout>
     <layout-to-restore>
       <window_info content_ui="combo" id="Project" order="0" weight="0.19601838" />
@@ -463,14 +463,14 @@
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/EulerDriverHighOrder.py</url>
-          <line>180</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/spatialDiscHighOrder.py</url>
           <line>263</line>
           <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/EulerDriverHighOrder.py</url>
+          <line>94</line>
+          <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -562,13 +562,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/problem.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1845">
-          <caret line="123" selection-start-line="123" selection-end-line="123" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/implicitSolver.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="610">
@@ -593,13 +586,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/analyticalSolution.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="46" lean-forward="true" selection-start-line="46" selection-end-line="46" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../Solver1D/src/constructDG.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="570">
@@ -620,17 +606,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/analyticalSolution.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="46" lean-forward="true" selection-start-line="46" selection-end-line="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/problem.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1845">
+          <caret line="123" selection-start-line="123" selection-end-line="123" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/element.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-356">
-          <caret line="14" column="39" lean-forward="true" selection-start-line="14" selection-start-column="39" selection-end-line="14" selection-end-column="39" />
+        <state relative-caret-position="360">
+          <caret line="26" lean-forward="true" selection-start-line="26" selection-end-line="26" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/spatialDiscHighOrder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3596">
-          <caret line="57" column="59" lean-forward="true" selection-start-line="57" selection-start-column="59" selection-end-line="57" selection-end-column="59" />
+        <state relative-caret-position="920">
+          <caret line="336" column="97" selection-start-line="336" selection-start-column="97" selection-end-line="336" selection-end-column="97" />
           <folding>
             <element signature="e#37#55#0" expanded="true" />
           </folding>
@@ -639,8 +639,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/EulerDriverHighOrder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="50" column="73" selection-start-line="50" selection-start-column="73" selection-end-line="50" selection-end-column="73" />
+        <state relative-caret-position="830">
+          <caret line="194" column="51" selection-start-line="194" selection-start-column="51" selection-end-line="194" selection-end-column="51" />
           <folding>
             <element signature="e#55#73#0" expanded="true" />
           </folding>

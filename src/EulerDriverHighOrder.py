@@ -9,9 +9,8 @@ from element import *
 from spatialDiscHighOrder import *
 from implicitSolver import *
 
-def implicitHighOrderQuasi1DDriver(figtitle, S_star, p_01, T_01, gamma, R, elementType, p, gridType, K):
+def implicitHighOrderQuasi1DDriver(label, S_star, p_01, T_01, gamma, R, elementType, p, gridType, K):
     np.set_printoptions(suppress=True, linewidth=np.nan, threshold=np.nan)
-    res = K*(p+1)
 
     # define problem
     q1D = Problem(problemType=0, L=10., gamma=gamma, R=R)
@@ -48,82 +47,78 @@ def implicitHighOrderQuasi1DDriver(figtitle, S_star, p_01, T_01, gamma, R, eleme
     refElement = Element(elementType, p, gridType)
     hoScheme = SpatialDiscHighOrder(q1D, refElement, K)
 
-    Ma, T, pres, Q = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R)
-    np.save("../results/" + figtitle + "_exact.npy", np.array([hoScheme.mesh, Ma, pres, Q]))
+    # Ma, T, pres, Q = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R)
+    # np.save("../results/" + figtitle + "_exact.npy", np.array([hoScheme.mesh, Ma, pres, Q]))
 
     #hoScheme.u_0_interp = Q
+
+    figtitle = "q1d_subsonic_" + label + "_" + elementType + "_"+ gridType + "_p" + str(p) + "_K" + str(K)
+
     # run iterations and save to file
     timeMarch = implicitSolver(figtitle, hoScheme, method=0, C=100, isUnsteady=False,
                                useLocalTimeStep=True, max_its=1000000, rel_tol=1.e-12)
-    R = timeMarch.runSolver()
+    res = timeMarch.runSolver()
     u_f = timeMarch.Q
-    return R, u_f, hoScheme
+    return res, u_f, hoScheme, figtitle
 
+def implicitHighOrderQuasi1D_element_refinement(label, S_star, p_01, T_01, gamma, R, elementType, p, gridType, K_0, n_grids):
+    np.set_printoptions(suppress=True, linewidth=np.nan, threshold=np.nan)
 
-def implicitQuasi1DDriver(M, C, k_2, k_4, S_star, p_01, T_01, gamma, R, figtitle, x_shock=100, runChecks=False, useDiagonalForm=False):
-    np.set_printoptions(suppress=True,linewidth=np.nan,threshold=np.nan)
-    res = 1000
-
-    #define problem
+    # define problem
     q1D = Problem(problemType=0, L=10., gamma=gamma, R=R)
 
-    #solve analytically first
-    x = np.linspace(0., 10., res)
-    Ma, T, p, Q = quasi1D(x, S_star, p_01, T_01, gamma, R, x_shock)
-    np.save("../results/"+figtitle+"_exact.npy", np.array([x, Ma, p]))
+    # get analytical bcs
+    x = np.array([0,10.0])
+    Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R)
 
-    #set initial condtion to inlet
-    rho_inlet = Q[0]/sectionCalc(0.)
-    rhou_inlet = Q[1]/sectionCalc(0.)
-    e_inlet = Q[2]/sectionCalc(0.)
+    # set initial condtion to inlet
+    rho_inlet = Qb[0] / sectionCalc(0.)
+    rhou_inlet = Qb[1] / sectionCalc(0.)
+    e_inlet = Qb[2] / sectionCalc(0.)
     q1D.setUinformInitialCondition(rho_inlet, rhou_inlet, e_inlet)
 
-    #extract boundary conditions from analytical solution, apply as Riemann invariants for subsonic inlet and exit
-    Q_in = np.array([Q[0], Q[1], Q[2]])
-    Q_out = np.array([Q[res*3-3], Q[res*3-2], Q[res*3-1]])
+    # extract boundary conditions from analytical solution, apply for weak enforcement
+    Q_in = np.array([Qb[0], Qb[1], Qb[2]])
+    Q_out = np.array([Qb[3], Qb[4], Qb[5]])
 
-    R_in = q1D.flowVariablesToRiemann(Q_in, 0.)
-    R_out = q1D.flowVariablesToRiemann(Q_out, 10.)
-    q1D.setBCs_subsonicRiemann(R_in[0], R_in[2], R_out[1])
+    q1D.setBCs_allDirichlet(Q_in, Q_out)
 
-    #set up spatial discretization
-    fdScheme = SpatialDiscretization(q1D, M, k_2, k_4)
-    #fdScheme.setInitialConditionOnMesh(Q[3:(res-1)*3])
+    # reference element
+    refElement = Element(elementType, p, gridType)
 
-    #if option selected, just run checks, don't actually solve
-    if runChecks == True:
-        fdScheme.runChecks(fdScheme.Q_0, Q_in, Q_out)
-        return
+    DOF = np.zeros(n_grids)
+    errornorms = np.zeros(n_grids)
+    K = K_0
+    for i in range(0,n_grids):
+        hoScheme = SpatialDiscHighOrder(q1D, refElement, K)
+        DOF[i] = hoScheme.M
+        Ma, T, pres, u_exact = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R)
+        figtitle = "q1d_subsonic_" + label + "_" + elementType + "_"+ gridType + "_p" + str(p) + "_K" + str(K)
 
-    #run iterations and save to file
-    timeMarch = implicitSolver(figtitle, fdScheme, method=0, C=C, isUnsteady= False,
-                                       useLocalTimeStep=True, ref_u = 300, ref_a = 315, t_f = 1.0, rel_tol = 1.e-13,
-                                       useDiagonalForm=useDiagonalForm)
-    timeMarch.runSolver()
+        # run iterations and save to file
+        timeMarch = implicitSolver(figtitle, hoScheme, method=0, C=50, isUnsteady=False,
+                                   useLocalTimeStep=True, max_its=1000000, rel_tol=1.e-12)
+        res = timeMarch.runSolver()
+        u_f = timeMarch.Q
+        error = hoScheme.calculateError(u_f[0::3], u_exact[0::3])
+        print("Grid Level: ", i, " K: ", K, " DOF:", DOF)
+        print("Error norm: ", error)
+        errornorms[i] = error
+        K = K*2
+
+    reftitle = "figtitle" + "_elem_refine.npy"
+    np.save("../results/"+reftitle, np.array([DOF, errornorms]))
+    return DOF, errornorms, reftitle
+
 
 def createPlotsQuasi1D(figtitle):
-    exact = np.load("../results/" + figtitle + "_exact.npy")
+    exact = np.load("../results/subsonic_block_M199_C40_k20_k4_0_02_exact.npy")
     results = np.load("../results/" + figtitle + "_results.npy")
     resHistory = np.load("../results/" + figtitle + "_resHistory.npy")
 
-    # print("q0 ", results[0, :])
-    # print("q0_exact", exact[3][0::3])
-
-    # generate plots
     mach = plt.figure()
     plt.grid()
-    plt.plot(exact[0], exact[3][0::3], '-k', label="Exact Solution")
-    plt.plot(results[9, :], results[0, :], 'xr', label="Numerical Solution")
-    plt.xlim([0, 10])
-    plt.xlabel("$x$ (m)")
-    plt.ylabel("Q1")
-    plt.legend()
-    plt.show()
-    mach.savefig("../plots/q1_" + figtitle + ".pdf", bbox_inches='tight')
-
-    mach = plt.figure()
-    plt.grid()
-    plt.plot(exact[0], exact[1], '-k', label="Exact Solution")
+    plt.plot(exact[0,:], exact[1,:], '-k', label="Exact Solution")
     plt.plot(results[9, :], results[8, :], 'xr', label="Numerical Solution")
     plt.xlim([0, 10])
     plt.xlabel("$x$ (m)")
@@ -134,7 +129,7 @@ def createPlotsQuasi1D(figtitle):
 
     pressure = plt.figure()
     plt.grid()
-    plt.plot(exact[0], exact[2]/1000., '-k', label="Exact Solution")
+    plt.plot(exact[0,:], exact[2,:]/1000., '-k', label="Exact Solution")
     plt.plot(results[9, :], results[6, :] / 1000., 'xr', label="Numerical Solution")
     plt.xlim([0, 10])
     plt.xlabel("$x$ (m)")
@@ -175,10 +170,32 @@ def createResPlots(names, labels,max_its):
     plt.show()
     resPlot.savefig("../plots/resHistory_" + nametotal + ".pdf", bbox_inches='tight')
 
+def gridConvPlot(names, labels):
+    n_plots = len(names)
 
-R, u_f, hoScheme = implicitHighOrderQuasi1DDriver("dgtest", 0.8, 1.e5, 300., 1.4, 287, "dg_dense", 5, "lg", 2)
-createPlotsQuasi1D("dgtest")
-R_final = hoScheme.localResidualExplicitForm(u_f,0)
+    resPlot = plt.figure()
+    plt.grid()
+    plt.xlabel("DOF")
+    plt.ylabel("$L^2 (\Omega)$ Error in $\mathcal{U}_1$")
+    nametotal = ""
+
+    for i in range(0, n_plots):
+        results = np.load("../results/" + names[i])
+        plt.loglog(results[0, :], results[1, :], '-x', label=labels[i])
+        nametotal = nametotal + "_" + names[i]
+
+    plt.legend()
+    plt.show()
+    resPlot.savefig("../plots/gridconv_" + nametotal + ".pdf", bbox_inches='tight')
+
+
+# R, u_f, hoScheme, title = implicitHighOrderQuasi1DDriver("test", 0.8, 1.e5, 300., 1.4, 287, "dg_dense", 5, "lg", 2)
+# print(title)
+# createPlotsQuasi1D(title)
+# R_final = hoScheme.localResidualExplicitForm(u_f,0)
+
+DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "dg_dense", 2, "lg", 2, 6)
+gridConvPlot([title], ["Diagonal DG on LG"])
 
 # u = ho.u_0_interp
 # R_mat = ho.localResidualInterior(u, 2)

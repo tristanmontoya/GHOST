@@ -330,3 +330,11 @@ class SpatialDiscHighOrder:
         for i in range(0, self.M*3):
             jacobian[i,:] = sp.optimize.approx_fprime(u, residual, np.sqrt(np.finfo(np.float).eps), i)
         return jacobian
+
+    def calculateError(self,u, u_exact):
+        norm = 0.0
+        for k in range(0,self.K):
+            error = u[k * self.Np : (k + 1) * self.Np] - u_exact[k * self.Np : (k + 1) * self.Np]
+            norm = norm + error.T @ (self.J[k]*self.H) @ error
+
+        return norm
