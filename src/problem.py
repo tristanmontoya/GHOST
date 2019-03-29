@@ -189,6 +189,28 @@ class Problem:
         T, T_inv, Diag = self.eigsA_roe(Q_L, Q_R, x)
         return T @ np.absolute(Diag) @ T_inv
 
+    def absA_roe_entopyFix(self, Q_L, Q_R, x):
+        epsilon = 1.e-2
+        T, T_inv, Diag = self.eigsA_roe(Q_L, Q_R, x)
+        if Diag[2,2] <= epsilon:
+            Diag[2,2] = 0.5*((Diag[2,2]**2)/epsilon + epsilon)
+        if Diag[1,1] <= epsilon:
+            Diag[1,1] = 0.5*((Diag[1,1])**2/epsilon + epsilon)
+        return T @ np.absolute(Diag) @ T_inv
+
     def numericalFlux(self, Q_L, Q_R, x):
-        if self.fluxFunction == 'roe':
+        if self.fluxFunction =='roe-ef':
+            return self.roeFlux_entropy_Fix(Q_L, Q_R, x)
+        if self.fluxFunction == 'lf':
+            return self.laxFriedrichs(Q_L, Q_R, x)
+        else: #roe
+            return self.roeFlux(Q_L, Q_R, x)
+
+    def roeFlux_entropyFix(self, Q_L, Q_R, x):
+            return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*self.absA_roe_entropyFix(Q_L, Q_R, x) @ (Q_R - Q_L)
+
+    def roeFlux(self, Q_L, Q_R, x):
             return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*self.absA_roe(Q_L, Q_R, x) @ (Q_R - Q_L)
+
+    def laxFriedrichs(self, Q_L, Q_R, x):
+            return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*max(self.specr_j(Q_L, x), self.specr_j(Q_R, x)) * (Q_R - Q_L)

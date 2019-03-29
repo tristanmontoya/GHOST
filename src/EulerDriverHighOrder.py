@@ -322,9 +322,9 @@ def gridConvPlotPref(title, names, labels):
 
 
 
-# R, u_f, hoScheme, title = implicitHighOrderQuasi1DDriver("test", 0.8, 1.e5, 300., 1.4, 287, "dg_dense", 5, "lg", 2)
+R, u_f, hoScheme, title = implicitHighOrderQuasi1DDriver("test", 0.8, 1.e5, 300., 1.4, 287, "dg_dense", 5, "lg", 2)
 # print(title)
-# createPlotsQuasi1D(title)
+createPlotsQuasi1D(title)
 # R_final = hoScheme.localResidualExplicitForm(u_f,0)
 
 # DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 6, "lg", 2, 5)
@@ -350,15 +350,15 @@ def gridConvPlotPref(title, names, labels):
 #                             "q1d_subsonic_test_csbp_uniform_p4_K2_fd_refine.npy",],
 #                             ["CSBP, $p=2$", "CSBP, $p=3$", "CSBP, $p=4$"])
 
-gridConvPlot("href_plot", ["q1d_subsonic_test_dg_diag_lgl_p2_K64_elem_refine.npy",
-                "q1d_subsonic_test_dg_diag_lg_p2_K64_elem_refine.npy",
-               "q1d_subsonic_test_dg_diag_lgl_p4_K64_elem_refine.npy",
-              "q1d_subsonic_test_dg_diag_lg_p4_K64_elem_refine.npy",
-              "q1d_subsonic_test_dg_diag_lgl_p6_K32_elem_refine.npy",
-              "q1d_subsonic_test_dg_diag_lg_p6_K32_elem_refine.npy",
-                "q1d_subsonic_test_csbp_uniform_p2_K32_elem_refine.npy",
-            "q1d_subsonic_test_csbp_uniform_p3_K32_elem_refine.npy", "q1d_subsonic_test_dg_diag_lgl_p20_K2_p_refine.npy", "q1d_subsonic_test_dg_diag_lg_p20_K2_p_refine.npy"],
-             ["DG-LGL, $p=2$","DG-LG, $p=2$", "DG-LGL, $p=4$","DG-LG, $p=4$","DG-LGL, $p=6$","DG-LG, $p=6$","CSBP, $p=2$", "CSBP, $p=3$", "DG-LGL, $p$-refinement", "DG-LG, $p$-refinement"])
+# gridConvPlot("href_plot", ["q1d_subsonic_test_dg_diag_lgl_p2_K64_elem_refine.npy",
+#                 "q1d_subsonic_test_dg_diag_lg_p2_K64_elem_refine.npy",
+#                "q1d_subsonic_test_dg_diag_lgl_p4_K64_elem_refine.npy",
+#               "q1d_subsonic_test_dg_diag_lg_p4_K64_elem_refine.npy",
+#               "q1d_subsonic_test_dg_diag_lgl_p6_K32_elem_refine.npy",
+#               "q1d_subsonic_test_dg_diag_lg_p6_K32_elem_refine.npy",
+#                 "q1d_subsonic_test_csbp_uniform_p2_K32_elem_refine.npy",
+#             "q1d_subsonic_test_csbp_uniform_p3_K32_elem_refine.npy", "q1d_subsonic_test_dg_diag_lgl_p20_K2_p_refine.npy", "q1d_subsonic_test_dg_diag_lg_p20_K2_p_refine.npy"],
+#              ["DG-LGL, $p=2$","DG-LG, $p=2$", "DG-LGL, $p=4$","DG-LG, $p=4$","DG-LGL, $p=6$","DG-LG, $p=6$","CSBP, $p=2$", "CSBP, $p=3$", "DG-LGL, $p$-refinement", "DG-LG, $p$-refinement"])
 
 # u = ho.u_0_interp
 # R_mat = ho.localResidualInterior(u, 2)

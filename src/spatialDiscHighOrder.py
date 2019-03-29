@@ -38,6 +38,8 @@ class SpatialDiscHighOrder:
         self.p = element.p #element degree
         self.Np = element.Np #nodes per element
         self.H = np.copy(element.H) #mass/norm
+        self.V = np.copy(element.V) #Legendre Vandermonde
+        self.Vinv = np.linalg.inv(self.V) #inverses
         self.Hinv = np.linalg.inv(self.H)
         self.D = np.copy(element.D) #differentiation operator
         self.t_L = np.copy(element.t_L) #left projection
@@ -55,6 +57,7 @@ class SpatialDiscHighOrder:
         self.H_n = np.kron(element.H, np.eye(self.n_eq))
         self.Hinv_n = np.kron(self.Hinv, np.eye(self.n_eq))
         self.D_n = np.kron(element.D, np.eye(self.n_eq))
+        self.one = np.kron(np.ones(self.Np), np.eye(self.n_eq))
         self.t_Ln = np.kron(element.t_L, np.eye(self.n_eq))
         self.t_Rn = np.kron(element.t_R, np.eye(self.n_eq))
         self.E_n = self.t_Rn @ self.t_Rn.T - self.t_Ln @ self.t_Ln.T
@@ -338,3 +341,59 @@ class SpatialDiscHighOrder:
             normsquared = normsquared + error.T @ (self.J[k]*self.H) @ error
 
         return np.sqrt(normsquared)
+
+    #LIMITER CODE
+
+    def minmod(self, a):
+        eps0 = 1.e-8
+        m = len(a)
+        s = np.sum(np.sign(a))/m
+        if np.absolute(np.absolute(s) - 1) < eps0:
+            return s * np.amin(np.absolute(a))
+        return 0.0
+
+    def applyLimiter(self, k, u_k , ubar_km1,  ubar_k, ubar_kp1):
+        #make linear (project down to linear, need to add a Vandermonde approximation for general SBP)
+        if self.Np > 2:
+            u_hat = self.Vinv @ u_k
+            u_hat[2:self.Np] = np.zeros(self.Np-2)
+            u_linear = self.V @ u_hat
+
+        slope = (self.t_R.T @ u_linear - self.t_L.T @ u_linear)/self.h
+        x_c = self.h*k + 0.5*self.h
+        x = self.h*k + 0.5*self.h*(self.referenceGrid + 1.0)
+
+        #muscl, p. 150 hesthaven, also tr
+        limitedSlope = self.minmod(np.array([slope, (ubar_kp1 - ubar_k)/self.h, (ubar_k - ubar_km1)/self.h]))
+
+        #compute limited value
+        return ubar_k + (x - x_c)*limitedSlope
+
+    def getAverages(self, u):
+        ubar = np.zeros(self.n_eq*self.K)
+        #print('ubar length')
+        for k in range(0, self.K):
+            ubar[self.n_eq*k: self.n_eq*(k+1)] = (1./self.h) * self.J[k] * self.one @ self.H_n @ u[k * self.Np * self.n_eq : (k + 1) * self.Np * self.n_eq]
+
+        return ubar
+
+    def generalizedLimiter(self, u):
+        eps0 = 1.e-8
+        ubar = self.getAverages(u)
+        for k in range(1, self.K-1):
+            for j in range(0,self.n_eq):
+                ubar_km1 = ubar[self.n_eq * (k - 1) + j]
+                ubar_k = ubar[self.n_eq * (k) + j]
+                ubar_kp1 = ubar[self.n_eq * (k+1) + j]
+                u_k = u[k * self.Np * self.n_eq + j: (k + 1) * self.Np * self.n_eq: self.n_eq]
+
+                #check if limiting needed
+                v_L = ubar_k - self.minmod(np.array([ubar_k - self.t_L.T @ u_k, ubar_k - ubar_km1, ubar_kp1 - ubar_k]))
+                v_R = ubar_k + self.minmod(np.array([self.t_R.T @ u_k - ubar_k, ubar_k - ubar_km1, ubar_kp1 - ubar_k]))
+
+                if np.abs(v_L - self.t_L.T @ u_k) < eps0 and np.abs(v_R - self.t_R.T @ u_k) < eps0:
+                    continue #no limiting needed
+
+                #apply the limiter to equation j of element k
+                u[k * self.Np * self.n_eq + j: (k + 1) * self.Np * self.n_eq : self.n_eq] = self.applyLimiter(k, u_k , ubar_km1,  ubar_k, ubar_kp1)
+        return u

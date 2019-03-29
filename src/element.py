@@ -27,6 +27,7 @@ class Element:
             self.gridType = "uniform"
             self.generateGrid()
             self.constructCSBP()
+            self.V = np.zeros([self.Np, self.Np]) #not using a Legendre Vandermonde for these operators (will look into this at some point)
 
     def generateGrid(self):
 
@@ -158,6 +159,7 @@ class Element:
             self.H = np.linalg.inv(np.matmul(V, np.transpose(V)))
 
         # D = Vr*(V)^-1
+        self.V = V
         self.D = np.matmul(Vr, np.linalg.inv(V))
         self.Q = self.H @ self.D
 
