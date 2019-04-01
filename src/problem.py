@@ -54,13 +54,16 @@ class Problem:
             return self.nozzle1(x)
         if self.problemType == 1: #shock tube
             return 1.
-
+        if self.problemType ==2:  # quasi 1D
+            return self.nozzle2(x)
     # section area derivative
     def dSdx(self, x):
         if self.problemType == 0 : #quasi 1D
             return self.nozzle1_dSdx(x)
         if self.problemType == 1: #shock tube
             return 0.
+        if self.problemType == 2:
+            return self.nozzle2_dSdx(x)
 
     def nozzle1(self, x):
         if x < 5:
@@ -68,14 +71,20 @@ class Problem:
         else:
             return 1. + 0.5*(1-x/5.)**2
 
+    def nozzle2(self, x):
+        return -1. / 250. * x ** 3 + 0.1 * x ** 2 - 0.7 * x + 2.5
+
     def nozzle1_dSdx(self, x):
         if x < 5:
             return 0.12*x - 0.6
         else:
             return 0.04*x - 0.2
 
+    def nozzle2_dSdx(self, x):
+        return 1./250.*(-3.*x**2 + 50.*x - 175.)
+
     def evaluateInitialCondition(self, x):
-        if self.problemType == 0: # quasi 1D
+        if self.problemType == 0 or self.problemType == 2: # quasi 1D
             return self.S(x)*np.array([self.rho_0, self.rhou_0, self.e_0])
         if self.problemType == 1:  # shock tube
             return self.shockTubeInitialCondition(x)
@@ -189,28 +198,33 @@ class Problem:
         T, T_inv, Diag = self.eigsA_roe(Q_L, Q_R, x)
         return T @ np.absolute(Diag) @ T_inv
 
-    def absA_roe_entopyFix(self, Q_L, Q_R, x):
-        epsilon = 1.e-2
+    def absA_roe_entropyFix(self, Q_L, Q_R, x):
+        epsilon = 1.e-8
         T, T_inv, Diag = self.eigsA_roe(Q_L, Q_R, x)
-        if Diag[2,2] <= epsilon:
+        if np.absolute(Diag[2,2]) <= epsilon:
             Diag[2,2] = 0.5*((Diag[2,2]**2)/epsilon + epsilon)
-        if Diag[1,1] <= epsilon:
-            Diag[1,1] = 0.5*((Diag[1,1])**2/epsilon + epsilon)
+            print('entropy fixed')
+        if np.absolute(Diag[1,1]) <= epsilon:
+            Diag[1,1] = 0.5*((Diag[1,1]**2)/epsilon + epsilon)
+            print('entropy fixed')
         return T @ np.absolute(Diag) @ T_inv
 
     def numericalFlux(self, Q_L, Q_R, x):
         if self.fluxFunction =='roe-ef':
-            return self.roeFlux_entropy_Fix(Q_L, Q_R, x)
+            return self.roeFlux_entropyFix(Q_L, Q_R, x)
         if self.fluxFunction == 'lf':
             return self.laxFriedrichs(Q_L, Q_R, x)
         else: #roe
             return self.roeFlux(Q_L, Q_R, x)
 
     def roeFlux_entropyFix(self, Q_L, Q_R, x):
-            return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*self.absA_roe_entropyFix(Q_L, Q_R, x) @ (Q_R - Q_L)
+        #print('roe-ef')
+        return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*self.absA_roe_entropyFix(Q_L, Q_R, x) @ (Q_R - Q_L)
 
     def roeFlux(self, Q_L, Q_R, x):
-            return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*self.absA_roe(Q_L, Q_R, x) @ (Q_R - Q_L)
+        #print('roe')
+        return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*self.absA_roe(Q_L, Q_R, x) @ (Q_R - Q_L)
 
     def laxFriedrichs(self, Q_L, Q_R, x):
-            return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*max(self.specr_j(Q_L, x), self.specr_j(Q_R, x)) * (Q_R - Q_L)
+       # print('lf')
+        return 0.5*(self.E_j(Q_L) + self.E_j(Q_R)) - 0.5*max(self.specrA_j(Q_L, x), self.specrA_j(Q_R, x)) * (Q_R - Q_L)

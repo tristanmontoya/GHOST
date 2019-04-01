@@ -14,7 +14,7 @@ def explicitHighOrderShockTubeDriver(label, x_0, p_L, p_R, rho_L, rho_R, t_f, C,
     np.set_printoptions(suppress=True, linewidth=np.nan, threshold=np.nan)
 
     # define problem
-    problem = Problem(problemType=1, L=10., gamma=gamma, R=R, fluxFunction='lf')
+    problem = Problem(problemType=1, L=10., gamma=gamma, R=R, fluxFunction='roe-ef')
 
     # set initial condtion to inlet
     problem.setShockTubeInitialCondition(p_L, p_R, rho_L, rho_R, x_0)
@@ -52,5 +52,5 @@ def createPlotsShockTube(figtitle, K, N):
     plt.show()
     mach.savefig("../plots/mach_" + figtitle + ".pdf", bbox_inches='tight')
 
-u_f, hoScheme, figtitle = explicitHighOrderShockTubeDriver('test', 5.0, 1.e5, 1.e4, 1., 0.125, 6.1e-3, 0.05, 1.4, 287., 'dg_diag', 2, 'lgl', 100)
-createPlotsShockTube('shocktube_test_dg_diag_lgl_p2_K100', 100, 3)
+u_f, hoScheme, figtitle = explicitHighOrderShockTubeDriver('test', 5.0, 1.e5, 1.e4, 1., 0.125, 6.1e-3, 0.1, 1.4, 287., 'dg_diag', 2, 'lgl', 150)
+createPlotsShockTube('shocktube_test_dg_diag_lgl_p2_K150', 150, 4)

@@ -23,7 +23,8 @@ class Element:
 
         elif elementType == "csbp":
             self.type = 2
-            self.Np = 4*p + 1
+            #self.Np = 4*p + 1
+            self.Np = Np
             self.gridType = "uniform"
             self.generateGrid()
             self.constructCSBP()

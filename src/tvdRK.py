@@ -31,7 +31,7 @@ class explicitSolver:
         R = self.spatialDiscretization.flowResidual(self.Q)
 
         for n in range(0, self.n_f):
-            self.Q = self.Q = self.spatialDiscretization.generalizedLimiter(self.Q + self.dt*R)
+            self.Q = self.spatialDiscretization.generalizedLimiter(self.Q + self.dt*R)
 
             R = self.spatialDiscretization.flowResidual(self.Q)
             self.t = self.t + self.dt

@@ -39,7 +39,8 @@ class SpatialDiscHighOrder:
         self.Np = element.Np #nodes per element
         self.H = np.copy(element.H) #mass/norm
         self.V = np.copy(element.V) #Legendre Vandermonde
-        self.Vinv = np.linalg.inv(self.V) #inverses
+        if self.Np == self.p + 1:
+            self.Vinv = np.linalg.inv(self.V) #inverses
         self.Hinv = np.linalg.inv(self.H)
         self.D = np.copy(element.D) #differentiation operator
         self.t_L = np.copy(element.t_L) #left projection
@@ -87,8 +88,8 @@ class SpatialDiscHighOrder:
         A_km1 = np.zeros([self.n_eq * self.Np,self.n_eq * self.Np ])
         A_kp1 = np.zeros([self.n_eq * self.Np,self.n_eq * self.Np ])
 
-        absA_roe_L = self.absA_roe(u_km1, u_k, k*self.dx)
-        absA_roe_R = self.absA_roe(u_k, u_kp1, (k+1)*self.dx)
+        absA_roe_L = self.absA_roe(u_km1, u_k, k*self.h)
+        absA_roe_R = self.absA_roe(u_k, u_kp1, (k+1)*self.h)
 
         q_k = np.zeros(self.Np * self.n_eq)
         for i in range(0, self.Np):
@@ -112,12 +113,35 @@ class SpatialDiscHighOrder:
 
         return L, C, R
 
-    def left(self,u,k):
+    def LCR(self, u, k):
+        u_km1 = u[(k - 1) * self.Np * self.n_eq: k * self.Np * self.n_eq]
+        u_k = u[k * self.Np * self.n_eq: (k + 1) * self.Np * self.n_eq]
+        u_kp1 = u[(k + 1) * self.Np * self.n_eq: (k + 2) * self.Np * self.n_eq]
+
+        xL = k*self.h
+        xR = (k+1)*self.h
+
+        absA_roe_L = self.absA_roe(u_km1, u_k,xL)
+        absA_roe_R = self.absA_roe(u_k, u_kp1, xR)
+
+        A_k = np.zeros([self.n_eq * self.Np, self.n_eq * self.Np])
+        for i in range(0, self.Np):
+            A_k[i * self.n_eq:(i + 1) * self.n_eq, i * self.n_eq:(i + 1) * self.n_eq] \
+                = self.A(u_k[i * self.n_eq:(i + 1) * self.n_eq])
+
+        L = 0.5 * self.Jinv[k] * self.Hinv_n @ (self.t_Ln @ (self.A(self.t_Rn.T @ u_km1) + absA_roe_L) @ self.t_Rn.T)
+        R = -0.5 * self.Jinv[k] * self.Hinv_n @ (self.t_Rn @ (self.A(self.t_Ln.T @ u_kp1) - absA_roe_R) @ self.t_Ln.T)
+        C = -1.0 * self.Jinv[k] * self.D_n @ A_k + \
+             self.Jinv[k] * self.Hinv_n @ (self.E_n @ A_k) + 0.5*(self.t_Rn @ (self.A(self.t_Rn.T @ u_k) - absA_roe_R) @ self.t_Rn.T) \
+                                                - 0.5*(self.t_Ln @ (self.A(self.t_Ln.T @ u_k) + absA_roe_L) @ self.t_Ln.T)
+        return L, C, R
+
+    def left_old(self,u,k):
         u_km1 = u[(k-1) * self.Np * self.n_eq: k * self.Np * self.n_eq]
         u_k = u[k * self.Np * self.n_eq : (k + 1) * self.Np * self.n_eq]
 
         A_km1 = np.zeros([self.n_eq * self.Np, self.n_eq * self.Np])
-        absA_roe_L = self.absA_roe(u_km1, u_k, k * self.dx)
+        absA_roe_L = self.absA_roe(u_km1, u_k, k * self.h)
 
         for i in range(0, self.Np):
             A_km1[i * self.n_eq:(i + 1) * self.n_eq, i * self.n_eq:(i + 1) * self.n_eq] \
@@ -125,8 +149,16 @@ class SpatialDiscHighOrder:
 
         return 0.5 * self.Jinv[k] * self.Hinv_n @ (self.t_Ln @ self.t_Rn.T @ A_km1 + \
                                                    self.t_Ln @ absA_roe_L @ self.t_Rn.T)
+    def left(self,u,k):
+        u_km1 = u[(k-1) * self.Np * self.n_eq: k * self.Np * self.n_eq]
+        u_k = u[k * self.Np * self.n_eq : (k + 1) * self.Np * self.n_eq]
 
-    def centre(self, u, k):
+        xL =  k * self.h
+        absA_roe_L = self.absA_roe(u_km1, u_k,xL)
+
+        return 0.5 * self.Jinv[k] * self.Hinv_n @ (self.t_Ln @ (self.A(self.t_Rn.T @ u_km1) + absA_roe_L) @ self.t_Rn.T)
+
+    def centre_old(self, u, k):
 
         u_k = u[k * self.Np * self.n_eq: (k + 1) * self.Np * self.n_eq]
 
@@ -140,11 +172,11 @@ class SpatialDiscHighOrder:
         if k == 0:
             absA_roe_L = self.absA_roe(self.u_L, u_k, 0.0)
         else:
-            absA_roe_L = self.absA_roe(u_km1, u_k, k * self.dx)
+            absA_roe_L = self.absA_roe(u_km1, u_k, k * self.h)
         if k == self.K-1:
             absA_roe_R = self.absA_roe(u_k, self.u_R, self.L)
         else:
-            absA_roe_R = self.absA_roe(u_k, u_kp1, (k + 1) * self.dx)
+            absA_roe_R = self.absA_roe(u_k, u_kp1, (k + 1) * self.h)
 
         for i in range(0, self.Np):
             A_k[i * self.n_eq:(i + 1) * self.n_eq, i * self.n_eq:(i + 1) * self.n_eq] \
@@ -153,18 +185,50 @@ class SpatialDiscHighOrder:
         return -1.0*self.Jinv[k] * self.D_n @ A_k + \
             0.5*self.Jinv[k] * self.Hinv_n @ (self.E_n @ A_k - self.t_Rn @ absA_roe_R @ self.t_Rn.T \
                                           - self.t_Ln @ absA_roe_L @ self.t_Ln.T )
+    def centre(self, u, k):
 
-    def right(self, u, k):
+        u_k = u[k * self.Np * self.n_eq: (k + 1) * self.Np * self.n_eq]
+
+        if k != 0:
+            u_km1 = u[(k - 1) * self.Np * self.n_eq: k * self.Np * self.n_eq]
+        if k != self.K-1:
+            u_kp1 = u[(k + 1) * self.Np * self.n_eq: (k + 2) * self.Np * self.n_eq]
+
+        if k == 0:
+            absA_roe_L = self.absA_roe(self.u_L, u_k, 0.0)
+        else:
+            absA_roe_L = self.absA_roe(u_km1, u_k, k * self.h)
+        if k == self.K-1:
+            absA_roe_R = self.absA_roe(u_k, self.u_R, self.L)
+        else:
+            absA_roe_R = self.absA_roe(u_k, u_kp1, (k + 1) * self.h)
+
+        A_k = np.zeros([self.n_eq * self.Np, self.n_eq * self.Np])
+        for i in range(0, self.Np):
+            A_k[i * self.n_eq:(i + 1) * self.n_eq, i * self.n_eq:(i + 1) * self.n_eq] \
+                = self.A(u_k[i * self.n_eq:(i + 1) * self.n_eq])
+        return -1.0 * self.Jinv[k] * self.D_n @ A_k + \
+             self.Jinv[k] * self.Hinv_n @ (self.E_n @ A_k) + 0.5*(self.t_Rn @ (self.A(self.t_Rn.T @ u_k) - absA_roe_R) @ self.t_Rn.T) \
+                                                - 0.5*(self.t_Ln @ (self.A(self.t_Ln.T @ u_k) + absA_roe_L) @ self.t_Ln.T)
+    def right_old(self, u, k):
         u_k = u[k * self.Np * self.n_eq: (k + 1) * self.Np * self.n_eq]
         u_kp1 = u[(k + 1) * self.Np * self.n_eq: (k + 2) * self.Np * self.n_eq]
         A_kp1 = np.zeros([self.n_eq * self.Np, self.n_eq * self.Np])
-        absA_roe_R = self.absA_roe(u_k, u_kp1, (k + 1) * self.dx)
+        absA_roe_R = self.absA_roe(u_k, u_kp1, (k + 1) * self.h)
 
         for i in range(0, self.Np):
             A_kp1[i * self.n_eq:(i + 1) * self.n_eq, i * self.n_eq:(i + 1) * self.n_eq] \
                 = self.A(u_kp1[i * self.n_eq:(i + 1) * self.n_eq])
 
         return -0.5 * self.Jinv[k] * self.Hinv_n @ (self.t_Rn @ self.t_Ln.T @ A_kp1 - self.t_Rn @ absA_roe_R @ self.t_Ln.T)
+
+    def right(self, u, k):
+        u_k = u[k * self.Np * self.n_eq: (k + 1) * self.Np * self.n_eq]
+        u_kp1 = u[(k + 1) * self.Np * self.n_eq: (k + 2) * self.Np * self.n_eq]
+        xR = (k+1)*self.h
+        absA_roe_R = self.absA_roe(u_k, u_kp1, xR)
+
+        return -0.5 * self.Jinv[k] * self.Hinv_n @ (self.t_Rn @ (self.A(self.t_Ln.T @ u_kp1) - absA_roe_R) @ self.t_Ln.T)
 
     def sourceTermJacobian(self, u, k):
         u_k = u[k * self.Np * self.n_eq: (k + 1) * self.Np * self.n_eq]
@@ -198,16 +262,22 @@ class SpatialDiscHighOrder:
                 f_kp1[i * self.n_eq:(i + 1) * self.n_eq] = self.F(u_kp1[i * self.n_eq:(i + 1) * self.n_eq])
 
 
-            #numerical flux
-            absA_roe_L = self.absA_roe(self.u_L, u_k, 0.0)
-            absA_roe_R = self.absA_roe(u_k, u_kp1, (k+1)*self.dx)
+            #numerical flux -
+            #(what I had before may be wrong for LG, since I'm applying t_L and t_R to flux
+            #and not the solution. though, since I assume flux on same nodes, should be the same. check this
 
-            f_L = self.F(self.u_L)
+            # absA_roe_L = self.absA_roe(self.u_L, u_k, 0.0)
+            # absA_roe_R = self.absA_roe(u_k, u_kp1, (k+1)*self.dx)
+            #
+            # f_L = self.F(self.u_L)
+            #
+            # F_L = 0.5 * (f_L + self.t_Ln.T @ f_k) + \
+            #       0.5 * absA_roe_L @ (self.u_L - self.t_Ln.T @ u_k)
+            # F_R = 0.5 * (self.t_Rn.T @ f_k + self.t_Ln.T @ f_kp1) + \
+            #       0.5 * absA_roe_R @ (self.t_Rn.T @ u_k - self.t_Ln.T @ u_kp1)
 
-            F_L = 0.5 * (f_L + self.t_Ln.T @ f_k) + \
-                  0.5 * absA_roe_L @ (self.u_L - self.t_Ln.T @ u_k)
-            F_R = 0.5 * (self.t_Rn.T @ f_k + self.t_Ln.T @ f_kp1) + \
-                  0.5 * absA_roe_R @ (self.t_Rn.T @ u_k - self.t_Ln.T @ u_kp1)
+            F_L = self.numFlux(self.u_L, self.t_Ln.T @ u_k, 0.0)
+            F_R = self.numFlux(self.t_Rn.T @ u_k, self.t_Ln.T @ u_kp1,(k+1)*self.h)
 
         #right boundary
         elif k == self.K-1:
@@ -224,17 +294,20 @@ class SpatialDiscHighOrder:
                 f_km1[i * self.n_eq:(i + 1) * self.n_eq] = self.F(u_km1[i * self.n_eq:(i + 1) * self.n_eq])
                 f_k[i * self.n_eq:(i + 1) * self.n_eq] = self.F(u_k[i * self.n_eq:(i + 1) * self.n_eq])
 
-            # numerical flux
-            absA_roe_L = self.absA_roe(u_km1, u_k, k*self.dx)
-            absA_roe_R = self.absA_roe(u_k, self.u_R, self.L)
 
-            f_R = self.F(self.u_R)
+            # absA_roe_L = self.absA_roe(u_km1, u_k, k*self.dx)
+            # absA_roe_R = self.absA_roe(u_k, self.u_R, self.L)
+            #
+            # f_R = self.F(self.u_R)
+            #
+            # F_L = 0.5 * (self.t_Rn.T @ f_km1 + self.t_Ln.T @ f_k) + \
+            #       0.5 * absA_roe_L @ (self.t_Rn.T @ u_km1 - self.t_Ln.T @ u_k)
+            #
+            # F_R = 0.5 * (self.t_Rn.T @ f_k + f_R) + \
+            #       0.5*absA_roe_R @ (self.t_Rn.T @ u_k - self.u_R)
 
-            F_L = 0.5 * (self.t_Rn.T @ f_km1 + self.t_Ln.T @ f_k) + \
-                  0.5 * absA_roe_L @ (self.t_Rn.T @ u_km1 - self.t_Ln.T @ u_k)
-
-            F_R = 0.5 * (self.t_Rn.T @ f_k + f_R) + \
-                  0.5*absA_roe_R @ (self.t_Rn.T @ u_k - self.u_R)
+            F_L = self.numFlux(self.t_Rn.T @ u_km1, self.t_Ln.T @ u_k, k*self.h)
+            F_R = self.numFlux(self.t_Rn.T @ u_k, self.u_R,  self.L)
 
         #interior
         else:
@@ -255,13 +328,16 @@ class SpatialDiscHighOrder:
                 f_kp1[i * self.n_eq:(i + 1) * self.n_eq] = self.F(u_kp1[i * self.n_eq:(i + 1) * self.n_eq])
 
             # numerical flux
-            absA_roe_L = self.absA_roe(u_km1, u_k, k*self.dx)
-            absA_roe_R = self.absA_roe(u_k, u_kp1, (k+1)*self.dx)
+            # absA_roe_L = self.absA_roe(u_km1, u_k, k*self.dx)
+            # absA_roe_R = self.absA_roe(u_k, u_kp1, (k+1)*self.dx)
+            #
+            # F_L = 0.5 * (self.t_Rn.T @ f_km1 + self.t_Ln.T @ f_k) + \
+            #       0.5 * absA_roe_L @ (self.t_Rn.T @ u_km1 - self.t_Ln.T @ u_k)
+            # F_R = 0.5 * (self.t_Rn.T @ f_k + self.t_Ln.T @ f_kp1) + \
+            #       0.5 * absA_roe_R @ (self.t_Rn.T @ u_k - self.t_Ln.T @ u_kp1)
 
-            F_L = 0.5 * (self.t_Rn.T @ f_km1 + self.t_Ln.T @ f_k) + \
-                  0.5 * absA_roe_L @ (self.t_Rn.T @ u_km1 - self.t_Ln.T @ u_k)
-            F_R = 0.5 * (self.t_Rn.T @ f_k + self.t_Ln.T @ f_kp1) + \
-                  0.5 * absA_roe_R @ (self.t_Rn.T @ u_k - self.t_Ln.T @ u_kp1)
+            F_L = self.numFlux(self.t_Rn.T @ u_km1, self.t_Ln.T @ u_k, (k)*self.h)
+            F_R = self.numFlux(self.t_Rn.T @ u_k, self.t_Ln.T @ u_kp1,(k+1)*self.h)
 
         #return residual
         return -1.0*self.Jinv[k] *self.D_n @ f_k + q_k \
@@ -283,12 +359,12 @@ class SpatialDiscHighOrder:
 
 
         #top left
-        jacobianData[0] = self.centre(u,0) + self.sourceTermJacobian(u,0)
-        jacobianData[1] = self.right(u,0)
+        jacobianData[0] = self.centre_old(u,0) + self.sourceTermJacobian(u,0)
+        jacobianData[1] = self.right_old(u,0)
 
         #bottom right
-        jacobianData[(self.K - 1)*3 - 1] = self.left(u, self.K-1)
-        jacobianData[(self.K - 1) * 3] = self.centre(u, self.K - 1) + self.sourceTermJacobian(u,0)
+        jacobianData[(self.K - 1)*3 - 1] = self.left_old(u, self.K-1)
+        jacobianData[(self.K - 1) * 3] = self.centre_old(u, self.K - 1) + self.sourceTermJacobian(u,0)
 
         # print(jacobianData)
 

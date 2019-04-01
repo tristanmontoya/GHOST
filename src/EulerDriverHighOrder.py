@@ -10,16 +10,18 @@ from spatialDiscHighOrder import *
 from implicitSolver import *
 import itertools
 
-def implicitHighOrderQuasi1DDriver(label, S_star, p_01, T_01, gamma, R, elementType, p, gridType, K):
+def implicitHighOrderQuasi1DDriver(label, S_star, p_01, T_01, gamma, R, elementType, p, gridType, K, problemType=0):
     np.set_printoptions(suppress=True, linewidth=np.nan, threshold=np.nan)
 
     # define problem
-    q1D = Problem(problemType=0, L=10., gamma=gamma, R=R)
+    q1D = Problem(problemType=2, L=10., gamma=gamma, R=R)
 
     # get analytical bcs
     x = np.array([0,10.0])
-    Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R)
-
+    x = np.linspace(0.,10.,500)
+    res = len(x)
+    Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R, x_shock=100, s_fun =sectionCalcCinf)
+    np.save('../results/cinf_exact.npy',np.array([x, Mab, presb]))
     # testing eigenvalues and roe flux
     # X, Xinv, Lambda = q1D.eigsA_j(Q[0:3], 0.)
     # Xroe, Xinvroe, Lambdaroe = q1D.eigsA_roe(Q[0:3], Q[0:3], 0.0)
@@ -32,15 +34,18 @@ def implicitHighOrderQuasi1DDriver(label, S_star, p_01, T_01, gamma, R, elementT
     # print("Froe(Q_L, Q_L) = ", q1D.numericalFlux(Q[0:3], Q[0:3], 0.0))
 
     # set initial condtion to inlet
-    rho_inlet = Qb[0] / sectionCalc(0.)
-    rhou_inlet = Qb[1] / sectionCalc(0.)
-    e_inlet = Qb[2] / sectionCalc(0.)
+    rho_inlet = Qb[0] / sectionCalcCinf(0.)
+    rhou_inlet = Qb[1] / sectionCalcCinf(0.)
+    e_inlet = Qb[2] / sectionCalcCinf(0.)
     q1D.setUinformInitialCondition(rho_inlet, rhou_inlet, e_inlet)
 
     # extract boundary conditions from analytical solution, apply for weak enforcement
     Q_in = np.array([Qb[0], Qb[1], Qb[2]])
-    Q_out = np.array([Qb[3], Qb[4], Qb[5]])
-
+    Q_out = np.array([Qb[res*3-3], Qb[res*3-2], Qb[res*3-1]])
+    print('Q_in = ', Q_in)
+    print('Q_out = ', Q_out)
+    p_outlet = (gamma - 1.) / sectionCalcCinf(10.0) * (Q_out[2] - 0.5 * Q_out[1] ** 2 / Q_out[0])
+    print('p out = ', p_outlet)
     print(Qb[0], Qb[3])
     q1D.setBCs_allDirichlet(Q_in, Q_out)
 
@@ -66,21 +71,22 @@ def implicitHighOrderQuasi1D_element_refinement(label, S_star, p_01, T_01, gamma
     np.set_printoptions(suppress=True, linewidth=np.nan, threshold=np.nan)
 
     # define problem
-    q1D = Problem(problemType=0, L=10., gamma=gamma, R=R)
+    q1D = Problem(problemType=2, L=10., gamma=gamma, R=R)
 
     # get analytical bcs
     x = np.array([0,10.0])
-    Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R)
+    res = len(x)
+    Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R, s_fun = sectionCalcCinf)
 
     # set initial condtion to inlet
-    rho_inlet = Qb[0] / sectionCalc(0.)
-    rhou_inlet = Qb[1] / sectionCalc(0.)
-    e_inlet = Qb[2] / sectionCalc(0.)
+    rho_inlet = Qb[0] / sectionCalcCinf(0.)
+    rhou_inlet = Qb[1] / sectionCalcCinf(0.)
+    e_inlet = Qb[2] / sectionCalcCinf(0.)
     q1D.setUinformInitialCondition(rho_inlet, rhou_inlet, e_inlet)
 
     # extract boundary conditions from analytical solution, apply for weak enforcement
     Q_in = np.array([Qb[0], Qb[1], Qb[2]])
-    Q_out = np.array([Qb[3], Qb[4], Qb[5]])
+    Q_out = np.array([Qb[res*3-3], Qb[res*3-2], Qb[res*3-1]])
 
     q1D.setBCs_allDirichlet(Q_in, Q_out)
 
@@ -93,7 +99,7 @@ def implicitHighOrderQuasi1D_element_refinement(label, S_star, p_01, T_01, gamma
     for i in range(0,n_grids):
         hoScheme = SpatialDiscHighOrder(q1D, refElement, K)
         DOF[i] = hoScheme.M
-        Ma, T, pres, u_exact = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R)
+        Ma, T, pres, u_exact = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R, s_fun = sectionCalcCinf)
         figtitle = "q1d_subsonic_" + label + "_" + elementType + "_"+ gridType + "_p" + str(p) + "_K" + str(K)
 
         # run iterations and save to file
@@ -115,16 +121,16 @@ def implicitHighOrderQuasi1D_p_refinement(label, S_star, p_01, T_01, gamma, R, e
     np.set_printoptions(suppress=True, linewidth=np.nan, threshold=np.nan)
 
     # define problem
-    q1D = Problem(problemType=0, L=10., gamma=gamma, R=R)
+    q1D = Problem(problemType=2, L=10., gamma=gamma, R=R)
 
     # get analytical bcs
     x = np.array([0,10.0])
-    Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R)
+    Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R, s_fun = sectionCalcCinf)
 
     # set initial condtion to inlet
-    rho_inlet = Qb[0] / sectionCalc(0.)
-    rhou_inlet = Qb[1] / sectionCalc(0.)
-    e_inlet = Qb[2] / sectionCalc(0.)
+    rho_inlet = Qb[0] / sectionCalcCinf(0.)
+    rhou_inlet = Qb[1] / sectionCalcCinf(0.)
+    e_inlet = Qb[2] / sectionCalcCinf(0.)
     q1D.setUinformInitialCondition(rho_inlet, rhou_inlet, e_inlet)
 
     # extract boundary conditions from analytical solution, apply for weak enforcement
@@ -143,7 +149,7 @@ def implicitHighOrderQuasi1D_p_refinement(label, S_star, p_01, T_01, gamma, R, e
         refElement = Element(elementType, p, gridType)
         hoScheme = SpatialDiscHighOrder(q1D, refElement, K)
         DOF[i] = hoScheme.M
-        Ma, T, pres, u_exact = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R)
+        Ma, T, pres, u_exact = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R, s_fun =sectionCalcCinf)
         figtitle = "q1d_subsonic_" + label + "_" + elementType + "_"+ gridType + "_p" + str(p) + "_K" + str(K)
 
         # run iterations and save to file
@@ -165,16 +171,16 @@ def implicitHighOrderQuasi1D_fd_refinement(label, S_star, p_01, T_01, gamma, R, 
     np.set_printoptions(suppress=True, linewidth=np.nan, threshold=np.nan)
 
     # define problem
-    q1D = Problem(problemType=0, L=10., gamma=gamma, R=R)
+    q1D = Problem(problemType=2, L=10., gamma=gamma, R=R)
 
     # get analytical bcs
     x = np.array([0,10.0])
-    Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R)
+    Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R, s_fun = sectionCalcCinf)
 
     # set initial condtion to inlet
-    rho_inlet = Qb[0] / sectionCalc(0.)
-    rhou_inlet = Qb[1] / sectionCalc(0.)
-    e_inlet = Qb[2] / sectionCalc(0.)
+    rho_inlet = Qb[0] / sectionCalcCinf(0.)
+    rhou_inlet = Qb[1] / sectionCalcCinf(0.)
+    e_inlet = Qb[2] / sectionCalcCinf(0.)
     q1D.setUinformInitialCondition(rho_inlet, rhou_inlet, e_inlet)
 
     # extract boundary conditions from analytical solution, apply for weak enforcement
@@ -194,7 +200,7 @@ def implicitHighOrderQuasi1D_fd_refinement(label, S_star, p_01, T_01, gamma, R, 
         print("ref np", refElement.Np)
         hoScheme = SpatialDiscHighOrder(q1D, refElement, K)
         DOF[i] = hoScheme.M
-        Ma, T, pres, u_exact = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R)
+        Ma, T, pres, u_exact = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R, s_fun = sectionCalcCinf)
         figtitle = "q1d_subsonic_" + label + "_" + elementType + "_"+ gridType + "_p" + str(p) + "_K" + str(K)
 
         # run iterations and save to file
@@ -214,7 +220,7 @@ def implicitHighOrderQuasi1D_fd_refinement(label, S_star, p_01, T_01, gamma, R, 
 
 
 def createPlotsQuasi1D(figtitle):
-    exact = np.load("../results/subsonic_block_M199_C40_k20_k4_0_02_exact.npy")
+    exact = np.load("../results/cinf_exact.npy")
     results = np.load("../results/" + figtitle + "_results.npy")
     resHistory = np.load("../results/" + figtitle + "_resHistory.npy")
 
@@ -279,22 +285,26 @@ def gridConvPlot(title, names, labels):
     plt.grid()
     plt.xlabel("Degrees of Freedom")
     plt.ylabel("Error in $\mathcal{U}_1$")
-    plt.ylim([1.e-12, 1.e-1])
-    plt.xlim([4, 500])
+    plt.ylim([1.e-12, 1.e0])
+    plt.xlim([3, 500])
     nametotal = ""
-    marker = itertools.cycle(('x', '+', '.', '*'))
+    marker = itertools.cycle(('x', 'o', 's', '*'))
     for i in range(0, n_plots):
         results = np.load("../results/" + names[i])
-        convrate=np.polyfit(np.log(results[0, -3:-1]), np.log(results[1, -3:-1]), 1)
-        leg = labels[i] + (", $r$ = %.2f" % (-1.0*convrate[0]))
-        if i > n_plots - 3:
-            plt.loglog(results[0, :], results[1, :], marker = 'o', linestyle= '-', markersize=5, linewidth=3.0, label=labels[i])
-        else:
-            plt.loglog(results[0, :], results[1, :], marker='o', linestyle='-', markersize=5, linewidth=3.0,
+        convrate=np.polyfit(np.log(results[0, -2:]), np.log(results[1, -2:]), 1)
+        if i ==3:
+            convrate = np.polyfit(np.log(results[0, -3:-1]), np.log(results[1, -3:-1]), 1)
+        leg = labels[i] + (", $r \\approx$%.2f" % (-1.0*convrate[0]))
+        print('convergence rate =', convrate[0])
+        if i < n_plots - 2:
+            plt.loglog(results[0, :], results[1, :], marker=next(marker), linestyle='-', markersize=7, linewidth=3.0,
                        label=leg)
+        else:
+            plt.loglog(results[0, :], results[1, :], marker=next(marker), linestyle='-', markersize=7, linewidth=3.0,
+                       label=labels[i])
         nametotal = nametotal + "_" + names[i]
 
-    plt.legend(fontsize='small')
+    plt.legend(fontsize='small',loc=3)
     plt.show()
     resPlot.savefig("../plots/gridconv_" + title + ".pdf", bbox_inches='tight')
 
@@ -322,25 +332,47 @@ def gridConvPlotPref(title, names, labels):
 
 
 
-R, u_f, hoScheme, title = implicitHighOrderQuasi1DDriver("test", 0.8, 1.e5, 300., 1.4, 287, "dg_dense", 5, "lg", 2)
+# R, u_f, hoScheme, title = implicitHighOrderQuasi1DDriver("testC_inf", 0.8, 1.e5, 300., 1.4, 287, "dg_dense", 6, "lg", 4)
 # print(title)
-createPlotsQuasi1D(title)
+# createPlotsQuasi1D(title)
 # R_final = hoScheme.localResidualExplicitForm(u_f,0)
-
-# DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 6, "lg", 2, 5)
-
-#DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "csbp", 2, "uniform", 2, 5)
-#DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "csbp", 3, "uniform", 2, 5)
-#
-# DOF, errornorms, title = implicitHighOrderQuasi1D_fd_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "csbp", 2, "uniform", 20, 2)
-# DOF, errornorms, title = implicitHighOrderQuasi1D_fd_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "csbp", 3, "uniform", 20, 2)
-# DOF, errornorms, title = implicitHighOrderQuasi1D_fd_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "csbp", 4, "uniform", 20, 2)
-
-# DOF, errornorms, title = DOF, errornorms, title = implicitHighOrderQuasi1D_p_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 2, "lgl", 2, 29)
-# DOF, errornorms, title = DOF, errornorms, title = implicitHighOrderQuasi1D_p_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 2, "lg", 2, 29)
-#
+# #-3.122165315934671
+# DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 2, "lgl", 2, 7)
+# DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 2, "lg", 2, 7)
+# print(title)
+# gridConvPlot(title, [title], [title])
+# #-4.85494774519365
+# DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 4, "lgl", 2, 6)
 # # print(title)
-# gridConvPlotPref("pref", ["q1d_subsonic_test_dg_diag_lgl_p20_K2_p_refine.npy", "q1d_subsonic_test_dg_diag_lg_p20_K2_p_refine.npy"], ["DG-LGL", "DG-LG"])
+# # gridConvPlot(title, [title], [title])
+# # #-4.79809742374231
+# DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 4, "lg", 2, 6)
+# # print(title)
+# # gridConvPlot(title, [title], [title])
+# DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 6, "lgl", 2, 4)
+# # print(title)
+# # gridConvPlot(title, [title], [title])
+# DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 6, "lg", 2, 4)
+# # print(title)
+# #gridConvPlot("q1d_subsonic_test_dg_diag_lg_p6_K32_elem_refine.npy", ["q1d_subsonic_test_dg_diag_lg_p6_K32_elem_refine.npy"], ["q1d_subsonic_test_dg_diag_lg_p6_K32_elem_refine.npy"])
+#
+# #DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "csbp", 2, "uniform", 2, 5)
+# #DOF, errornorms, title = implicitHighOrderQuasi1D_element_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "csbp", 3, "uniform", 2, 5)
+# #
+# # DOF, errornorms, title = implicitHighOrderQuasi1D_fd_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "csbp", 2, "uniform", 20, 6)
+# # gridConvPlot(title, [title], [title])
+# # DOF, errornorms, title = implicitHighOrderQuasi1D_fd_refinement("test", 0.8, 1.e5, 300., 1.4, 287, "csbp", 3, "uniform", 20, 4)
+# # gridConvPlot(title, [title], [title])
+# DOF, errornorms, title = implicitHighOrderQuasi1D_fd_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "csbp", 2, "uniform", 9, 5)
+# # gridConvPlot(title, [title], [title])
+# DOF, errornorms, title = implicitHighOrderQuasi1D_fd_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "csbp", 3, "uniform", 13, 5)
+# # gridConvPlot(title, [title], [title])
+# #
+# DOF, errornorms, title = DOF, errornorms, title = implicitHighOrderQuasi1D_p_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 2, "lgl", 2, 18)
+# # gridConvPlot(title, [title], [title])
+# DOF, errornorms, title = DOF, errornorms, title = implicitHighOrderQuasi1D_p_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 2, "lg", 2, 18)
+# gridConvPlot(title, [title], [title])
+#gridConvPlotPref("pref", ["q1d_subsonic_test_dg_diag_lgl_p20_K2_p_refine.npy", "q1d_subsonic_test_dg_diag_lg_p20_K2_p_refine.npy"], ["DG-LGL", "DG-LG"])
 
 
 
@@ -350,15 +382,15 @@ createPlotsQuasi1D(title)
 #                             "q1d_subsonic_test_csbp_uniform_p4_K2_fd_refine.npy",],
 #                             ["CSBP, $p=2$", "CSBP, $p=3$", "CSBP, $p=4$"])
 
-# gridConvPlot("href_plot", ["q1d_subsonic_test_dg_diag_lgl_p2_K64_elem_refine.npy",
-#                 "q1d_subsonic_test_dg_diag_lg_p2_K64_elem_refine.npy",
-#                "q1d_subsonic_test_dg_diag_lgl_p4_K64_elem_refine.npy",
-#               "q1d_subsonic_test_dg_diag_lg_p4_K64_elem_refine.npy",
-#               "q1d_subsonic_test_dg_diag_lgl_p6_K32_elem_refine.npy",
-#               "q1d_subsonic_test_dg_diag_lg_p6_K32_elem_refine.npy",
-#                 "q1d_subsonic_test_csbp_uniform_p2_K32_elem_refine.npy",
-#             "q1d_subsonic_test_csbp_uniform_p3_K32_elem_refine.npy", "q1d_subsonic_test_dg_diag_lgl_p20_K2_p_refine.npy", "q1d_subsonic_test_dg_diag_lg_p20_K2_p_refine.npy"],
-#              ["DG-LGL, $p=2$","DG-LG, $p=2$", "DG-LGL, $p=4$","DG-LG, $p=4$","DG-LGL, $p=6$","DG-LG, $p=6$","CSBP, $p=2$", "CSBP, $p=3$", "DG-LGL, $p$-refinement", "DG-LG, $p$-refinement"])
+gridConvPlot("href_plot", ["q1d_subsonic_new_dg_diag_lgl_p2_K128_elem_refine.npy",
+                "q1d_subsonic_new_dg_diag_lg_p2_K128_elem_refine.npy",
+               "q1d_subsonic_new_dg_diag_lgl_p4_K64_elem_refine.npy",
+              "q1d_subsonic_new_dg_diag_lg_p4_K64_elem_refine.npy",
+              "q1d_subsonic_new_dg_diag_lgl_p6_K16_elem_refine.npy",
+              "q1d_subsonic_test_dg_diag_lg_p6_K16_elem_refine.npy",
+                "q1d_subsonic_new_csbp_uniform_p2_K2_fd_refine.npy",
+            "q1d_subsonic_new_csbp_uniform_p3_K2_fd_refine.npy", "q1d_subsonic_new_dg_diag_lgl_p19_K2_p_refine.npy", "q1d_subsonic_new_dg_diag_lg_p19_K2_p_refine.npy"],
+             ["DG-LGL, $p=2$","DG-LG, $p=2$", "DG-LGL, $p=4$","DG-LG, $p=4$","DG-LGL, $p=6$","DG-LG, $p=6$","CSBP, $p=2$", "CSBP, $p=3$", "DG-LGL, $p$-refinement", "DG-LG, $p$-refinement"])
 
 # u = ho.u_0_interp
 # R_mat = ho.localResidualInterior(u, 2)

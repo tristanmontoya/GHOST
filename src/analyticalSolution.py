@@ -9,6 +9,9 @@ def sectionCalc(x):
     else:
         return 1. + 0.5*(1-x/5.)**2
 
+def sectionCalcCinf(x):
+    return -1./250.*x**3 + 0.1*x**2 - 0.7*x + 2.5
+
 def getMach(init_M, rel_S, gamma):
     data = rel_S, gamma
     M = fsolve(areaFcn, init_M, args=data)
@@ -28,7 +31,7 @@ def pressureFcn(P, *data):
     alpha = (gamma + 1.)/(gamma - 1.)
     return np.sqrt(2./(gamma*(gamma - 1.)))*(P-1.)/np.sqrt(1.+alpha*P) - 2./(gamma - 1.)*a_L/a_R*(1. - (p_R/p_L*P)**((gamma - 1.)/(2.*gamma)))
 
-def quasi1D(x, S_star_L, p_01, T_01, gamma, R, x_shock=100):
+def quasi1D(x, S_star_L, p_01, T_01, gamma, R, x_shock=100, s_fun=sectionCalc):
     # assume subsonic inlet, throat (not necessarily sonic) at x=5
     # if no shock, x_shock=100 so shock position not reached in nozzle
 
@@ -72,7 +75,7 @@ def quasi1D(x, S_star_L, p_01, T_01, gamma, R, x_shock=100):
         else:  # otherwise subsonic
             init_M = 0.1
 
-        rel_S = sectionCalc(x[i]) / S_star
+        rel_S = s_fun(x[i]) / S_star
 
         # calculate Mach number, temperature, and pressure
         M[i] = getMach(init_M, rel_S, gamma)
@@ -82,10 +85,10 @@ def quasi1D(x, S_star_L, p_01, T_01, gamma, R, x_shock=100):
         a[i] = np.sqrt(gamma*p[i]/rho[i])
         u[i] = a[i]*M[i]
         e[i] = rho[i]*(R/(gamma-1.)*T[i] + 0.5*u[i]**2)
-        Q[i*3] = rho[i]*sectionCalc(x[i])
-        Q[i*3+1] = rho[i]*u[i]*sectionCalc(x[i])
+        Q[i*3] = rho[i]*s_fun(x[i])
+        Q[i*3+1] = rho[i]*u[i]*s_fun(x[i])
 
-        Q[i*3+2] = e[i]*sectionCalc(x[i])
+        Q[i*3+2] = e[i]*s_fun(x[i])
 
     return M, T, p, Q
 
