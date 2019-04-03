@@ -1,11 +1,9 @@
-
-
+# Tristan Montoya - Driver for the 1D Euler Shock-Tube Problem
 
 import numpy as np
 from analyticalSolution import *
 import matplotlib.pyplot as plt
 from problem import *
-from spatialDiscretization import *
 from element import *
 from spatialDiscHighOrder import *
 from tvdRK import *
@@ -78,8 +76,9 @@ def createPlotsShockTube(figtitle, K, N):
         x_new = np.linspace(x_loc[0], x_loc[-1], 30)
         y_new = f(x_new)
 
-        plt.plot(x_new, y_new, '-r')
-    plt.xlim([0, 10])
+        plt.plot(x_new, y_new, '-', lw = 2.5)
+    plt.xlim([6, 9])
+    plt.ylim([0.,0.5])
     plt.xlabel("$x$ (m)")
     plt.ylabel("Density")
     plt.legend()
@@ -112,7 +111,7 @@ def createSimplePlotsShockTube(figtitle):
     plt.show()
     rho.savefig("../plots/density_" + figtitle + ".pdf", bbox_inches='tight')
 
-u_f, hoScheme, figtitle = explicitHighOrderShockTubeDriver('goodrun05', 5.0, 1.e5, 1.e4, 1., 0.125, 6.1e-3, 0.5, 1.4, 287.,
-                                                        'dg_diag', 'cs', 'SSPRK3', 'tvd', 2, 'lgl', 100)
-# #createPlotsShockTube('shocktube_test_dg_diag_lgl_p2_K100', 100, 3)
-createSimplePlotsShockTube('shocktube_goodrun05_dg_diag_lgl_p2_K100_tvd')
+u_f, hoScheme, figtitle = explicitHighOrderShockTubeDriver('final', 5.0, 1.e5, 1.e4, 1., 0.125, 6.1e-3, 0.5, 1.4, 287.,
+                                                        'dg_diag', 'cs', 'SSPRK3', 'tvb', 2, 'lgl', 100)
+createPlotsShockTube('shocktube_final_dg_diag_lgl_p2_K100_tvb', 100, 3)
+createSimplePlotsShockTube('shocktube_final_dg_diag_lgl_p2_K100_tvb')

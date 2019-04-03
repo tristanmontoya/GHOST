@@ -1,4 +1,4 @@
-# Tristan Montoya - Euler (Quasi-)1D - Implicit Euler Method for Pseudo-Transient Continuation
+# Tristan Montoya - Euler Equations - Implicit Euler Method for Pseudo-Transient Continuation
 
 import numpy as np
 

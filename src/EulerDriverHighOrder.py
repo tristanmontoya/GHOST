@@ -1,4 +1,5 @@
-# Tristan Montoya - Driver for the 1D Euler Equations
+# Tristan Montoya - Driver for the Quasi-1D Euler Equations
+# For the shock-tube problem, see highOrderShockTubeDriver.py
 
 import numpy as np
 from analyticalSolution import *
@@ -22,16 +23,6 @@ def implicitHighOrderQuasi1DDriver(label, S_star, p_01, T_01, gamma, R, elementT
     res = len(x)
     Mab, Tb, presb, Qb = quasi1D(x, S_star, p_01, T_01, gamma, R, x_shock=100, s_fun =sectionCalcCinf)
     np.save('../results/cinf_exact.npy',np.array([x, Mab, presb]))
-    # testing eigenvalues and roe flux
-    # X, Xinv, Lambda = q1D.eigsA_j(Q[0:3], 0.)
-    # Xroe, Xinvroe, Lambdaroe = q1D.eigsA_roe(Q[0:3], Q[0:3], 0.0)
-    # print("lambda= ", Lambda)
-    # print("A(Q_L) = ", q1D.A_j(Q[0:3]))
-    # print("A(Q_L), eigs = ", X @ Lambda @ Xinv)
-    # print("eigsA", np.linalg.eig(q1D.A_j(Q[0:3])))
-    # print("F(Q_L), AQ_L:", q1D.E_j(Q[0:3]), q1D.A_j(Q[0:3]) @ Q[0:3])
-    # print("A(Q_L),roe = ", Xroe @ Lambdaroe @ Xinvroe)
-    # print("Froe(Q_L, Q_L) = ", q1D.numericalFlux(Q[0:3], Q[0:3], 0.0))
 
     # set initial condtion to inlet
     rho_inlet = Qb[0] / sectionCalcCinf(0.)
@@ -52,11 +43,6 @@ def implicitHighOrderQuasi1DDriver(label, S_star, p_01, T_01, gamma, R, elementT
     # reference element
     refElement = Element(elementType, p, gridType)
     hoScheme = SpatialDiscHighOrder(q1D, refElement, K)
-
-    # Ma, T, pres, Q = quasi1D(hoScheme.mesh, S_star, p_01, T_01, gamma, R)
-    # np.save("../results/" + figtitle + "_exact.npy", np.array([hoScheme.mesh, Ma, pres, Q]))
-
-    #hoScheme.u_0_interp = Q
 
     figtitle = "q1d_subsonic_" + label + "_" + elementType + "_"+ gridType + "_p" + str(p) + "_K" + str(K)
 
@@ -139,9 +125,6 @@ def implicitHighOrderQuasi1D_p_refinement(label, S_star, p_01, T_01, gamma, R, e
 
     q1D.setBCs_allDirichlet(Q_in, Q_out)
 
-    # reference element
-
-
     DOF = np.zeros(n_grids)
     errornorms = np.zeros(n_grids)
     p = p_0
@@ -188,7 +171,6 @@ def implicitHighOrderQuasi1D_fd_refinement(label, S_star, p_01, T_01, gamma, R, 
     Q_out = np.array([Qb[3], Qb[4], Qb[5]])
 
     q1D.setBCs_allDirichlet(Q_in, Q_out)
-
 
     DOF = np.zeros(n_grids)
     errornorms = np.zeros(n_grids)
@@ -332,6 +314,8 @@ def gridConvPlotPref(title, names, labels):
 
 
 
+#Stuff I ran for my RAC
+
 # R, u_f, hoScheme, title = implicitHighOrderQuasi1DDriver("testC_inf", 0.8, 1.e5, 300., 1.4, 287, "dg_dense", 6, "lg", 4)
 # print(title)
 # createPlotsQuasi1D(title)
@@ -373,9 +357,6 @@ def gridConvPlotPref(title, names, labels):
 # DOF, errornorms, title = DOF, errornorms, title = implicitHighOrderQuasi1D_p_refinement("new", 0.8, 1.e5, 300., 1.4, 287, "dg_diag", 2, "lg", 2, 18)
 # gridConvPlot(title, [title], [title])
 #gridConvPlotPref("pref", ["q1d_subsonic_test_dg_diag_lgl_p20_K2_p_refine.npy", "q1d_subsonic_test_dg_diag_lg_p20_K2_p_refine.npy"], ["DG-LGL", "DG-LG"])
-
-
-
 #gridConvPlot("csbp_href", ["q1d_subsonic_test_csbp_uniform_p2_K32_elem_refine.npy", "q1d_subsonic_test_csbp_uniform_p3_K32_elem_refine.npy"], ["CSBP, $p=2$", "CSBP, $p=3$"])
 # gridConvPlot("csbp_fdref", ["q1d_subsonic_test_csbp_uniform_p2_K2_fd_refine.npy",
 #                             "q1d_subsonic_test_csbp_uniform_p3_K2_fd_refine.npy",
@@ -391,11 +372,3 @@ gridConvPlot("href_plot", ["q1d_subsonic_new_dg_diag_lgl_p2_K128_elem_refine.npy
                 "q1d_subsonic_new_csbp_uniform_p2_K2_fd_refine.npy",
             "q1d_subsonic_new_csbp_uniform_p3_K2_fd_refine.npy", "q1d_subsonic_new_dg_diag_lgl_p19_K2_p_refine.npy", "q1d_subsonic_new_dg_diag_lg_p19_K2_p_refine.npy"],
              ["DG-LGL, $p=2$","DG-LG, $p=2$", "DG-LGL, $p=4$","DG-LG, $p=4$","DG-LGL, $p=6$","DG-LG, $p=6$","CSBP, $p=2$", "CSBP, $p=3$", "DG-LGL, $p$-refinement", "DG-LG, $p$-refinement"])
-
-# u = ho.u_0_interp
-# R_mat = ho.localResidualInterior(u, 2)
-# R_exp = ho.localResidualExplicitForm(u, 2)
-# jac = dRdQ.toarray()
-# print("R1_Matrix: ", R_mat)
-# print("Explicit Form: ", R_exp)
-# print("Full residual: ", np.reshape(ho.flowResidual(u),[ho.K,ho.Np*ho.n_eq]))
