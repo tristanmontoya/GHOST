@@ -286,7 +286,7 @@ def gridConvPlot(title, names, labels):
     plt.xlabel("Degrees of Freedom")
     plt.ylabel("Error in $\mathcal{U}_1$")
     plt.ylim([1.e-12, 1.e0])
-    plt.xlim([3, 500])
+    plt.xlim([10, 1500])
     nametotal = ""
     marker = itertools.cycle(('x', 'o', 's', '*'))
     for i in range(0, n_plots):
@@ -297,10 +297,10 @@ def gridConvPlot(title, names, labels):
         leg = labels[i] + (", $r \\approx$%.2f" % (-1.0*convrate[0]))
         print('convergence rate =', convrate[0])
         if i < n_plots - 2:
-            plt.loglog(results[0, :], results[1, :], marker=next(marker), linestyle='-', markersize=7, linewidth=3.0,
+            plt.loglog(results[0, :]*3, results[1, :], marker=next(marker), linestyle='-', markersize=7, linewidth=3.0,
                        label=leg)
         else:
-            plt.loglog(results[0, :], results[1, :], marker=next(marker), linestyle='-', markersize=7, linewidth=3.0,
+            plt.loglog(results[0, :]*3, results[1, :], marker=next(marker), linestyle='-', markersize=7, linewidth=3.0,
                        label=labels[i])
         nametotal = nametotal + "_" + names[i]
 

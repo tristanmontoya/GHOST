@@ -1,4 +1,4 @@
-# Tristan Montoya - Euler 1D - Temporal Discretization and Iterative Methods
+# Tristan Montoya - Euler (Quasi-)1D - Implicit Euler Method for Pseudo-Transient Continuation
 
 import numpy as np
 

@@ -1,11 +1,11 @@
-# TVD Runge-Kutta
-# Tristan Montoya
+# Tristan Montoya - TVD/SSP Runge-Kutta Methods
 
 import numpy as np
 
 class explicitSolver:
 
-    def __init__(self, runName, spatialDiscretization, C, t_f, method='explicit_euler', ref_u = 300, ref_a = 315):
+    def __init__(self, runName, spatialDiscretization, C, t_f, method='explicit_euler',
+                 ref_u = 300, ref_a = 315):
         #problem setup
         self.runName = runName
         self.spatialDiscretization = spatialDiscretization
@@ -25,14 +25,31 @@ class explicitSolver:
     def runSolver(self):
         if self.method=='explicit_euler':
             self.explicitEuler()
+        if self.method =='SSPRK3':
+            self.SSPRK3()
 
     def explicitEuler(self):
-        self.Q = self.spatialDiscretization.generalizedLimiter(self.Q)
+        self.Q, self.isLimited = self.spatialDiscretization.generalizedLimiter(self.Q)
         R = self.spatialDiscretization.flowResidual(self.Q)
 
         for n in range(0, self.n_f):
-            self.Q = self.spatialDiscretization.generalizedLimiter(self.Q + self.dt*R)
+            self.Q, self.isLimited = self.spatialDiscretization.generalizedLimiter(self.Q + self.dt*R)
 
+            R = self.spatialDiscretization.flowResidual(self.Q)
+            self.t = self.t + self.dt
+            print("step: ", n + 1, "time: ", self.t)
+        self.saveResults()
+
+    def SSPRK3(self):
+        self.Q, self.isLimited = self.spatialDiscretization.generalizedLimiter(self.Q)
+        R = self.spatialDiscretization.flowResidual(self.Q)
+
+        for n in range(0, self.n_f):
+            Q1, self.isLimited = self.spatialDiscretization.generalizedLimiter(self.Q + self.dt * R)
+            R = self.spatialDiscretization.flowResidual(Q1)
+            Q2, self.isLimited = self.spatialDiscretization.generalizedLimiter(0.25*(3.0*self.Q + Q1 + self.dt * R))
+            R = self.spatialDiscretization.flowResidual(Q2)
+            self.Q, self.isLimited = self.spatialDiscretization.generalizedLimiter(1./3.*(self.Q + 2.0*Q2 + 2.0*self.dt*R))
             R = self.spatialDiscretization.flowResidual(self.Q)
             self.t = self.t + self.dt
             print("step: ", n + 1, "time: ", self.t)
@@ -65,3 +82,4 @@ class explicitSolver:
         np.save("../results/"+self.runName+"_results.npy", np.array([Q1, Q2, Q3,
                                                       rho, u, e, p,
                                                        a, Ma, self.spatialDiscretization.mesh]))
+        np.save("../results/"+self.runName+"_isLimited.npy", self.isLimited)
