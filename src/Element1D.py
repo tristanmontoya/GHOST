@@ -5,6 +5,7 @@ import numpy as np
 import quadpy as qp
 from scipy import special
 
+
 class Element1D(ElementBase):
 
     def __init__(self, p, Nq, basis='orthonormal', quadratureType='LGL'):
@@ -12,14 +13,14 @@ class Element1D(ElementBase):
         # Volume quadrature
         if quadratureType == 'LGL':
             quad = qp.line_segment.GaussLobatto(Nq)
-        else: #LGL by default
+        else: # LGL by default
             quad = qp.line_segment.GaussLobatto(Nq)
 
         wq = quad.weights
         xq = quad.points.reshape([Nq, 1]) # make column vector for dimension-agnostic implementation
 
         # Facet quadrature
-        xqf = None #not needed here (dimension zero)
+        xqf = None # not needed here (dimension zero)
         xqfe = np.array([[[-1.0]], [[1.0]]])
         wqf = np.array([1.0])
 
@@ -46,5 +47,6 @@ class Element1D(ElementBase):
             self.Vf[gamma, :, :] = np.polynomial.legendre.legvander(self.xqfe[gamma,:,0], self.p)
             for j in range(0, self.Np):
                 self.Vf[gamma, :, j] /= np.sqrt(2. / (2 * j + 1))
+
 
 testEl = Element1D(p=2, Nq = 3, basis='orthonormal', quadratureType='LGL')

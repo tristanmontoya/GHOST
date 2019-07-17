@@ -1,46 +1,76 @@
 # GHOST - Affine Mesh Base Class
 
-class Mesh:
+class AffineMesh:
     """
+
     # Notes
 
-        For now, assume all elements based on the same reference element
-        See Andreas Kloeckner's HEDGE solver for inspiration maybe
-        See how Hesthaven and Warburton treat facet indexing
-        *When computing fluxes for an element, we can find what facets those are
-         but how do we know what other elements share that facet (search a priori)
-
+        For now, assume all elements topologically the same, and mesh is conforming
 
     # Properties
 
-        ref     # reference element, type ElementBase
+        type (string)
+            # options: 'simplex'
+            # what elements make up the mesh
+            # may add mixed and non-conforming later
 
-        K       # int, number of elements in mesh
+        Nef (int)
+            # number of facets per element
 
-        Nv      # int, number of vertices in mesh (shared ones counted once)
+        dim (int)
+            # spatial dimension
 
-        Nf      # int, number of facets in mesh (shared ones counted once)
+        K (int)
+            # number of elements in mesh
 
-        dim     # int, spatial dimension = ref.dim
+        Nv (int)
+            # number of vertices in mesh (shared ones counted once)
 
-        v       # vertex physical coordinates (size Nv x dim)
+        Nf (int)
+            # number of facets in mesh (shared ones counted once)
 
-        VtoE    # vertex indices belonging to element (int, size K x dim)
+        v (real, Nv x dim)
+            # vertex physical coordinates
 
-        J       # element Jacobian (size K x dim x dim)
+        VtoE (int, K x dim)
+            # vertex indices belonging to element
+            # counter-clockwise in 2D (should be from mesh generator)
 
-        detJ    # element Jacobian determinant (size K)
+        localVtoF (int, K x ref.Nf x dim)
+            # vertex indices belonging to element facet
+            localVtoF[K,i,:] are the vertex indices (ordered low to high) for Facet i of element K
 
-        s       # element translation such that
-                # x = J x_hat + s
+        J (real, K x dim x dim)
+            # element Jacobian
 
-        n       # element facet normal vectors (size K x ref.Nf x ref.dim)
+        detJ (real, K)
+            # element Jacobian determinant
 
+        s (real, K x dim)
+            # element translation such that
+            # x = J x_hat + s
+
+        n (real, K x Nef x dim)
+            # element facet normal vectors
 
     # Methods
 
+        plotMesh
+
     """
 
-    def __init__(self, referenceElement):
-        self.referenceElement = referenceElement
+    def __init__(self, dim, v, VtoE, type='simplex'):
+        self.dim = dim
+        self.v = v
+        self.VtoE = VtoE
+        self.type = type
+
+        self.Nv = v.shape[0]
+        self.K = VtoE.shape[0]
+
+        if type=='simplex':
+            self.Nef = self.dim+1
+
+    def plotMesh(self):
+        raise NotImplementedError
 

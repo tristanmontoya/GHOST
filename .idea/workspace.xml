@@ -2,20 +2,659 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2baa223a-abd7-41d9-be55-46b5d42979a2" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/AffineMesh.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/AffineMesh1D.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Simulation.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/mesh/meshzoo_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/Euler.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Euler.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/density_shocktube_final_dg_diag_lgl_p2_K100_tvb.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/mach_shocktube_final_dg_diag_lgl_p2_K100_tvb.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/cinf_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/cinf_exact.py.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/dgtest_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/dgtest_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/dgtest_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/figtitle_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_est_dg_dense_lg_p5_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_est_dg_dense_lg_p5_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_csbp_uniform_p2_K2_fd_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_csbp_uniform_p2_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_csbp_uniform_p2_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_csbp_uniform_p3_K2_fd_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_csbp_uniform_p3_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_csbp_uniform_p3_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p10_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p10_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p11_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p11_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p12_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p12_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p13_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p13_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p14_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p14_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p15_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p15_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p16_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p16_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p17_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p17_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p18_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p18_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p19_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p19_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p19_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K128_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K128_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K128_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p2_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p3_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p3_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K64_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p4_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p5_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p5_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p6_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p6_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p7_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p7_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p8_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p8_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p9_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lg_p9_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p10_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p10_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p11_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p11_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p12_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p12_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p13_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p13_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p14_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p14_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p15_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p15_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p16_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p16_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p17_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p17_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p18_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p18_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p19_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p19_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p19_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K128_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K128_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K128_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p2_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p3_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p3_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K64_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p4_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p5_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p5_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p6_K16_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p6_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p6_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p6_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p6_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p6_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p6_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p6_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p6_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p7_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p7_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p8_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p8_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p9_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_new_dg_diag_lgl_p9_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_testC_inf_dg_dense_lg_p5_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_testC_inf_dg_dense_lg_p5_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_testC_inf_dg_dense_lg_p6_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_testC_inf_dg_dense_lg_p6_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K2_fd_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K32_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p2_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K2_fd_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K32_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K8_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p3_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p4_K2_fd_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p4_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p4_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p4_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p4_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p4_K8_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p4_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_csbp_uniform_p4_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K128_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K128_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p2_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p5_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lg_p5_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K64_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_dense_lgl_p2_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p10_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p10_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p11_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p11_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p12_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p12_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p13_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p13_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p14_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p14_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p15_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p15_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p16_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p16_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p17_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p17_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p18_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p18_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p19_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p19_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p19_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p20_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p20_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p20_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p21_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p21_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p21_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p22_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p22_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p23_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p23_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p24_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p24_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p25_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p25_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p26_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p26_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p27_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p27_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p28_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p28_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p29_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p29_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K128_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K128_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K128_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K32_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K64_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p2_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p30_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p30_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p30_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p3_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p3_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K64_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p4_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p5_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p5_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K16_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K32_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p6_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p7_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p7_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K64_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p8_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p9_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lg_p9_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p10_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p10_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p11_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p11_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p12_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p12_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p13_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p13_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p14_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p14_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p15_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p15_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p16_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p16_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p17_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p17_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p18_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p18_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p19_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p19_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p19_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p20_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p20_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p20_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p21_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p21_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p21_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p22_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p22_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p23_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p23_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p24_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p24_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p25_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p25_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p26_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p26_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p27_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p27_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p28_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p28_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p29_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p29_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K128_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K128_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K128_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K64_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p2_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p30_K2_p_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p30_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p30_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p3_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p3_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K64_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p4_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p5_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p5_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K32_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p6_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p7_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p7_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K16_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K16_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K32_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K32_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K4_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K4_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K64_elem_refine.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K64_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K64_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K8_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p8_K8_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p9_K2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/q1d_subsonic_test_dg_diag_lgl_p9_K2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_bdf2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_bdf2_k2_0_1_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_bdf2_k2_0_1_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_bdf2_k2_10_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_bdf2_k2_10_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_bdf2_k2_1_k4_0_04_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_bdf2_k2_1_k4_0_04_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_bdf2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_ie_C0_1_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_ie_C0_1_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_ie_C10_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_ie_C10_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_ie_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_block_ie_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_diag_bdf2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_diag_bdf2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_diag_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_diag_ie_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_diag_ie_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_diag_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_final_dg_diag_lgl_p2_K100_tvb_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_final_dg_diag_lgl_p2_K100_tvb_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_goodrun05_dg_diag_lgl_p2_K100_tvb_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_goodrun05_dg_diag_lgl_p2_K100_tvb_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_goodrun05_dg_diag_lgl_p2_K100_tvd_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_goodrun05_dg_diag_lgl_p2_K100_tvd_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_goodrun05_dg_diag_lgl_p2_K200_tvb_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_goodrun05_dg_diag_lgl_p2_K200_tvb_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_goodrun05_dg_diag_lgl_p2_K200_tvd_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_goodrun05_dg_diag_lgl_p2_K200_tvd_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test05_dg_diag_lgl_p2_K100_tvb_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test05_dg_diag_lgl_p2_K100_tvb_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test05_dg_diag_lgl_p2_K100_tvd_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test05_dg_diag_lgl_p2_K100_tvd_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test10_dg_diag_lgl_p2_K100_tvd_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test10_dg_diag_lgl_p2_K100_tvd_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test2_dg_diag_lgl_p2_K100_tvb_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test2_dg_diag_lgl_p2_K100_tvb_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test2_dg_diag_lgl_p2_K100_tvd_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test2_dg_diag_lgl_p2_K100_tvd_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test5_dg_diag_lgl_p2_K100_tvb_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test5_dg_diag_lgl_p2_K100_tvb_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test5_dg_diag_lgl_p2_K100_tvd_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test5_dg_diag_lgl_p2_K100_tvd_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K100_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K100_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K100_tvb_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K100_tvb_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K100_tvd_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K100_tvd_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K150_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K200_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K200_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K200_tvb_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K200_tvb_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K200_tvd_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K200_tvd_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p2_K50_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p3_K50_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p4_K50_isLimited.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/shocktube_test_dg_diag_lgl_p4_K50_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C3_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C3_mg_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C3_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C3_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_irsB0.6_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_irsB0.6_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_irsB0.6_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_irsB0.6_smoothbounds_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_irsB0.6_smoothbounds_linear_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_irsB0.6_smoothbounds_linear_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_irsB0.6_smoothbounds_linear_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_irsB0.6_smoothbounds_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_irsB0.6_smoothbounds_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_mg_dontsmoothbounds_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_mg_dontsmoothbounds_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_mg_dontsmoothbounds_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_mg_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_mg_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_C7_mg_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M199_C20_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M199_C20_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M199_C20_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M199_C40_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M199_C40_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M199_C40_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C10_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C10_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C10_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_0_k4_0_05_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_0_k4_0_05_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_0_k4_0_05_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_0_k4_0_1_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_0_k4_0_1_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_0_k4_0_1_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_5_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_5_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_5_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_5_k4_0_0_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_5_k4_0_0_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_5_k4_0_0_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_k4_0_05_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_k4_0_05_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_k4_0_05_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_k4_0_1_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_k4_0_1_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_0_k4_0_1_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_10_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_10_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_10_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_5_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_5_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C20_k2_5_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k2_0_5_k4_0_0_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k2_0_k4_0_05_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k2_0_k4_0_05_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k2_0_k4_0_05_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k2_0_k4_0_1_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k2_0_k4_0_1_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M49_C40_k2_0_k4_0_1_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M99_C10_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M99_C10_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M99_C10_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M99_C20_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M99_C20_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M99_C20_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M99_C40_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M99_C40_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_M99_C40_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_test_new_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_test_new_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_block_test_new_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k20_k4_0_05_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k20_k4_0_05_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k20_k4_0_05_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k20_k4_0_1_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k20_k4_0_1_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k20_k4_0_1_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k2_0_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k2_0_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k2_0_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k2_0_k4_0_05_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k2_0_k4_0_05_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k2_0_k4_0_05_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k2_0_k4_0_1_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k2_0_k4_0_1_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M49_C40_k2_0_k4_0_1_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M99_C10_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M99_C10_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M99_C10_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M99_C20_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M99_C20_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M99_C20_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M99_C40_k20_k4_0_02_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M99_C40_k20_k4_0_02_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_diag_M99_C40_k20_k4_0_02_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/subsonic_test1_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_noirs_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_noirs_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_noirs_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_nostagelocal_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_nostagelocal_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_nostagelocal_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/testFloMG_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_C3_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_C3_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_C3_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_C7_irsB0.6_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_C7_irsB0.6_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_C7_irsB0.6_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M199_C120_k2_0_5_k4_0_0_2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M199_C120_k2_0_5_k4_0_0_2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M199_C120_k2_0_5_k4_0_0_2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M199_C120_k2_1_k4_0_0_2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M49_C120_k2_0_5_k4_0_0_2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M49_C120_k2_0_5_k4_0_0_2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M49_C120_k2_0_5_k4_0_0_2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_05_k4_0_0_2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_05_k4_0_0_2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_05_k4_0_0_2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_1_k4_0_0_2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_1_k4_0_0_2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_1_k4_0_0_2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_5_k4_0_0_2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_5_k4_0_0_2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_5_k4_0_0_2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_8_k4_0_0_2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_8_k4_0_0_2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_0_8_k4_0_0_2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_1_k4_0_0_2_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_1_k4_0_0_2_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_M99_C120_k2_1_k4_0_0_2_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_block_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_diag_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_diag_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_diag_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_exact.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_resHistory.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/transonic_results.npy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AffineMesh.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AffineMesh.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Element1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Element1D.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ElementBase.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ElementBase.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/EulerDriverHighOrder.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/analyticalSolution.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/element.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/highOrderShockTubeDriver.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/implicitSolver.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/problem.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/spatialDiscHighOrder.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tvdRK.py" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,15 +663,18 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/Euler$Eule.coverage" NAME="Eule Coverage Results" MODIFIED="1550345854090" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/GHOST$Element1D.coverage" NAME="Element1D Coverage Results" MODIFIED="1563233778018" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$temporalDiscretization.coverage" NAME="temporalDiscretization Coverage Results" MODIFIED="1550345862057" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/Euler$EulerDriverHighOrder.coverage" NAME="EulerDriverHighOrder Coverage Results" MODIFIED="1553454593974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/Euler$problem.coverage" NAME="problem Coverage Results" MODIFIED="1550543387985" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/Euler$spatialDiscretization.coverage" NAME="spatialDiscretization Coverage Results" MODIFIED="1552607016873" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/Euler$EulerDriver1D_tosubmit.coverage" NAME="EulerDriver1D_tosubmit Coverage Results" MODIFIED="1550672961170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/GHOST$pygmsh_test.coverage" NAME="pygmsh_test Coverage Results" MODIFIED="1563254731780" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
     <SUITE FILE_PATH="coverage/Euler$element.coverage" NAME="element Coverage Results" MODIFIED="1553444155039" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$Euler.coverage" NAME="Euler Coverage Results" MODIFIED="1550672955034" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/GHOST$plotMesh1D__test.coverage" NAME="plotMesh1D__test Coverage Results" MODIFIED="1563322118568" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
+    <SUITE FILE_PATH="coverage/Euler$Eule.coverage" NAME="Eule Coverage Results" MODIFIED="1550345854090" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/GHOST$Element1D.coverage" NAME="Element1D Coverage Results" MODIFIED="1563233778018" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/Euler$EulerDriverHighOrder.coverage" NAME="EulerDriverHighOrder Coverage Results" MODIFIED="1553454593974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/Euler$problem.coverage" NAME="problem Coverage Results" MODIFIED="1550543387985" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/GHOST$meshzoo_test.coverage" NAME="meshzoo_test Coverage Results" MODIFIED="1563257834606" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
+    <SUITE FILE_PATH="coverage/Euler$spatialDiscretization.coverage" NAME="spatialDiscretization Coverage Results" MODIFIED="1552607016873" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/Euler$EulerDriver1D_tosubmit.coverage" NAME="EulerDriver1D_tosubmit Coverage Results" MODIFIED="1550672961170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$pytest_for_EulerDriver1D_testMachCalc.coverage" NAME="pytest for EulerDriver1D.testMachCalc Coverage Results" MODIFIED="1548727329844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$EulerDriverFLOMG.coverage" NAME="EulerDriverFLOMG Coverage Results" MODIFIED="1552790324181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
@@ -40,32 +682,36 @@
     <session id="1306376963">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="1" />
+          <entry key="project.closed" value="2" />
           <entry key="project.open.time.1" value="1" />
+          <entry key="project.open.time.16" value="1" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="2" />
+          <entry key="project.opened" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Element1D" value="137" />
-          <entry key="Python Console" value="128" />
-          <entry key="py" value="4090" />
+          <entry key="Python Console" value="195" />
+          <entry key="meshzoo_test" value="98" />
+          <entry key="py" value="9206" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="4355" />
+          <entry key="Python" value="9636" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="3" />
+          <entry key="py" value="17" />
+          <entry key="pyi" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="3" />
+          <entry key="Python" value="17" />
+          <entry key="PythonStub" value="1" />
         </counts>
       </usages-collector>
     </session>
@@ -75,12 +721,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ElementBase.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-51">
-              <caret line="7" column="7" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="7" />
+            <state relative-caret-position="-1088">
+              <caret line="37" column="40" lean-forward="true" selection-start-line="37" selection-start-column="40" selection-end-line="37" selection-end-column="40" />
               <folding>
-                <element signature="e#29#47#0" expanded="true" />
-                <marker date="1563235329545" expanded="true" signature="4141:4176" ph="..." />
-                <marker date="1563235329545" expanded="true" signature="4211:4251" ph="..." />
+                <marker date="1563318755748" expanded="true" signature="4664:4699" ph="..." />
+                <marker date="1563318755748" expanded="true" signature="4734:4774" ph="..." />
               </folding>
             </state>
           </provider>
@@ -89,8 +734,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Element1D.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" column="29" lean-forward="true" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
+            <state relative-caret-position="408">
+              <caret line="40" column="8" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="8" />
               <folding>
                 <element signature="e#30#65#0" expanded="true" />
               </folding>
@@ -101,8 +746,59 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/AffineMesh.py">
           <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="136">
+              <caret line="8" column="8" selection-start-line="8" selection-start-column="8" selection-end-line="8" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/AffineMesh1D.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="178">
+              <caret line="23" column="18" lean-forward="true" selection-start-line="23" selection-start-column="18" selection-end-line="23" selection-end-column="18" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+                <marker date="1563321872312" expanded="true" signature="160:265" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Simulation.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-196">
+              <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
+              <folding>
+                <marker date="1563322266858" expanded="true" signature="56:62" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/mesh/meshzoo_test.py">
+          <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="170">
-              <caret line="10" column="82" selection-start-line="10" selection-start-column="82" selection-end-line="10" selection-end-column="82" />
+              <caret line="16" column="55" selection-start-line="16" selection-start-column="55" selection-end-line="16" selection-end-column="55" />
+              <folding>
+                <element signature="e#0#14#0" expanded="true" />
+                <marker date="1563313763567" expanded="true" signature="81:83" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+                <marker date="1563322187044" expanded="true" signature="112:117" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -112,6 +808,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Python Stub" />
         <option value="Python Script" />
       </list>
     </option>
@@ -146,6 +843,8 @@
       <find>[:,:,k]</find>
       <find>if isAc</find>
       <find>normal</find>
+      <find>gmsh_path</find>
+      <find>binary</find>
     </findStrings>
     <replaceStrings>
       <replace>Q_j</replace>
@@ -181,9 +880,18 @@
         <option value="$PROJECT_DIR$/src/element.py" />
         <option value="$PROJECT_DIR$/src/elementLGL_1D.py" />
         <option value="$PROJECT_DIR$/src/element1D.py" />
-        <option value="$PROJECT_DIR$/src/Element1D.py" />
-        <option value="$PROJECT_DIR$/src/ElementBase.py" />
         <option value="$PROJECT_DIR$/src/Mesh.py" />
+        <option value="$PROJECT_DIR$/tests/mesh/pygmsh_test.pdf.py" />
+        <option value="$PROJECT_DIR$/tests/mesh/pygmsh_test.py" />
+        <option value="$PROJECT_DIR$/tests/mesh/meshio_test.py" />
+        <option value="$PROJECT_DIR$/src/meshGen.py" />
+        <option value="$PROJECT_DIR$/src/Element1D.py" />
+        <option value="$PROJECT_DIR$/src/Simulation.py.pyi" />
+        <option value="$PROJECT_DIR$/tests/mesh/meshzoo_test.py" />
+        <option value="$PROJECT_DIR$/src/ElementBase.py" />
+        <option value="$PROJECT_DIR$/src/AffineMesh1D.py" />
+        <option value="$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py" />
+        <option value="$PROJECT_DIR$/src/Simulation.py" />
         <option value="$PROJECT_DIR$/src/AffineMesh.py" />
       </list>
     </option>
@@ -195,16 +903,17 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-11" />
-    <option name="y" value="-11" />
-    <option name="width" value="1943" />
-    <option name="height" value="1043" />
+    <option name="x" value="-12" />
+    <option name="y" value="-12" />
+    <option name="width" value="1944" />
+    <option name="height" value="1044" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -217,11 +926,21 @@
               <item name="GHOST" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="GHOST" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GHOST" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="GHOST" type="b2602c69:ProjectViewProjectNode" />
+              <item name="GHOST" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="mesh" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -251,11 +970,14 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Element1D">
+  <component name="RunManager" selected="Python.plotMesh1D__test">
     <configuration name="Element1D" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Euler" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -293,50 +1015,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="EulerDriverHighOrder" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Euler" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/EulerDriverHighOrder.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="element" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Euler" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/element.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="highOrderShockTubeDriver" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Euler" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -359,20 +1037,17 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="spatialDiscretization" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="meshzoo_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Euler" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/mesh" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/spatialDiscretization.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/mesh/meshzoo_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -381,21 +1056,65 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="plotMesh1D__test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Euler" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/mesh" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pygmsh_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Euler" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/mesh" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/mesh/pygmsh_test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python.Euler" />
-      <item itemvalue="Python.spatialDiscretization" />
-      <item itemvalue="Python.EulerDriverHighOrder" />
-      <item itemvalue="Python.element" />
       <item itemvalue="Python.highOrderShockTubeDriver" />
       <item itemvalue="Python.Element1D" />
+      <item itemvalue="Python.pygmsh_test" />
+      <item itemvalue="Python.meshzoo_test" />
+      <item itemvalue="Python.plotMesh1D__test" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.plotMesh1D__test" />
+        <item itemvalue="Python.meshzoo_test" />
+        <item itemvalue="Python.meshzoo_test" />
+        <item itemvalue="Python.pygmsh_test" />
         <item itemvalue="Python.Element1D" />
-        <item itemvalue="Python.highOrderShockTubeDriver" />
-        <item itemvalue="Python.EulerDriverHighOrder" />
-        <item itemvalue="Python.element" />
-        <item itemvalue="Python.element" />
       </list>
     </recent_temporary>
   </component>
@@ -455,7 +1174,7 @@
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18299595" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.18623482" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -465,12 +1184,12 @@
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="5" />
       <window_info anchor="bottom" id="Docker" order="6" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="7" weight="0.4177966" />
+      <window_info active="true" anchor="bottom" id="Run" order="7" visible="true" weight="0.4163701" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32903782" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5010338" side_tool="true" weight="0.38659793" />
-      <window_info anchor="bottom" id="Terminal" order="11" weight="0.32904884" />
-      <window_info anchor="bottom" x="415" y="220" width="1868" height="729" id="Python Console" order="12" sideWeight="0.49896622" visible="true" weight="0.3024911" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.32740214" />
+      <window_info anchor="bottom" x="-1756" y="365" width="1081" height="624" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" visible="true" weight="0.3024911" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -517,6 +1236,16 @@
           <line>119</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/pygmsh/helpers.py</url>
+          <line>125</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/AffineMesh1D.py</url>
+          <line>2</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -534,6 +1263,11 @@
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>gmsh_executable</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>self.xq[:,0]</expression-string>
         <language-id>Python</language-id>
@@ -574,11 +1308,6 @@
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>self.Nqf</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
@@ -601,21 +1330,9 @@
     <entry file="file://$USER_HOME$/anaconda3/lib/python3.6/codecs.py" />
     <entry file="file://$PROJECT_DIR$/src/EulerDriverFLOMG.py" />
     <entry file="file://$PROJECT_DIR$/../Solver1D/src/constructDG.py" />
-    <entry file="file://$PROJECT_DIR$/src/EulerDriverHighOrder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="16" selection-start-line="1" selection-start-column="16" selection-end-line="1" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/EulerDriverHighOrder.py" />
     <entry file="file://$PROJECT_DIR$/src/elementLGL_1D.py" />
-    <entry file="file://$PROJECT_DIR$/src/tvdRK.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="18" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tvdRK.py" />
     <entry file="file://$PROJECT_DIR$/../Solver1D/src/DHOMLC.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1003">
@@ -623,81 +1340,149 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/highOrderShockTubeDriver.py">
+    <entry file="file://$PROJECT_DIR$/src/highOrderShockTubeDriver.py" />
+    <entry file="file://$PROJECT_DIR$/src/analyticalSolution.py" />
+    <entry file="file://$PROJECT_DIR$/src/implicitSolver.py" />
+    <entry file="file://$PROJECT_DIR$/src/problem.py" />
+    <entry file="file://$PROJECT_DIR$/src/spatialDiscHighOrder.py" />
+    <entry file="file://$PROJECT_DIR$/src/element.py" />
+    <entry file="file://$PROJECT_DIR$/src/Mesh.py" />
+    <entry file="file://$PROJECT_DIR$/tests/mesh/pygmsh_test.pdf.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1207">
-          <caret line="77" selection-start-line="77" selection-end-line="77" />
+        <state relative-caret-position="238">
+          <caret line="14" column="45" lean-forward="true" selection-start-line="14" selection-start-column="45" selection-end-line="14" selection-end-column="45" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/analyticalSolution.py">
+    <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/pygmsh/helpers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="18" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
+        <state relative-caret-position="2176">
+          <caret line="128" column="19" lean-forward="true" selection-start-line="128" selection-start-column="19" selection-end-line="128" selection-end-column="19" />
+          <folding>
+            <element signature="e#26#63#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/implicitSolver.py">
+    <entry file="file://$USER_HOME$/Anaconda3/Lib/subprocess.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="18" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
+        <state relative-caret-position="101">
+          <caret line="708" selection-start-line="708" selection-end-line="708" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/problem.py">
+    <entry file="file://$PROJECT_DIR$/tests/mesh/pygmsh_test.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/mesh/meshio_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2822">
-          <caret line="166" column="24" selection-start-line="166" selection-start-column="24" selection-end-line="166" selection-end-column="24" />
+        <state relative-caret-position="17">
+          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/spatialDiscHighOrder.py">
+    <entry file="file://$PROJECT_DIR$/src/meshGen.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="27" column="8" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="8" />
+        <state relative-caret-position="51">
+          <caret line="3" selection-start-line="3" selection-end-line="5" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/element.py">
+    <entry file="file://$PROJECT_DIR$/src/Simulation.py.pyi">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/meshio/helpers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="36" column="12" selection-start-line="36" selection-start-column="12" selection-end-line="36" selection-end-column="56" />
+        <state relative-caret-position="-513">
+          <caret line="194" column="4" selection-start-line="194" selection-start-column="4" selection-end-line="194" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Old1DSolver/highOrderShockTubeDriver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="58" column="21" lean-forward="true" selection-start-line="58" selection-start-column="21" selection-end-line="58" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Old1DSolver/spatialDiscHighOrder.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="680">
+          <caret line="42" lean-forward="true" selection-start-line="42" selection-end-line="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <marker date="1563322187044" expanded="true" signature="112:117" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/mesh/meshzoo_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="16" column="55" selection-start-line="16" selection-start-column="55" selection-end-line="16" selection-end-column="55" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+            <marker date="1563313763567" expanded="true" signature="81:83" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Simulation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-196">
+          <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
+          <folding>
+            <marker date="1563322266858" expanded="true" signature="56:62" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ElementBase.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-51">
-          <caret line="7" column="7" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="7" />
+        <state relative-caret-position="-1088">
+          <caret line="37" column="40" lean-forward="true" selection-start-line="37" selection-start-column="40" selection-end-line="37" selection-end-column="40" />
           <folding>
-            <element signature="e#29#47#0" expanded="true" />
-            <marker date="1563235329545" expanded="true" signature="4141:4176" ph="..." />
-            <marker date="1563235329545" expanded="true" signature="4211:4251" ph="..." />
+            <marker date="1563318755748" expanded="true" signature="4664:4699" ph="..." />
+            <marker date="1563318755748" expanded="true" signature="4734:4774" ph="..." />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Mesh.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Element1D.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="29" lean-forward="true" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
+        <state relative-caret-position="408">
+          <caret line="40" column="8" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="8" />
           <folding>
             <element signature="e#30#65#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/AffineMesh1D.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="178">
+          <caret line="23" column="18" lean-forward="true" selection-start-line="23" selection-start-column="18" selection-end-line="23" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <marker date="1563321872312" expanded="true" signature="160:265" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/AffineMesh.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="82" selection-start-line="10" selection-start-column="82" selection-end-line="10" selection-end-column="82" />
+        <state relative-caret-position="136">
+          <caret line="8" column="8" selection-start-line="8" selection-start-column="8" selection-end-line="8" selection-end-column="8" />
         </state>
       </provider>
     </entry>
