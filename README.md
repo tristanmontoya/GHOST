@@ -1,7 +1,7 @@
 # GHOST
 Generalized High-Order Sovler Toolbox
 
-# # Dependencies
+## Dependencies
 
 The following packages from Nico Schl&oumlmer are used by GHOST, all provided under the MIT license:<br/>
 [meshio](https://github.com/nschloe/meshio) - reading and writing mesh files<br/>
