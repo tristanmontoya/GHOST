@@ -17,6 +17,9 @@ class AffineMesh:
         Nef (int)
             # number of facets per element
 
+        Nev (int)
+            # number of vertices per element
+
         dim (int)
             # spatial dimension
 
@@ -32,13 +35,17 @@ class AffineMesh:
         v (real, Nv x dim)
             # vertex physical coordinates
 
-        VtoE (int, K x dim)
+        bc_table (dictionary)
+            # each key is a string denoting a particular boundary condition
+            # (Simulation object assigns BC data to given names from Problem class)
+            # returns list of integers denoting nodes on that boundary
+
+        VtoE (int, K x Nev)
             # vertex indices belonging to element
             # counter-clockwise in 2D (should be from mesh generator)
 
-        localVtoF (int, K x ref.Nf x dim)
-            # vertex indices belonging to element facet
-            localVtoF[K,i,:] are the vertex indices (ordered low to high) for Facet i of element K
+        xbar (real, K x dim)
+            # element centroid coordinates
 
         J (real, K x dim x dim)
             # element Jacobian
@@ -49,6 +56,9 @@ class AffineMesh:
         s (real, K x dim)
             # element translation such that
             # x = J x_hat + s
+            # this is what the origin of the reference element gets mapped to
+            # in 1D it is equal to xbar
+            # for 2D triangles it is the midpoint of facet 1 (i.e. between vertices 2 and 3)
 
         n (real, K x Nef x dim)
             # element facet normal vectors
@@ -56,6 +66,7 @@ class AffineMesh:
     # Methods
 
         plotMesh
+        computeCentroids
 
     """
 
@@ -70,7 +81,24 @@ class AffineMesh:
 
         if type=='simplex':
             self.Nef = self.dim+1
+            self.Nev = self.dim+1
 
-    def plotMesh(self):
+        self.xbar = None
+        self.J = None
+        self.detJ = None
+        self.s = None
+
+        self.computeCentroids()
+        self.computeMapping()
+
+    def computeCentroids(self):
         raise NotImplementedError
 
+    def computeMapping(self):
+        raise NotImplementedError
+
+    def computeAdjacency(self):
+        raise NotImplementedError
+
+    def plotMesh(self, figtitle):
+        raise NotImplementedError

@@ -32,7 +32,6 @@ class ElementBase:
             # in 2D this means a right triangle with reference vertices:
                 v_hat_1 = [-1,-1]^T, v_hat_2 =[1,-1]^T, v_hat_3 = [-1,1]^T
                 Facets Gamma_hat_gamma connect corresponding opposite vertices
-            # TODO'tensor-product'
 
         p (int)
             # degree of polynomial space

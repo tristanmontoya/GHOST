@@ -6,7 +6,7 @@ class Simulation:
 
     # Properties
 
-    physics (Physics)
+    physics (Problem)
         # The physical aspects of the problem, i.e. PDE, BC, IC, split-form, numerical fluxes
 
     mesh (AffineMesh)
