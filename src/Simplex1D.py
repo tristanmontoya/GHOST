@@ -1,17 +1,17 @@
 # GHOST - 1D Simplex Element
 
-from ElementBase import ElementBase
+from LocalDiscretizationBase import LocalDiscretizationBase
 import numpy as np
 import quadpy as qp
 from scipy import special
 
 
-class Element1D(ElementBase):
+class Simplex1D(LocalDiscretizationBase):
 
-    def __init__(self, p, Nq, basis='orthonormal', quadratureType='LGL'):
+    def __init__(self, p, Nq, basis='orthonormal', quadrature_type='LGL'):
 
         # Volume quadrature
-        if quadratureType == 'LGL':
+        if quadrature_type == 'LGL':
             quad = qp.line_segment.GaussLobatto(Nq)
         else: # LGL by default
             quad = qp.line_segment.GaussLobatto(Nq)
@@ -24,21 +24,21 @@ class Element1D(ElementBase):
         xqfe = np.array([[[-1.0]], [[1.0]]])
         wqf = np.array([1.0])
 
-        ElementBase.__init__(self, 1, basis, 'simplex', p, wq, xq, wqf, xqf, xqfe)
+        LocalDiscretizationBase.__init__(self, 1, basis, 'simplex', p, wq, xq, wqf, xqf, xqfe)
 
-    def setVolumeVandermonde(self):
+    def set_volume_vandermonde(self):
         # only orthonormal basis defined for now
 
         self.V = np.polynomial.legendre.legvander(self.xq[:,0], self.p)
         self.Vx = np.zeros([self.Nq, self.Np])
 
         for j in range(0, self.Np):
-            normalizationFactor = np.sqrt(2. / (2 * j + 1))
-            self.V[:, j] /= normalizationFactor  # normalization factor
+            normalization_factor = np.sqrt(2. / (2 * j + 1))
+            self.V[:, j] /=normalization_factor  # normalization factor
             dPdxi = np.polyder(special.legendre(j))
-            self.Vx[:, j] = dPdxi(self.xq[:,0]) / normalizationFactor  # derivatives of normalized legendre basis
+            self.Vx[:, j] = dPdxi(self.xq[:,0]) /normalization_factor  # derivatives of normalized legendre basis
 
-    def setFacetVandermonde(self):
+    def set_facet_vandermonde(self):
         # only orthonormal basis defined for now
 
         self.Vf = np.zeros([self.Nf, self.Nqf, self.Np])
@@ -47,6 +47,3 @@ class Element1D(ElementBase):
             self.Vf[gamma, :, :] = np.polynomial.legendre.legvander(self.xqfe[gamma,:,0], self.p)
             for j in range(0, self.Np):
                 self.Vf[gamma, :, j] /= np.sqrt(2. / (2 * j + 1))
-
-
-testEl = Element1D(p=2, Nq = 3, basis='orthonormal', quadratureType='LGL')

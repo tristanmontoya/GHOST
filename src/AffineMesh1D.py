@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import uuid
 from AffineMesh import AffineMesh
 
 
@@ -10,9 +11,13 @@ class AffineMesh1D(AffineMesh):
     def __init__(self, x_L, x_R, K, spacing='uniform', indexing='ordered'):
 
         Nv = K + 1
-        v = np.linspace(x_L, x_R, Nv).reshape([Nv,1])
-        VtoE = np.zeros((K, 2), dtype=int)
 
+        # generate vertices
+        if spacing == 'uniform':
+            v = np.linspace(x_L, x_R, Nv).reshape([Nv,1])
+
+        # vertex to element connectivity maps
+        VtoE = np.zeros((K, 2), dtype=int)
         VtoE[:, 0] = np.arange(0, Nv-1)  # left endpoints
         VtoE[:, 1] = np.arange(1, Nv)  # right endpoints
 
@@ -22,18 +27,25 @@ class AffineMesh1D(AffineMesh):
 
         AffineMesh.__init__(self, 1, v, VtoE, type='simplex')
 
-    def computeCentroids(self):
+    def set_bc(self, bc_name, facet_ids, bc_type):
+        self.bc_table[bc_name] = [facet_ids, bc_type, uuid.uuid4().int]
+
+    def compute_centroids(self):
 
         self.xbar = 0.5*(self.v[self.VtoE[:, 0], 0] + self.v[self.VtoE[:, 1],0]).reshape(self.K, 1)
 
-
-    def computeMapping(self):
+    def compute_mapping(self):
 
         self.J = 0.5*(self.v[self.VtoE[:, 1 ], 0] - self.v[self.VtoE[:, 0], 0]).reshape(self.K, 1, 1)
         self.detJ = np.copy(self.J.reshape(self.K, 1))  # copy because in general these are not the same
         self.s = np.copy(self.xbar)
 
-    def plotMesh(self, figtitle, fontsize=12):
+    def compute_facets(self):
+
+        pass
+
+    def plot_mesh(self, figtitle, fontsize=12):
+
         x_L = np.amin(self.v)
         x_R = np.amax(self.v)
         L = x_R - x_L

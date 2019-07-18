@@ -1,7 +1,8 @@
 import meshzoo
 import meshio
 
-def make_square_mesh_uniform(nx,ny,saveMesh=False):
+
+def make_square_mesh_uniform(nx, ny, save_mesh=False):
 
     points, elements = meshzoo.rectangle(
             xmin=0.0, xmax=1.0,
@@ -13,13 +14,14 @@ def make_square_mesh_uniform(nx,ny,saveMesh=False):
     print('Points:\n', points)
     print('Elements:\n', elements)
 
-    if saveMesh:    # write to GMSH file format 2.2
-                    # meshio can read 4.1 but not write
+    if save_mesh:       # write to GMSH file format 2.2
+                        # meshio can read 4.1 but not write
+
         filename = './square_mesh_' + 'x_' + str(nx) + 'y_' + str(ny) + ".msh"
         mesh = meshio.Mesh(points, {"triangle": elements})
         meshio.write(filename, mesh, file_format='gmsh2-ascii')
 
+    return points[:, 0:2], elements
 
-    return points[:,0:2], elements
 
-make_square_mesh_uniform(11,11,saveMesh=True)
+make_square_mesh_uniform(11, 11, save_mesh=True)

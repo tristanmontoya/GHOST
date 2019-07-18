@@ -1,16 +1,12 @@
-#GHOST - Element Base Class
-
+# GHOST - Local Spatial Discretization Base Class
 
 import numpy as np
 from scipy import special
 
-class ElementBase:
+
+class LocalDiscretizationBase:
     """
     # Notes
-
-        This class defines the numerics of the problem on the reference element, i.e. it defines a type of element,
-        rather than a particular geometric element in the mesh. Geometric information is included in the
-        AffineMesh class
 
         Basis functions are normalized Legendre polynomials for now
         Coordinates refer to reference element (Omega_hat) and reference Facet (Gamma_Hat)
@@ -104,11 +100,11 @@ class ElementBase:
 
         __init__
 
-        setVolumeVandermonde
+        set_volume_vandermonde
 
-        setFacetVandermonde
+        set_facet_vandermonde
 
-        setVolumeMassMatrix
+        set_mass_matrix
 
     """
 
@@ -142,15 +138,15 @@ class ElementBase:
         self.Vf = None
         self.M = None
 
-        self.setVolumeVandermonde()
-        self.setFacetVandermonde()
-        self.setMassMatrix()
+        self.set_volume_vandermonde()
+        self.set_facet_vandermonde()
+        self.set_mass_matrix()
 
-    def setVolumeVandermonde(self):
+    def set_volume_vandermonde(self):
         raise NotImplementedError
 
-    def setFacetVandermonde(self):
+    def set_facet_vandermonde(self):
         raise NotImplementedError
 
-    def setMassMatrix(self):
+    def set_mass_matrix(self):
         self.M = self.V.T @ self.W @ self.V

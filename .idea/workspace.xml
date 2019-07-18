@@ -2,13 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2baa223a-abd7-41d9-be55-46b5d42979a2" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/tests/local_discretization/test_local_discretization_1D.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/Euler.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Euler.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AffineMesh.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AffineMesh.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/AffineMesh1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/AffineMesh1D.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ElementBase.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ElementBase.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Element1D.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Simplex1D.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ElementBase.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/LocalDiscretizationBase.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Simulation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/mesh/meshtest_1d.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/tests/mesh/meshtest_1d.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/mesh/meshzoo_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/mesh/meshzoo_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -47,42 +51,64 @@
     <expand />
     <select />
   </component>
+  <component name="FUSProjectUsageTrigger">
+    <session id="1306376963">
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="plotMesh1D__test" value="77" />
+          <entry key="py" value="3728" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="Python" value="3805" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="py" value="3" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="Python" value="3" />
+        </counts>
+      </usages-collector>
+    </session>
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/ElementBase.py">
+        <entry file="file://$PROJECT_DIR$/src/LocalDiscretizationBase.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="95" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Simulation.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Element1D.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="279">
-              <caret line="35" column="38" lean-forward="true" selection-start-line="35" selection-start-column="38" selection-end-line="35" selection-end-column="38" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/AffineMesh1D.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="22" column="61" lean-forward="true" selection-start-line="22" selection-start-column="61" selection-end-line="22" selection-end-column="61" />
+            <state relative-caret-position="-1836">
+              <caret line="6" column="30" lean-forward="true" selection-start-line="6" selection-start-column="30" selection-end-line="6" selection-end-column="30" />
               <folding>
-                <element signature="e#42#60#0" expanded="true" />
+                <element signature="e#51#69#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/local_discretization/test_local_discretization_1D.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="158">
+              <caret line="11" column="30" lean-forward="true" selection-start-line="11" selection-start-column="30" selection-end-line="11" selection-end-column="30" />
+              <folding>
+                <marker date="1563465276200" expanded="true" signature="68:70" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Simplex1D.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="187">
+              <caret line="31" column="71" lean-forward="true" selection-start-line="31" selection-start-column="71" selection-end-line="31" selection-end-column="71" />
+              <folding>
+                <element signature="e#30#89#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -91,17 +117,51 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/AffineMesh.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
+            <state relative-caret-position="296">
+              <caret line="90" column="8" lean-forward="true" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="8" />
+              <folding>
+                <marker date="1563479312596" expanded="true" signature="3974:3979" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Old1DSolver/spatialDiscHighOrder.py">
+        <entry file="file://$PROJECT_DIR$/src/AffineMesh1D.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="310">
-              <caret line="162" lean-forward="true" selection-start-line="162" selection-end-line="162" />
+            <state relative-caret-position="170">
+              <caret line="10" column="73" selection-start-line="10" selection-start-column="73" selection-end-line="10" selection-end-column="73" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+                <marker date="1563479283852" expanded="true" signature="172:250" ph="..." />
+                <marker date="1563479283852" expanded="true" signature="859:937" ph="..." />
+                <marker date="1563479283852" expanded="true" signature="1374:1393" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Simulation.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="425">
+              <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
+              <folding>
+                <marker date="1563464789141" expanded="true" signature="56:62" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/mesh/meshzoo_test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="136">
+              <caret line="8" column="31" lean-forward="true" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
+              <folding>
+                <element signature="e#0#14#0" expanded="true" />
+                <marker date="1563474179488" expanded="true" signature="85:87" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -109,11 +169,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="32" lean-forward="true" selection-start-line="5" selection-start-column="32" selection-end-line="5" selection-end-column="32" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="119">
+              <caret line="8" column="24" lean-forward="true" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -200,22 +257,31 @@
         <option value="$PROJECT_DIR$/tests/mesh/pygmsh_test.py" />
         <option value="$PROJECT_DIR$/tests/mesh/meshio_test.py" />
         <option value="$PROJECT_DIR$/src/meshGen.py" />
-        <option value="$PROJECT_DIR$/src/Element1D.py" />
         <option value="$PROJECT_DIR$/src/Simulation.py.pyi" />
-        <option value="$PROJECT_DIR$/tests/mesh/meshzoo_test.py" />
+        <option value="$PROJECT_DIR$/src/Element1D.py" />
         <option value="$PROJECT_DIR$/src/ElementBase.py" />
-        <option value="$PROJECT_DIR$/src/AffineMesh1D.py" />
-        <option value="$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py" />
         <option value="$PROJECT_DIR$/src/Simulation.py" />
+        <option value="$PROJECT_DIR$/src/Simplex1D.py" />
+        <option value="$PROJECT_DIR$/src/LocalDiscretizationBase.py" />
+        <option value="$PROJECT_DIR$/tests/local_discretization/test_local_discretization_1D.py" />
+        <option value="$PROJECT_DIR$/tests/mesh/meshzoo_test.py" />
+        <option value="$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py" />
+        <option value="$PROJECT_DIR$/src/AffineMesh1D.py" />
         <option value="$PROJECT_DIR$/src/AffineMesh.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="407" />
-    <option name="y" value="78" />
-    <option name="width" value="1829" />
-    <option name="height" value="1259" />
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-1323" />
+    <option name="y" value="250" />
+    <option name="width" value="1295" />
+    <option name="height" value="695" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -234,12 +300,6 @@
               <item name="GHOST" type="b2602c69:ProjectViewProjectNode" />
               <item name="GHOST" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="GHOST" type="b2602c69:ProjectViewProjectNode" />
-              <item name="GHOST" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="Old1DSolver" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="GHOST" type="b2602c69:ProjectViewProjectNode" />
@@ -330,28 +390,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="highOrderShockTubeDriver" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Euler" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/highOrderShockTubeDriver.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="meshzoo_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Euler" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -415,21 +453,40 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="test_local_discretization_1D" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Euler" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/local_discretization" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/local_discretization/test_local_discretization_1D.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python.Euler" />
-      <item itemvalue="Python.highOrderShockTubeDriver" />
       <item itemvalue="Python.Element1D" />
       <item itemvalue="Python.pygmsh_test" />
       <item itemvalue="Python.meshzoo_test" />
       <item itemvalue="Python.plotMesh1D__test" />
+      <item itemvalue="Python.test_local_discretization_1D" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.plotMesh1D__test" />
         <item itemvalue="Python.plotMesh1D__test" />
-        <item itemvalue="Python.meshzoo_test" />
-        <item itemvalue="Python.meshzoo_test" />
-        <item itemvalue="Python.pygmsh_test" />
+        <item itemvalue="Python.test_local_discretization_1D" />
+        <item itemvalue="Python.plotMesh1D__test" />
+        <item itemvalue="Python.plotMesh1D__test" />
       </list>
     </recent_temporary>
   </component>
@@ -486,10 +543,10 @@
     <option name="totallyTimeSpent" value="384713000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="827" y="83" width="1829" height="1259" extended-state="0" />
+    <frame x="-1928" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.15984297" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.15951417" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -499,16 +556,16 @@
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="5" />
       <window_info anchor="bottom" id="Docker" order="6" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="7" visible="true" weight="0.4159292" />
+      <window_info anchor="bottom" id="Run" order="7" weight="0.42067736" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32903782" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5010338" side_tool="true" weight="0.38659793" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32740214" />
-      <window_info anchor="bottom" x="126" y="373" width="1070" height="473" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" visible="true" weight="0.3024911" />
+      <window_info active="true" anchor="bottom" x="-1756" y="365" width="1081" height="624" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" visible="true" weight="0.3024911" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info active="true" anchor="right" id="SciView" order="3" sideWeight="0.95810056" visible="true" weight="0.35165453" />
+      <window_info anchor="right" id="SciView" order="3" sideWeight="0.95810056" weight="0.35165453" />
       <window_info anchor="right" id="Database" order="4" weight="0.22430407" />
       <window_info anchor="right" x="0" y="0" width="390" height="1206" id="Documentation" order="5" sideWeight="0.041899443" side_tool="true" visible="true" weight="0.33152977" />
     </layout>
@@ -552,11 +609,6 @@
           <url>file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/pygmsh/helpers.py</url>
           <line>125</line>
           <option name="timeStamp" value="7" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py</url>
-          <line>5</line>
-          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -661,17 +713,6 @@
     <entry file="file://$PROJECT_DIR$/src/meshGen.py" />
     <entry file="file://$PROJECT_DIR$/src/Simulation.py.pyi" />
     <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/meshio/helpers.py" />
-    <entry file="file://$PROJECT_DIR$/tests/mesh/meshzoo_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="16" column="55" selection-start-line="16" selection-start-column="55" selection-end-line="16" selection-end-column="55" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-            <marker date="1563313763567" expanded="true" signature="81:83" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../Solver1D/src/DHOMLC.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="885">
@@ -686,47 +727,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="32" lean-forward="true" selection-start-line="5" selection-start-column="32" selection-end-line="5" selection-end-column="32" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Simulation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ElementBase.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="95" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Element1D.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="35" column="38" lean-forward="true" selection-start-line="35" selection-start-column="38" selection-end-line="35" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/AffineMesh1D.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="22" column="61" lean-forward="true" selection-start-line="22" selection-start-column="61" selection-end-line="22" selection-end-column="61" />
-          <folding>
-            <element signature="e#42#60#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Old1DSolver/spatialDiscHighOrder.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="310">
@@ -734,10 +734,101 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/ElementBase.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Element1D.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
+          <folding>
+            <element signature="e#30#77#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/LocalDiscretizationBase.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1836">
+          <caret line="6" column="30" lean-forward="true" selection-start-line="6" selection-start-column="30" selection-end-line="6" selection-end-column="30" />
+          <folding>
+            <element signature="e#51#69#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/local_discretization/test_local_discretization_1D.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="11" column="30" lean-forward="true" selection-start-line="11" selection-start-column="30" selection-end-line="11" selection-end-column="30" />
+          <folding>
+            <marker date="1563465276200" expanded="true" signature="68:70" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Simplex1D.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="31" column="71" lean-forward="true" selection-start-line="31" selection-start-column="71" selection-end-line="31" selection-end-column="71" />
+          <folding>
+            <element signature="e#30#89#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/mesh/meshzoo_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="31" lean-forward="true" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+            <marker date="1563474179488" expanded="true" signature="85:87" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Simulation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
+          <folding>
+            <marker date="1563464789141" expanded="true" signature="56:62" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AffineMesh1D.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="73" selection-start-line="10" selection-start-column="73" selection-end-line="10" selection-end-column="73" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <marker date="1563479283852" expanded="true" signature="172:250" ph="..." />
+            <marker date="1563479283852" expanded="true" signature="859:937" ph="..." />
+            <marker date="1563479283852" expanded="true" signature="1374:1393" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="8" column="24" lean-forward="true" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/AffineMesh.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
+        <state relative-caret-position="296">
+          <caret line="90" column="8" lean-forward="true" selection-start-line="90" selection-start-column="8" selection-end-line="90" selection-end-column="8" />
+          <folding>
+            <marker date="1563479312596" expanded="true" signature="3974:3979" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
