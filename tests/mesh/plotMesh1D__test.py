@@ -1,9 +1,10 @@
 import numpy as np
-from AffineMesh1D import AffineMesh1D
+import mesh.AffineMesh1D as mesh
+
 
 def plotMesh1D_test():
-    mesh = AffineMesh1D(0.0,1.0,10, spacing = 'uniform', indexing='random')
-    mesh.plot_mesh('meshtest_1d')
-    return mesh
+    msh = mesh.AffineMesh1D(0.0,1.0,10, spacing = 'uniform', indexing='random')
+    msh.plot_mesh('meshtest_1d')
+    return msh
 
-mesh = plotMesh1D_test()
+msh = plotMesh1D_test()

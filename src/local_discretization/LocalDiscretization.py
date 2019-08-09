@@ -11,10 +11,17 @@ class LocalDiscretization:
     ------------------
 
     basis : str
-        Basis functions for reference element 'orthonormal' or 'lagrange'
-        We may not be solving for expansion coefficients directly, but
-        constructing the differentiation, projection, and interpolation/
-        extrapolation operators always requires some choice of basis
+        Basis functions for reference element. We may not be solving for
+        expansion coefficients directly, but constructing the
+        differentiation, projection, and interpolation/extrapolation
+        operators always requires some choice of basis
+
+        options:
+
+        'orthonormal'
+
+        'lagrange-LGL'
+        'lagrange-LG' (and more for triangles)
 
     d : int
         Dimension in space (1, 2, 3)

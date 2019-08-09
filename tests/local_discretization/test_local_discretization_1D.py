@@ -1,8 +1,8 @@
-from local_discretization.DGLegendreSimplex import DGLegendreSimplex
+from local_discretization.DGQuadratureSimplex import DGQuadratureSimplex
 
 
 def test_local_discretization_1d():
-    disc = DGLegendreSimplex(3,1, 'LGL', 'pointwise', 6, 1)
+    disc = DGQuadratureSimplex(1, 'legendre-normalized', 3, 'LGL', 'pointwise', 6, 1)
     disc.print_operators()
 
 

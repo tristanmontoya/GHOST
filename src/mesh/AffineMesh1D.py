@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import uuid
-from Mesh import Mesh
+from mesh.Mesh import Mesh
 
 
 class AffineMesh1D(Mesh):
@@ -37,11 +37,22 @@ class AffineMesh1D(Mesh):
     def compute_mapping(self):
 
         self.J = 0.5*(self.v[self.VtoE[:, 1 ], 0] - self.v[self.VtoE[:, 0], 0]).reshape(self.K, 1, 1)
-        self.detJ = np.copy(self.J.reshape(self.K, 1))  # copy because in general these are not the same
-        self.s = np.copy(self.xbar)
+        self.detJ = np.copy(self.J.reshape(self.K))  # copy because in general these are not the same
+        self.x0 = np.copy(self.xbar)
 
     def compute_facets(self):
+        pass
 
+    def mapping(self, k, xr):
+        return np.kron(self.J[k, :, :], np.eye(xr.shape[0])) @ xr + self.x0[k]
+
+    def jacobian(self, k, xr):
+        return self.J[k, :, :], self.detJ[k]
+
+    def facet_jacobian(self, k, xr):
+        pass
+
+    def normal(self, k, xr):
         pass
 
     def plot_mesh(self, figtitle, fontsize=12):

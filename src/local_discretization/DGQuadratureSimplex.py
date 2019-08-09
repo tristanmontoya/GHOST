@@ -4,15 +4,16 @@ from scipy import special
 import utils.quadUtils
 
 
-class DGLegendreSimplex(LocalDiscretization):
+class DGQuadratureSimplex(LocalDiscretization):
+    """Quadrature-based DG scheme of Cockburn and Shu"""
 
-    def __init__(self, p, d, volume_quadrature_type, facet_quadrature_type, Nq, Nqf):
+    def __init__(self, d, basis, p, volume_quadrature_type, facet_quadrature_type, Nq, Nqf):
 
         xq, wq = utils.quadUtils.volume_quadrature(d, volume_quadrature_type, Nq)
         xqf, xqfe, wqf = utils.quadUtils.facet_quadrature(d, facet_quadrature_type, Nqf)
 
         LocalDiscretization.__init__(self, d=d,
-                                     basis='legendre-normalized',
+                                     basis=basis,
                                      elementType='simplex',
                                      p=p,
                                      Ns=special.comb(p + d, d, exact=True),

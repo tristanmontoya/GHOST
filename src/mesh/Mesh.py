@@ -101,6 +101,8 @@ class Mesh:
 
         jacobian
 
+        facet_jacobian
+
         normal
 
         set_bc
@@ -138,7 +140,7 @@ class Mesh:
     def set_bc(self,bc_name, facet_ids, bc_type):
         raise NotImplementedError
 
-    def map(self, k, xhat):
+    def map(self, k, xr):
         """Mapping from reference to physical coordinates
 
         x = X(k,x)
@@ -148,7 +150,7 @@ class Mesh:
         k : int
             What element to map to
 
-        xhat : ndarray
+        xr : ndarray
             dtype=float, shape=(n, self.d)
 
             points to map from reference coordinates
@@ -165,7 +167,7 @@ class Mesh:
 
         raise NotImplementedError
 
-    def jacobian(self, k, xhat):
+    def jacobian(self, k, xr):
         """Jacobian of mapping from reference to physical coordinates
 
         Parameters
@@ -173,7 +175,7 @@ class Mesh:
         k : int
             What element to map to
 
-        xhat : ndarray
+        xr : ndarray
             dtype=float, shape=(n, self.d)
 
             points in reference coordinates to compute Jacobian at
@@ -196,7 +198,10 @@ class Mesh:
 
         raise NotImplementedError
 
-    def normal(self,xhat):
+    def facet_jacobian(self, k, xr):
+        raise NotImplementedError
+
+    def normal(self, k, xr):
         raise NotImplementedError
 
     def plot_mesh(self, figtitle):
