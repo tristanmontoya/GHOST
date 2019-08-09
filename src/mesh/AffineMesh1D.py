@@ -3,10 +3,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import uuid
-from AffineMesh import AffineMesh
+from Mesh import Mesh
 
 
-class AffineMesh1D(AffineMesh):
+class AffineMesh1D(Mesh):
 
     def __init__(self, x_L, x_R, K, spacing='uniform', indexing='ordered'):
 
@@ -25,7 +25,7 @@ class AffineMesh1D(AffineMesh):
             np.random.shuffle(VtoE[:, 0])
             VtoE[:, 1] = VtoE[:, 0] + 1
 
-        AffineMesh.__init__(self, 1, v, VtoE, type='simplex')
+        Mesh.__init__(self, 1, v, VtoE, type='simplex')
 
     def set_bc(self, bc_name, facet_ids, bc_type):
         self.bc_table[bc_name] = [facet_ids, bc_type, uuid.uuid4().int]

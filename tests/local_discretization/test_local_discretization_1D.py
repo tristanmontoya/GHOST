@@ -1,14 +1,9 @@
-from Simplex1D import Simplex1D
+from local_discretization.DGLegendreSimplex import DGLegendreSimplex
 
-def test_local_discretization_1D():
 
-    element = Simplex1D(p=2, Nq=3, basis='orthonormal', quadrature_type='LGL')
-    print('xq:\n', element.xq)
-    print('xqfe:\n', element.xqfe)
-    print('M:\n', element.M)
-    print('W:\n', element.W)
-    print('V:\n', element.V)
-    print('Vf:\n', element.Vf)
-    print('Vx:\n', element.Vx)
+def test_local_discretization_1d():
+    disc = DGLegendreSimplex(3,1, 'LGL', 'pointwise', 6, 1)
+    disc.print_operators()
 
-test_local_discretization_1D()
+
+test_local_discretization_1d()
