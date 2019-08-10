@@ -1,7 +1,7 @@
 import numpy as np
 from local_discretization.LocalDiscretization import LocalDiscretization
-from scipy import special
 import utils.quadUtils
+from local_discretization.PolynomialSpace import PolynomialSpace
 
 
 class DGQuadratureSimplex(LocalDiscretization):
@@ -12,11 +12,12 @@ class DGQuadratureSimplex(LocalDiscretization):
         xq, wq = utils.quadUtils.volume_quadrature(d, volume_quadrature_type, Nq)
         xqf, xqfe, wqf = utils.quadUtils.facet_quadrature(d, facet_quadrature_type, Nqf)
 
-        LocalDiscretization.__init__(self, d=d,
-                                     basis=basis,
-                                     elementType='simplex',
-                                     p=p,
-                                     Ns=special.comb(p + d, d, exact=True),
+        space = PolynomialSpace(d, p, basis, 'simplex')
+
+        LocalDiscretization.__init__(self,
+                                     space=space,
+                                     element_shape='simplex',
+                                     Ns=space.Np,
                                      xq=xq,
                                      xqf=xqf,
                                      xqfe=xqfe)
@@ -30,10 +31,10 @@ class DGQuadratureSimplex(LocalDiscretization):
 
         self.create_operators()
 
-    def set_solution_to_volume_quadrature(self):
+    def set_solution_to_xq(self):
         self.Psq = self.Vq
 
-    def set_volume_quadrature_to_solution(self):
+    def set_xq_to_solution(self):
         self.Pqs = self.Minv @ self.Vq.T @ self.W
 
     def set_derivative_operator(self):

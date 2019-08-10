@@ -1,6 +1,5 @@
 import numpy as np
-from utils.polyUtils import vandermonde, grad_vandermonde
-from scipy import special
+from local_discretization.PolynomialSpace import PolynomialSpace
 
 
 class LocalDiscretization:
@@ -10,35 +9,25 @@ class LocalDiscretization:
     Basic Element Data
     ------------------
 
-    basis : str
-        Basis functions for reference element. We may not be solving for
-        expansion coefficients directly, but constructing the
-        differentiation, projection, and interpolation/extrapolation
-        operators always requires some choice of basis
-
-        options:
-
-        'orthonormal'
-
-        'lagrange-LGL'
-        'lagrange-LG' (and more for triangles)
+    space : PolynomialSpace
+        The approximation space for the chosen method
 
     d : int
         Dimension in space (1, 2, 3)
 
-    elementType : str
-        Geometry of reference element, 'simplex' or 'tensor-product'
+    element_shape : str
+        Geometry of reference element. May be 'simplex', 'quadrilateral,
+        or 'hexahedron'
 
         In 1D, there is only 'simplex', which means reference line segment
         given by Omega_hat = (-1,1), and facets
         Gamma_hat_1 = v_hat_1 = {-1}, Gamma_hat_2 = v_hat_1 = {1}
 
-        In 2D this means a right triangle with reference vertices:
+        In 2D 'simplex' means a right triangle with reference vertices:
         v_hat_1 = [-1,-1]^T, v_hat_2 =[1,-1]^T, v_hat_3 = [-1,1]^T
         Facets Gamma_hat_gamma connect corresponding opposite vertices
 
-    p : int
-        degree of polynomial space
+        Quadrilateral to be implemented (e.g. with tensor-product elements)
 
     Np : int
         Dimension of polynomial space (p+dim choose dim for total degree)
@@ -51,10 +40,10 @@ class LocalDiscretization:
         Number of facets (dim + 1 for simplex, 2*dim for tensor product)
 
     Nq : int
-        Number of volume quadrature points
+        Number of volume quadrature/flux points
 
     Nqf : int
-        Number of facet quadrature points per facet (1 in 1D for endpoints)
+        Number of facet quadrature/flux points per facet (1 in 1D for endpoints)
 
     form_compatibility : str
         Is the discretization applied to the strong or weak form of the
@@ -173,7 +162,7 @@ class LocalDiscretization:
         dtype=float, shape=(Nq, Np)
 
         Volume Vandermonde interpolation matrix for basis. Maps basis
-        expansion coefficients to nodal values at quadrature points
+        expansion coefficients to nodal values at quadrature/flux points
 
         V_{ij} = phi_j(xq_i)
 
@@ -181,8 +170,8 @@ class LocalDiscretization:
         dtype=float, shape=(d, Nq, Np)
 
         Volume Vandermonde derivative matrix for basis. Maps polynomial
-        expansion coefficients to their derivative values at quadrature
-        points
+        expansion coefficients to their derivative values at
+        quadrature/flux points
 
         Vx_{m,ij} = d/dx_m(phi_j)(xq_i)
 
@@ -190,7 +179,7 @@ class LocalDiscretization:
         dtype=float, shape=(Nf, Nqf, Np)
 
         Facet Vandermonde interpolation/extrapolation matrix for basis.
-        Vf_{gamma,:,:} maps basis expansion coefficients to quadrature
+        Vf_{gamma,:,:} maps basis expansion coefficients to quadrature/flux
         points on facet Gamma_hat_gamma
 
         Vf_{gamma,ij} = phi_j(xqfe_{gamma,i})
@@ -199,8 +188,8 @@ class LocalDiscretization:
         dtype=float, shape=(d, Nq, Nq)
 
         Nodal derivative operator at quadrature points. D_{m,:,:} maps
-        nodal values of a function at volume quadrature points to nodal
-        values of its derivative. The "canonical" choice for DG/FR is
+        nodal values of a function at volume quadrature/flux points to
+        nodal values of its derivative. The "canonical" choice for DG/FR is
         D_m = V Dhat_m P = Vx P, and in that case if the basis is nodal
         with Np = Nq, then P = V = I, and thus Dhat_m = D_m = Vx_m.
 
@@ -216,16 +205,16 @@ class LocalDiscretization:
     Pp : ndarray
         dtype=float, shape=(Np, Nq)
 
-        Modal projection operator. Maps nodal values at volume quadrature
-        points to polynomial expansion coefficients. Identity for
-        collocation projection on Lagrange nodes
+        Modal projection operator. Maps nodal values at volume
+        quadrature/flux points to polynomial expansion coefficients.
+        Identity for collocation projection on Lagrange nodes
 
         Pp = M^{-1} V^T W
 
     Lp : ndarray
         dtype=float, shape=(Nf, Np, Nqf)
 
-        Modal lifting operator. Maps nodal values at facet quadrature
+        Modal lifting operator. Maps nodal values at facet quadrature/flux
         points (first index denotes which facet) to polynomial expansion
         coefficients.
 
@@ -236,7 +225,7 @@ class LocalDiscretization:
         dtype=float, shape=(Nf, Ns, Nqf)
 
         Generalized lifting operator. L_{f,:,:} Maps nodal values at facet
-        quadrature points to solution DOF. Includes SBP extrapolation,
+        quadrature/flux points to solution DOF. Includes SBP extrapolation,
         DG lifting projection, or FR correction fields (divergence of
         correction functions, see Ranocha or Zwanenburg and compare to
         Chen/Shu or Chan)
@@ -245,19 +234,21 @@ class LocalDiscretization:
         dtype=float, shape=(Ns, Nq)
 
         Generalized projection/interpolation operator. Maps nodal values at
-        quadrature points to whatever the solution degrees of freedom are.
+        quadrature/flux points to whatever the solution degrees of freedom
+        are.
+
         Identity to solve directly for nodal values at quadrature points,
-        Pp to solve for expansion coefficients, or an interpolation operator
-        in the case of a staggered-grid method.
+        Pp to solve for expansion coefficients, or an interpolation
+        operator in the case of a staggered-grid method.
 
     Psq : ndarray
         dtype=float, shape=(Nq, Ns)
 
         Generalized projection/interpolation operator. Maps degrees of
-        freedom for solution to nodal values at quadrature points. Identity
-        to solve directly for nodal values at quadrature points, Vq to
-        solve for expansion coefficients, or an interpolation operator in
-        the case of a staggered-grid method.
+        freedom for solution to nodal values at quadrature/flux points.
+        Identity to solve directly for nodal values at quadrature points,
+        Vq to solve for expansion coefficients, or an interpolation operator
+        in the case of a staggered-grid method.
 
     Ddc : ndarray
         dtype=float, shape=(d, Nq + Nqf*Nf, Nq + Nqf*Nf)
@@ -273,23 +264,15 @@ class LocalDiscretization:
 
     __init__
 
-    set_volume_quadrature_vandermonde
-
-    set_volume_quadrature_grad_vandermonde
-
-    set_facet_quadrature_vandermonde
-
     create_operators
 
     print_operators
 
-    set_volume_quadrature_to_solution
+    set_xq_to_solution
 
-    set_solution_to_volume_quadrature
+    set_solution_to_xq
 
     set_derivative_operator
-
-    set_solution_to_facet_quadrature
 
     set_lifting_operator
 
@@ -310,22 +293,17 @@ class LocalDiscretization:
 
     """
 
-    def __init__(self, d, basis, elementType, p, Ns, xq, xqf, xqfe):
+    def __init__(self, space, element_shape, Ns, xq, xqf, xqfe):
 
-        # Total degree p approximation space
-
-        self.d = d
-        self.basis = basis
-        self.elementType = elementType
-        self.p = p
+        self.d = space.d
+        self.space = space
         self.Ns = Ns
 
-        if elementType == 'simplex':
-            self.Nf = d + 1
-            self.Np = special.comb(self.p + self.d, self.d, exact=True)
-        elif elementType == 'tensor-product':
+        self.element_shape = element_shape
+        if self.element_shape == 'simplex':
+            self.Nf = self.d + 1
+        elif self.element_shape in ['quadrilateral', 'hexahedron']:
             self.Nf = 2*self.d
-            self.Np = self.p**self.d
 
         # Quadrature/flux points
 
@@ -334,43 +312,31 @@ class LocalDiscretization:
         self.xqf = xqf
         self.xqfe = xqfe
 
-        if d == 1:
+        if self.d == 1:
             self.Nqf = 1
         else:
             self.Nqf = xqf.shape[0]
 
-        # Vandermonde matrices associated with polynomial basis and quadrature/flux nodes
-
-        self.Vq = np.zeros([self.Nq, self.Np])  # set_volume_quadrature_vandermonde
-        self.Vqx = np.zeros([self.d, self.Nq, self.Np])   # set_volume_quadrature_grad_vandermonde
-        self.Vqf = np.zeros([self.Nf, self.Nqf, self.Np])  # set_facet_quadrature_vandermonde
-
         # Generalized Operators
 
-        self.Psq = np.zeros([self.Nq, self.Ns])  # set_solution_to_volume_quadrature
+        self.Psq = np.zeros([self.Nq, self.Ns])  # set_solution_to_xq
         self.D = np.zeros([self.d, self.Nq, self.Nq])  # set_derivative_operator
-        self.Pqs = np.zeros([self.Ns, self.Nq]) # set_volume_quadrature_to_solution
+        self.Pqs = np.zeros([self.Ns, self.Nq]) # set_xq_to_solution
         self.L = np.zeros([self.Nf, self.Ns, self.Nqf])  # set_lifting_operator
 
-        # Initialize the local discretization
+        # Vandermonde matrices associated with polynomial basis and quadrature/flux nodes
 
-        self.set_volume_quadrature_vandermonde()
-        self.set_volume_quadrature_grad_vandermonde()
-        self.set_facet_quadrature_vandermonde()
-
-    def set_volume_quadrature_vandermonde(self):
-        self.Vq = vandermonde(self.d, self.basis, self.xq, self.p)
-
-    def set_volume_quadrature_grad_vandermonde(self):
-        self.Vqx[0, :, :] = grad_vandermonde(self.d, self.basis, self.xq, self.p)
-
-    def set_facet_quadrature_vandermonde(self):
+        self.Vq = self.space.vandermonde(self.xq)
+        self.Vqx = self.space.grad_vandermonde(self.xq)
+        self.Vqf = np.zeros([self.Nf, self.Nqf, self.space.Np])
         for gamma in range(0, self.Nf):
-            self.Vqf[gamma, :, :] = vandermonde(self.d, self.basis, self.xqfe[gamma, :, :], self.p)
+            self.Vqf[gamma, :, :] = space.vandermonde(self.xqfe[gamma, :, :])
 
     def create_operators(self):
-        self.set_solution_to_volume_quadrature()
-        self.set_volume_quadrature_to_solution()
+        """Construct the local operators -- call within the child class"""
+
+        self.set_solution_to_xq()
+        self.set_xq_to_solution()
         self.set_derivative_operator()
         self.set_lifting_operator()
 
@@ -385,10 +351,10 @@ class LocalDiscretization:
         print('D:\n', self.D)
         print('L:\n', self.L)
 
-    def set_solution_to_volume_quadrature(self):
+    def set_solution_to_xq(self):
         raise NotImplementedError
 
-    def set_volume_quadrature_to_solution(self):
+    def set_xq_to_solution(self):
         raise NotImplementedError
 
     def set_derivative_operator(self):

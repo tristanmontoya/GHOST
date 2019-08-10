@@ -3,12 +3,12 @@
 
 class Mesh:
     """
-    The geometric aspects of the mesh used for the spatial discretizationf
+    The geometric aspects of the mesh used for the spatial discretization
 
     Basic Mesh Properties
     ---------------------
 
-    type : string
+    type : str
         what elements make up the mesh, currently must be 'simplex' but
         may add mixed, curvilinear, and non-conforming
 
@@ -67,12 +67,12 @@ class Mesh:
         for local residual on each element through dictionary lookup
 
     bc_table : dict
-        each key is a string denoting a particular boundary condition
+        each key is a str denoting a particular boundary condition
         (Simulation object assigns BC data to given names from
         Problem class)
 
         returns list containing three elements:
-            bc_type (string, 'riemann' or 'periodic')
+            bc_type (str, 'riemann' or 'periodic')
                 will add solid wall BCs later
             facet_ids (list of tuples)
                 if bc_type == 'riemann', this is just a list of facet ids
@@ -89,14 +89,13 @@ class Mesh:
     Methods
     -------
 
-        plot_mesh
+        __init__
 
         compute_centroids
 
         compute_mapping
 
         compute_facets
-
         map
 
         jacobian
@@ -106,6 +105,8 @@ class Mesh:
         normal
 
         set_bc
+
+        plot_mesh
 
     """
 
