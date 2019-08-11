@@ -1,5 +1,5 @@
 # GHOST
-Generalized High-Order Sovler Toolbox
+Generalized High-Order Solver Toolbox
 
 ## Dependencies
 
