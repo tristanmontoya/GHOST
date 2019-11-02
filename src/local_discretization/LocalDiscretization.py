@@ -1,3 +1,5 @@
+# Mostly Deprecated
+
 import numpy as np
 from local_discretization.PolynomialSpace import PolynomialSpace
 
