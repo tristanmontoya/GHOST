@@ -1,9 +1,13 @@
-# In development
+# GHOST - Spatial Discretization
 
-from Operator import DenseLinearOperator, Identity
+from Operator import DenseLinearOperator, DiagonalOperator, Identity
 import numpy as np
+from collections import namedtuple
 from scipy import special
 import quadpy as qp
+
+CollocationDGFR = namedtuple('CollocationDGFR', 'd p xv x_gamma c_fr')
+# make from given mesh
 
 
 def cardinality(d: int, p: int):
@@ -53,7 +57,7 @@ def change_polynomial_basis(d: int, p: int, basis1: str, basis2: str) -> DenseLi
                 return DenseLinearOperator(np.diag(np.sqrt(2.0/(2.0*np.arange(Np) + 1))))
         if basis1 == 'legendre':
             if basis2 == 'orthonormal':
-                return change_polynomial_basis(d,p,'orthonormal', 'legendre').inv
+                return change_polynomial_basis(d, p, 'orthonormal', 'legendre').inv
     else:
         raise NotImplementedError
 
@@ -77,5 +81,59 @@ def poly_deriv(d: int, p: int, der, basis: str) -> DenseLinearOperator:
                     @ np.array([[(i + j) % 2 for i in range(Np)] for j in range(Np)])))
         T = change_polynomial_basis(d, p, 'legendre', basis)
         return T.inv * D_leg**der * T
-    else: #if d > 1, der should be array with how many times to diff. each variable
+    else:  # if d > 1, der should be array with how many times to diff. each variable
         raise NotImplementedError
+
+
+def fr_filter(d: int, p: int, scheme, basis: str, mass_matrix=False) -> DenseLinearOperator:
+    Np = cardinality(d,p)
+
+    if d == 1:
+        M = reference_mass_matrix_exact(d, p, 'legendre')
+        Dp = poly_deriv(d, p, p, 'legendre')
+        a_p = special.legendre(p)[p]
+        if scheme == 'huynh':
+            c = 2.0 * (p + 1.0) / ((2.0 * p + 1.0) * p *(np.math.factorial(p) * a_p) ** 2.0)
+        else:
+            c = scheme
+        Finv = (Identity(Np) + c*M.inv*Dp.T*Dp)
+        T = change_polynomial_basis(d, p, 'legendre', basis)
+        if mass_matrix:
+            return T.T * M * Finv * T
+        return T.inv * Finv.inv * T
+    else:
+        raise NotImplementedError
+
+
+def l2_project(d: int, p: int, Nq: int, basis: str,
+                        quadrature='lg', scheme=0.0) -> DenseLinearOperator:
+    if d == 1:
+        if quadrature == 'lg':
+            xq = qp.line_segment.GaussLegendre(Nq).points.reshape([Nq, 1])
+            W = np.diag(qp.line_segment.GaussLegendre(Nq).weights)
+        elif quadrature == 'lgl':
+            xq = qp.line_segment.GaussLobatto(Nq).points.reshape([Nq, 1])
+            W = np.diag(qp.line_segment.GaussLobatto(Nq).weights)
+        else:
+            raise NotImplementedError
+        M = fr_filter(d,p,scheme,basis,mass_matrix=True)
+        V = vandermonde(d, p, basis, xq)
+    else:
+        raise NotImplementedError
+
+    return M.inv * V.T * W
+
+
+def lift(d: int, p: int, Nq: int, basis: str, quadrature='points', scheme=0.0) -> DenseLinearOperator:
+
+    if d == 1:
+        Vf = (vandermonde(d,p,basis,np.array([[-1.0]])), vandermonde(d,p,basis,np.array([[1.0]])))
+        M = fr_filter(d,p,scheme,basis,mass_matrix=True)
+        Wf = DenseLinearOperator(np.array[[1.0]])
+    else:
+        raise NotImplementedError
+    return tuple(map(lambda V: M * V.T * Wf, Vf))
+
+
+# should be diagonal (it is the DGSEM)
+#M_hu = fr_filter(1, 4, 'huynh', 'lagrange-lgl', mass_matrix=True)

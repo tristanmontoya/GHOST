@@ -1,4 +1,4 @@
-# In development
+# GHOST - Operator Template Language
 
 import numpy as np
 
@@ -10,15 +10,22 @@ class Operator:
         self.shape_in = shape_in
         self.shape_out = shape_out
         self.domain = domain  # returns True if x is in domain false if not.
+        self.vec = None
         self.mat = None
 
     def __add__(self, other):
         if self.shape_in != other.shape_in or self.shape_out != other.shape_out:
             raise ValueError("Incompatible operations for addition")
 
-        try:
+        if self.vec is not None and other.vec is not None:  # both diagonal
+            return DiagonalOperator(self.vec + other.vec)
+        if self.vec is not None and other.mat is not None:  # pre-multiply by diagonal
+            return DenseLinearOperator(np.diag(self.vec) + other.mat)
+        if self.mat is not None and other.vec is not None:  # post-multiply by diagonal
+            return DenseLinearOperator(self.mat + np.diag(other.vec))
+        if self.mat is not None and other.mat is not None:  # both dense
             return DenseLinearOperator(self.mat + other.mat)
-        except AttributeError:
+        else:
             new = Operator(self.shape_in, self.shape_out)
             new.function = lambda ar: self.function(ar) + other.function(ar)
             return new
@@ -30,6 +37,8 @@ class Operator:
 
         # check for scalar
         if np.isscalar(innerOperator):
+            if self.vec is not None:
+                return DiagonalOperator(self.vec * innerOperator)
             if self.mat is not None:
                 return DenseLinearOperator(self.mat * innerOperator)
             else:
@@ -49,7 +58,13 @@ class Operator:
             return innerOperator
 
         # check if NumPy can be used
-        if self.mat is not None:
+        if self.vec is not None and innerOperator.vec is not None: # both diagonal
+            return DiagonalOperator(self.vec*innerOperator.vec)
+        if self.vec is not None and innerOperator.mat is not None: # pre-multiply by diagonal
+            return DenseLinearOperator(np.einsum("i,ij->ij", self.vec, innerOperator.mat))
+        if self.mat is not None and innerOperator.vec is not None: # post-multiply by diagonal
+            return DenseLinearOperator(np.einsum("ij,j->ij", self.mat,innerOperator.vec))
+        if self.mat is not None and innerOperator.mat is not None: # both dense
             return DenseLinearOperator(self.mat @ innerOperator.mat)
         else:
             new = Operator(innerOperator.shape_in, self.shape_out)
@@ -61,6 +76,8 @@ class Operator:
         # pre-multiply by scalar
         if not np.isscalar(scalar):
             raise TypeError
+        if self.vec is not None:
+            return DiagonalOperator(scalar*self.vec)
         if self.mat is not None:
             return DenseLinearOperator(scalar*self.mat)
         else:
@@ -96,11 +113,17 @@ class DenseLinearOperator(Operator):
 
     def __init__(self, mat: np.ndarray) -> None:
         assert(len(mat.shape) == 2), "DenseLinearOperator must be initialized with 2D array."
-        shape_in = (mat.shape[1], 1)
-        shape_out = (mat.shape[0], 1)
+        shape_in = (mat.shape[1],)
+        shape_out = (mat.shape[0],)
 
         super().__init__(shape_in, shape_out)
         self.mat = mat
+
+        if shape_in == shape_out:
+            if np.allclose(np.diag(np.diag(self.mat)), self.mat):
+                self.vec = np.diag(self.mat)
+                self.mat = None
+                self.__class__ = DiagonalOperator
 
     def __repr__(self):
         return str(self.mat)
@@ -120,11 +143,38 @@ class DenseLinearOperator(Operator):
         return self.mat @ arg
 
 
+class DiagonalOperator(Operator):
+    def __init__(self, vec: np.ndarray) -> None:
+        assert (len(vec.shape) == 1), "Diagonal Operator must be initialized with 1D array."
+        shape_in = (vec.shape[0],)
+        shape_out = (vec.shape[0],)
+
+        super().__init__(shape_in, shape_out)
+        self.vec = vec
+
+    def __repr__(self):
+        return 'Diagonal Matrix: ' + str(self.vec)
+
+    @property
+    def inv(self):
+            return DiagonalOperator(1./self.vec)
+
+    @property
+    def T(self):
+        return self
+
+    def is_close(self, other):
+        return np.allclose(self.vec, other.vec)
+
+    def function(self, arg):
+        return np.einsum("i, i -> i", self.vec, arg)
+
+
 class Identity(Operator):
 
     def __init__(self, N: int) -> None:
-        super().__init__((N, 1), (N,1))
-        self.mat = np.eye(N)
+        super().__init__(N, N)
+        self.vec = np.ones(N)
 
     @property
     def inv(self):
@@ -135,7 +185,7 @@ class Identity(Operator):
         return self
 
     def function(self, arg):
-        # this is what makes it different than just a matrix.
-        # does not multiply through by an identity matrix
         return arg
+
+
 
