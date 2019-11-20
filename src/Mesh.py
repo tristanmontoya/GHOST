@@ -4,7 +4,6 @@ import numpy as np
 import quadpy as qp
 from Operator import DenseLinearOperator, DiagonalOperator
 import matplotlib.pyplot as plt
-from matplotlib import cm
 from collections import namedtuple
 
 Mesh = namedtuple('Mesh', 'name d K Nf_total Nf FtoE Nv N_gamma xv xbar detJv x_gamma')
@@ -14,7 +13,8 @@ Mesh = namedtuple('Mesh', 'name d K Nf_total Nf FtoE Nv N_gamma xv xbar detJv x_
 # also normals for each facet
 
 
-def make_affine_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform', indexing='ordered'):
+def make_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform',
+                        indexing='ordered', transform=None, transform_deriv=None):
 
     Nf_total = K + 1
     Nf = 2*np.ones(K,dtype=int)
@@ -52,6 +52,10 @@ def make_affine_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform', ind
           for k in range(0, K)]
     x_gamma = [[np.array([xbar[k] - np.array([h[k]])/2.0]),np.array([xbar[k] + np.array([h[k]])/2.0])] for k in range(0, K)]
 
+    if transform is not None:
+        xv = [transform(xv[i]) for i in range(0, K)]
+        x_gamma = [ [transform(x_gamma[i][0]), transform(x_gamma[i][1])] for i in range(0, K) ]
+
     return Mesh(name=name, d=1, Nf_total=Nf_total, Nf=Nf, K=K, FtoE=FtoE,
                  Nv=Nv, N_gamma=N_gamma, xbar=xbar,
                 xv=xv, detJv=detJv, x_gamma=x_gamma)
@@ -74,7 +78,7 @@ def plot_mesh(mesh, fontsize=8):
         ax.set_aspect('equal')
         plt.axis('off')
 
-        color = iter(cm.rainbow(np.linspace(0, 1, mesh.K)))
+        color = iter(plt.cm.rainbow(np.linspace(0, 1, mesh.K)))
         for k in range(0, mesh.K):
             ax.plot(mesh.xv[k][:,0], np.zeros(mesh.Nv[k]), '-o', markersize=fontsize/4, color=next(color))
             plt.text(mesh.xbar[k,0], 0.05 * L, str(k)+ "\n" +str(mesh.FtoE[k]), color='red',

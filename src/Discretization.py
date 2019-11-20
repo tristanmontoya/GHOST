@@ -6,8 +6,14 @@ from collections import namedtuple
 from scipy import special
 import quadpy as qp
 
-CollocationDGFR = namedtuple('CollocationDGFR', 'd p xv x_gamma c_fr')
-# make from given mesh
+Discretization = namedtuple('Discretization', 'H D I_vs I_sv I_gamma_s I_s_gamma')
+
+
+# polynomial discretization based on interpolation
+def construct_collocation_dg_fr(d, p, volume_nodes='lgl',
+                                surface_nodes='endpoints',
+                                c=0.0):
+    return None
 
 
 def cardinality(d: int, p: int):
@@ -75,17 +81,21 @@ def reference_mass_matrix_exact(d: int, p: int, basis: str) -> DenseLinearOperat
 
 def poly_deriv(d: int, p: int, der, basis: str) -> DenseLinearOperator:
     Np = cardinality(d,p)
+
     if d == 1:
         D_leg = DenseLinearOperator(
             np.triu(np.diag(2*np.arange(Np) + 1)
-                    @ np.array([[(i + j) % 2 for i in range(Np)] for j in range(Np)])))
+                    @ np.array([[(i + j) % 2 for i in range(Np)]
+                                for j in range(Np)])))
         T = change_polynomial_basis(d, p, 'legendre', basis)
         return T.inv * D_leg**der * T
     else:  # if d > 1, der should be array with how many times to diff. each variable
         raise NotImplementedError
 
 
-def fr_filter(d: int, p: int, scheme, basis: str, mass_matrix=False) -> DenseLinearOperator:
+def fr_filter(d: int, p: int, scheme, basis: str,
+              mass_matrix=False) -> DenseLinearOperator:
+
     Np = cardinality(d,p)
 
     if d == 1:
@@ -94,6 +104,10 @@ def fr_filter(d: int, p: int, scheme, basis: str, mass_matrix=False) -> DenseLin
         a_p = special.legendre(p)[p]
         if scheme == 'huynh':
             c = 2.0 * (p + 1.0) / ((2.0 * p + 1.0) * p *(np.math.factorial(p) * a_p) ** 2.0)
+        elif scheme == 'dg':
+            c = 0.0
+        elif scheme == 'sd':
+            c = 2.0 * p / ((2.0 * p + 1.0) * (p+1.0) * (np.math.factorial(p) * a_p) ** 2.0)
         else:
             c = scheme
         Finv = (Identity(Np) + c*M.inv*Dp.T*Dp)
@@ -105,34 +119,41 @@ def fr_filter(d: int, p: int, scheme, basis: str, mass_matrix=False) -> DenseLin
         raise NotImplementedError
 
 
-def l2_project(d: int, p: int, Nq: int, basis: str,
+def volume_project(d: int, p: int, Nv: int, basis: str,
                         quadrature='lg', scheme=0.0) -> DenseLinearOperator:
     if d == 1:
         if quadrature == 'lg':
-            xq = qp.line_segment.GaussLegendre(Nq).points.reshape([Nq, 1])
-            W = np.diag(qp.line_segment.GaussLegendre(Nq).weights)
+            xv = qp.line_segment.GaussLegendre(Nv).points.reshape([Nv, 1])
+            W = np.diag(qp.line_segment.GaussLegendre(Nv).weights)
         elif quadrature == 'lgl':
-            xq = qp.line_segment.GaussLobatto(Nq).points.reshape([Nq, 1])
-            W = np.diag(qp.line_segment.GaussLobatto(Nq).weights)
+            xv = qp.line_segment.GaussLobatto(Nv).points.reshape([Nv, 1])
+            W = np.diag(qp.line_segment.GaussLobatto(Nv).weights)
         else:
             raise NotImplementedError
         M = fr_filter(d,p,scheme,basis,mass_matrix=True)
-        V = vandermonde(d, p, basis, xq)
+        V = vandermonde(d, p, basis, xv)
     else:
         raise NotImplementedError
 
     return M.inv * V.T * W
 
 
-def lift(d: int, p: int, Nq: int, basis: str, quadrature='points', scheme=0.0) -> DenseLinearOperator:
+# I don't think this works. Need to make it for one facet at a time
+def lift(d: int, p: int, basis: str, elem_type='simplex',
+         quadrature='endpoints', N_gamma=1.0, scheme=0.0):
+    if elem_type == 'simplex':
+        Nf = d + 1
+    else:
+        raise NotImplementedError
 
     if d == 1:
-        Vf = (vandermonde(d,p,basis,np.array([[-1.0]])), vandermonde(d,p,basis,np.array([[1.0]])))
+        Vf = [vandermonde(d,p,basis,np.array([[-1.0]])), vandermonde(d,p,basis,np.array([[1.0]]))]
         M = fr_filter(d,p,scheme,basis,mass_matrix=True)
         Wf = DenseLinearOperator(np.array[[1.0]])
     else:
         raise NotImplementedError
-    return tuple(map(lambda V: M * V.T * Wf, Vf))
+
+    return [M* Vf[i].T * Wf for i in range(0, Nf)]
 
 
 # should be diagonal (it is the DGSEM)
