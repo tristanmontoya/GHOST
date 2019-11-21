@@ -123,7 +123,10 @@ class DenseLinearOperator(Operator):
             if np.allclose(np.diag(np.diag(self.mat)), self.mat):
                 self.vec = np.diag(self.mat)
                 self.mat = None
-                self.__class__ = DiagonalOperator
+                if np.allclose(np.ones(self.shape_in), self.vec):
+                    self.__class__ = Identity
+                else:
+                    self.__class__ = DiagonalOperator
 
     def __repr__(self):
         return str(self.mat)
@@ -152,6 +155,9 @@ class DiagonalOperator(Operator):
         super().__init__(shape_in, shape_out)
         self.vec = vec
 
+        if shape_in == shape_out and np.allclose(np.ones(self.shape_in), self.vec):
+            self.__class__ = Identity
+
     def __repr__(self):
         return 'Diagonal Matrix: ' + str(self.vec)
 
@@ -173,7 +179,7 @@ class DiagonalOperator(Operator):
 class Identity(Operator):
 
     def __init__(self, N: int) -> None:
-        super().__init__(N, N)
+        super().__init__((N,), (N,))
         self.vec = np.ones(N)
 
     @property
@@ -183,6 +189,9 @@ class Identity(Operator):
     @property
     def T(self):
         return self
+
+    def __repr__(self):
+        return 'Identity of size ' + str(self.shape_in[0])
 
     def function(self, arg):
         return arg

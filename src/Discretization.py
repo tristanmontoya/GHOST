@@ -10,10 +10,28 @@ Discretization = namedtuple('Discretization', 'H D I_vs I_sv I_gamma_s I_s_gamma
 
 
 # polynomial discretization based on interpolation
-def construct_collocation_dg_fr(d, p, volume_nodes='lgl',
-                                surface_nodes='endpoints',
-                                c=0.0):
-    return None
+def construct_reference_collocation_dg_fr(d, p, basis='lagrange-lgl',
+                                          volume_nodes='lg',
+                                          surface_nodes='endpoints',  c=0.0):
+    N = cardinality(d,p)
+
+    # maybe encapsulate these vandermonde functions
+    if d == 1:
+        if volume_nodes == 'lg':
+            V = vandermonde(d,p, basis, qp.line_segment.GaussLegendre(N).points.reshape([N, 1]))
+        elif volume_nodes == 'lgl':
+            V = vandermonde(d, p, basis, qp.line_segment.GaussLobatto(N).points.reshape([N, 1]))
+        Vf = [vandermonde(d,p,basis,np.array([[-1.0]])), vandermonde(d,p,basis,np.array([[1.0]]))]
+
+    else:
+        raise NotImplementedError
+
+    return Discretization(H=fr_filter(d,p,c,basis,mass_matrix=True),
+                          D=poly_deriv(d,p,1,basis),
+                          I_vs=V.inv,
+                          I_sv=V,
+                          I_gamma_s=lift(d,p,basis,scheme=c),
+                          I_s_gamma=Vf)
 
 
 def cardinality(d: int, p: int):
@@ -124,14 +142,15 @@ def volume_project(d: int, p: int, Nv: int, basis: str,
     if d == 1:
         if quadrature == 'lg':
             xv = qp.line_segment.GaussLegendre(Nv).points.reshape([Nv, 1])
-            W = np.diag(qp.line_segment.GaussLegendre(Nv).weights)
+            W = DiagonalOperator(qp.line_segment.GaussLegendre(Nv).weights)
         elif quadrature == 'lgl':
             xv = qp.line_segment.GaussLobatto(Nv).points.reshape([Nv, 1])
-            W = np.diag(qp.line_segment.GaussLobatto(Nv).weights)
+            W = DiagonalOperator(qp.line_segment.GaussLobatto(Nv).weights)
         else:
             raise NotImplementedError
         M = fr_filter(d,p,scheme,basis,mass_matrix=True)
         V = vandermonde(d, p, basis, xv)
+
     else:
         raise NotImplementedError
 
@@ -149,11 +168,11 @@ def lift(d: int, p: int, basis: str, elem_type='simplex',
     if d == 1:
         Vf = [vandermonde(d,p,basis,np.array([[-1.0]])), vandermonde(d,p,basis,np.array([[1.0]]))]
         M = fr_filter(d,p,scheme,basis,mass_matrix=True)
-        Wf = DenseLinearOperator(np.array[[1.0]])
+        Wf = DenseLinearOperator(np.array([[1.0]]))
     else:
         raise NotImplementedError
 
-    return [M* Vf[i].T * Wf for i in range(0, Nf)]
+    return [M * Vf[i].T * Wf for i in range(0, Nf)]
 
 
 # should be diagonal (it is the DGSEM)

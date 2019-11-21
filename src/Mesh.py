@@ -6,7 +6,7 @@ from Operator import DenseLinearOperator, DiagonalOperator
 import matplotlib.pyplot as plt
 from collections import namedtuple
 
-Mesh = namedtuple('Mesh', 'name d K Nf_total Nf FtoE Nv N_gamma xv xbar detJv x_gamma')
+Mesh = namedtuple('Mesh', 'name d K Nf_total Nf FtoE Nv N_gamma xv xbar x_gamma')
 
 # should also have EtoF -- given a facet, what elements are on it
 # and what index is it on that element? for computing numerical flux
@@ -14,7 +14,7 @@ Mesh = namedtuple('Mesh', 'name d K Nf_total Nf FtoE Nv N_gamma xv xbar detJv x_
 
 
 def make_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform',
-                        indexing='ordered', transform=None, transform_deriv=None):
+                        indexing='ordered', transform=None):
 
     Nf_total = K + 1
     Nf = 2*np.ones(K,dtype=int)
@@ -47,18 +47,18 @@ def make_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform',
     xbar = 0.5 * (v[FtoE[:, 0], 0] + v[FtoE[:, 1], 0]).reshape((K,1))
     detJv = [DiagonalOperator(np.ones(Nv[k])*h[k]/2.0)
              for k in range(0, K)]
-
     xv = [detJv[k](xi).reshape(Nv[k],1) + np.ones((Nv[k], 1))*xbar[k, 0]
           for k in range(0, K)]
     x_gamma = [[np.array([xbar[k] - np.array([h[k]])/2.0]),np.array([xbar[k] + np.array([h[k]])/2.0])] for k in range(0, K)]
 
     if transform is not None:
+        xbar = transform(xbar)
         xv = [transform(xv[i]) for i in range(0, K)]
         x_gamma = [ [transform(x_gamma[i][0]), transform(x_gamma[i][1])] for i in range(0, K) ]
 
     return Mesh(name=name, d=1, Nf_total=Nf_total, Nf=Nf, K=K, FtoE=FtoE,
                  Nv=Nv, N_gamma=N_gamma, xbar=xbar,
-                xv=xv, detJv=detJv, x_gamma=x_gamma)
+                xv=xv, x_gamma=x_gamma)
 
 
 def plot_mesh(mesh, fontsize=8):
@@ -81,7 +81,7 @@ def plot_mesh(mesh, fontsize=8):
         color = iter(plt.cm.rainbow(np.linspace(0, 1, mesh.K)))
         for k in range(0, mesh.K):
             ax.plot(mesh.xv[k][:,0], np.zeros(mesh.Nv[k]), '-o', markersize=fontsize/4, color=next(color))
-            plt.text(mesh.xbar[k,0], 0.05 * L, str(k)+ "\n" +str(mesh.FtoE[k]), color='red',
+            plt.text(mesh.xbar[k,0], 0.05 * L, str(k)+ "\n" +str(mesh.FtoE[k]), color='black',
                      fontsize=fontsize, ha='center')
 
             for gamma in range(0, mesh.Nf[k]):

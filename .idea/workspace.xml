@@ -2,9 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2baa223a-abd7-41d9-be55-46b5d42979a2" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/tests/mesh/mesh_test_1d.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Discretization.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Discretization.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Mesh.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Mesh.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/mesh/mesh_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/mesh/mesh_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Operator.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Operator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/.pytest_cache/v/cache/lastfailed" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/.pytest_cache/v/cache/nodeids" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/mesh/mesh_test.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/mesh/test_mesh1.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/tests/mesh/test_mesh1.pdf" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,13 +26,16 @@
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_local_residual_test_poly_differentiation.coverage" NAME="pytest for test_local_residual.test_poly_differentiation Coverage Results" MODIFIED="1566160533501" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/GHOST$plotMesh1D__test.coverage" NAME="plotMesh1D__test Coverage Results" MODIFIED="1563322118568" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
     <SUITE FILE_PATH="coverage/Euler$Eule.coverage" NAME="Eule Coverage Results" MODIFIED="1550345854090" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/GHOST$mesh_test.coverage" NAME="mesh_test Coverage Results" MODIFIED="1574043532655" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
+    <SUITE FILE_PATH="coverage/GHOST$mesh_test.coverage" NAME="mesh_test Coverage Results" MODIFIED="1574357700676" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
+    <SUITE FILE_PATH="coverage/GHOST$pytest_for_mesh_test_1d_test_plot_mesh_1d.coverage" NAME="pytest for mesh_test_1d.test_plot_mesh_1d Coverage Results" MODIFIED="1574358668143" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
+    <SUITE FILE_PATH="coverage/GHOST$pytest_for_mesh_test_1d_test_mappings_1d.coverage" NAME="pytest for mesh_test_1d.test_mappings_1d Coverage Results" MODIFIED="1574358613178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
     <SUITE FILE_PATH="coverage/Euler$EulerDriverHighOrder.coverage" NAME="EulerDriverHighOrder Coverage Results" MODIFIED="1553454593974" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$problem.coverage" NAME="problem Coverage Results" MODIFIED="1550543387985" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$spatialDiscretization.coverage" NAME="spatialDiscretization Coverage Results" MODIFIED="1552607016873" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$pytest_for_EulerDriver1D_testMachCalc.coverage" NAME="pytest for EulerDriver1D.testMachCalc Coverage Results" MODIFIED="1548727329844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_operator_test_dense_linear_operator.coverage" NAME="pytest for test_operator.test_dense_linear_operator Coverage Results" MODIFIED="1566076896810" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/utils" />
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_polynomial_test_legendre_vandermonde.coverage" NAME="pytest for test_polynomial.test_legendre_vandermonde Coverage Results" MODIFIED="1572559469246" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/GHOST$pytest_for_mesh_test_1d_test_plot_mesh.coverage" NAME="pytest for mesh_test_1d.test_plot_mesh Coverage Results" MODIFIED="1574358529697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
     <SUITE FILE_PATH="coverage/Euler$temporalDiscretization.coverage" NAME="temporalDiscretization Coverage Results" MODIFIED="1550345862057" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_polynomial_test_orthonormal_vandermonde_1d.coverage" NAME="pytest for test_polynomial.test_orthonormal_vandermonde_1d Coverage Results" MODIFIED="1572559167163" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_operator_test_dense_linear_operator_scaling_composition.coverage" NAME="pytest for test_operator.test_dense_linear_operator_scaling_composition Coverage Results" MODIFIED="1566077062372" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/utils" />
@@ -39,10 +47,14 @@
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_polynomial_test_vandermonde.coverage" NAME="pytest for test_polynomial.test_vandermonde Coverage Results" MODIFIED="1572560757736" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_operator_test_identity.coverage" NAME="pytest for test_operator.test_identity Coverage Results" MODIFIED="1566093730529" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/utils" />
     <SUITE FILE_PATH="coverage/GHOST$test_local_discretization_1D.coverage" NAME="test_local_discretization_1D Coverage Results" MODIFIED="1565408524577" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/local_discretization" />
+    <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_tester_test_new.coverage" NAME="pytest for test_tester.test_new Coverage Results" MODIFIED="1574357928887" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
     <SUITE FILE_PATH="coverage/GHOST$Element1D.coverage" NAME="Element1D Coverage Results" MODIFIED="1563233778018" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/GHOST$meshzoo_test.coverage" NAME="meshzoo_test Coverage Results" MODIFIED="1563257834606" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
     <SUITE FILE_PATH="coverage/Euler$EulerDriver1D_tosubmit.coverage" NAME="EulerDriver1D_tosubmit Coverage Results" MODIFIED="1550672961170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Euler$EulerDriverFLOMG.coverage" NAME="EulerDriverFLOMG Coverage Results" MODIFIED="1552790324181" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+  </component>
+  <component name="CoverageViewManager">
+    <option name="myElementSize" value="119" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -65,39 +77,42 @@
           <entry key="Polynomial" value="2942" />
           <entry key="Python Console" value="2119" />
           <entry key="fr_test" value="86" />
-          <entry key="mesh_test" value="110" />
+          <entry key="mesh_test" value="1566" />
           <entry key="plotMesh1D__test" value="181" />
-          <entry key="py" value="58904" />
+          <entry key="py" value="61406" />
           <entry key="test_local_discretization_1D" value="55" />
+          <entry key="txt" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="61115" />
+          <entry key="PLAIN_TEXT" value="4" />
+          <entry key="Python" value="65073" />
           <entry key="Scratch" value="3282" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="DGQuadratureSimplex" value="1" />
-          <entry key="py" value="71" />
+          <entry key="py" value="75" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="70" />
+          <entry key="Python" value="74" />
           <entry key="Scratch" value="1" />
           <entry key="UML" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="10" />
+          <entry key="project.closed" value="12" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.10" value="2" />
           <entry key="project.open.time.11" value="1" />
           <entry key="project.open.time.12" value="1" />
-          <entry key="project.open.time.14" value="1" />
+          <entry key="project.open.time.13" value="1" />
+          <entry key="project.open.time.14" value="2" />
           <entry key="project.open.time.15" value="2" />
           <entry key="project.open.time.16" value="1" />
           <entry key="project.open.time.17" value="3" />
@@ -106,7 +121,7 @@
           <entry key="project.open.time.20" value="1" />
           <entry key="project.open.time.3" value="2" />
           <entry key="project.open.time.67" value="1" />
-          <entry key="project.opened" value="18" />
+          <entry key="project.opened" value="20" />
         </counts>
       </usages-collector>
     </session>
@@ -116,7 +131,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Problem.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="680">
+            <state relative-caret-position="646">
               <caret line="40" column="71" selection-start-line="40" selection-start-column="71" selection-end-line="40" selection-end-column="71" />
               <folding>
                 <element signature="e#39#117#0" expanded="true" />
@@ -125,29 +140,16 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Operator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="29" selection-start-line="6" selection-start-column="29" selection-end-line="6" selection-end-column="29" />
+            <state relative-caret-position="17">
+              <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
               <folding>
-                <marker date="1574044506269" expanded="true" signature="400:1375" ph="..." />
-                <marker date="1574044506269" expanded="true" signature="1336:1375" ph="..." />
-                <marker date="1574044506269" expanded="true" signature="6077:6080" ph="..." />
-                <marker date="1574044506269" expanded="true" signature="6105:6111" ph="..." />
-                <marker date="1574044506269" expanded="true" signature="6363:6366" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/mesh/meshzoo_test.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="31" lean-forward="true" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
+                <marker date="1574296760570" expanded="true" signature="400:1375" ph="..." />
+                <marker date="1574296760570" expanded="true" signature="1336:1375" ph="..." />
+                <marker date="1574296760570" expanded="true" signature="6338:6341" ph="..." />
+                <marker date="1574296760570" expanded="true" signature="6366:6372" ph="..." />
               </folding>
             </state>
           </provider>
@@ -156,37 +158,30 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Mesh.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-459">
-              <caret line="19" column="22" lean-forward="true" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
+            <state relative-caret-position="1360">
+              <caret line="80" column="56" selection-start-line="80" selection-start-column="56" selection-end-line="80" selection-end-column="56" />
               <folding>
                 <element signature="e#46#64#0" expanded="true" />
-                <marker date="1574291177962" expanded="true" signature="2283:2284" ph="..." />
+                <marker date="1574299228149" expanded="true" signature="2272:2273" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/mesh/mesh_test.py">
+        <entry file="file://$PROJECT_DIR$/tests/mesh/mesh_test_1d.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-              <folding>
-                <marker date="1574291455264" expanded="true" signature="42:43" ph="..." />
-              </folding>
+            <state relative-caret-position="263">
+              <caret line="46" column="13" selection-start-line="46" selection-start-column="12" selection-end-line="46" selection-end-column="13" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Discretization.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-204">
-              <caret line="32" column="41" lean-forward="true" selection-start-line="32" selection-start-column="41" selection-end-line="32" selection-end-column="41" />
-              <folding>
-                <element signature="e#18#86#0" expanded="true" />
-                <marker date="1574290944124" expanded="true" signature="496:515" ph="..." />
-              </folding>
+            <state relative-caret-position="127">
+              <caret line="165" column="12" lean-forward="true" selection-start-line="165" selection-start-column="12" selection-end-line="165" selection-end-column="12" />
             </state>
           </provider>
         </entry>
@@ -197,6 +192,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Stub" />
+        <option value="Setup Script" />
         <option value="Python Script" />
       </list>
     </option>
@@ -228,11 +224,11 @@
       <find>Vqd</find>
       <find>hat</find>
       <find>approximationSpace</find>
-      <find>str</find>
       <find>string</find>
       <find>mass_m</find>
       <find>mass</find>
       <find>incompa</find>
+      <find>str</find>
     </findStrings>
     <replaceStrings>
       <replace>Q_j</replace>
@@ -254,8 +250,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/tests/mesh/pygmsh_test.pdf.py" />
-        <option value="$PROJECT_DIR$/tests/mesh/pygmsh_test.py" />
         <option value="$PROJECT_DIR$/tests/mesh/meshio_test.py" />
         <option value="$PROJECT_DIR$/src/meshGen.py" />
         <option value="$PROJECT_DIR$/src/Simulation.py.pyi" />
@@ -302,9 +296,11 @@
         <option value="$PROJECT_DIR$/src/Flux.py" />
         <option value="$PROJECT_DIR$/src/Problem.py" />
         <option value="$PROJECT_DIR$/src/Operator.py" />
-        <option value="$PROJECT_DIR$/src/Discretization.py" />
         <option value="$PROJECT_DIR$/src/Mesh.py" />
+        <option value="$PROJECT_DIR$/tests/mesh/test_tester.py" />
         <option value="$PROJECT_DIR$/tests/mesh/mesh_test.py" />
+        <option value="$PROJECT_DIR$/tests/mesh/mesh_test_1d.py" />
+        <option value="$PROJECT_DIR$/src/Discretization.py" />
       </list>
     </option>
   </component>
@@ -314,10 +310,11 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="-11" />
-    <option name="width" value="1932" />
-    <option name="height" value="1031" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-93" />
+    <option name="y" value="42" />
+    <option name="width" value="1944" />
+    <option name="height" value="1044" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -355,17 +352,6 @@
             </path>
             <path>
               <item name="GHOST" type="b2602c69:ProjectViewProjectNode" />
-              <item name="GHOST" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="GHOST" type="b2602c69:ProjectViewProjectNode" />
-              <item name="GHOST" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="mesh" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="GHOST" type="b2602c69:ProjectViewProjectNode" />
               <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
             </path>
             <path>
@@ -391,16 +377,16 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Research\Research_Projects\GHOST\src" />
+      <recent name="C:\Research\Research_Projects\GHOST\tests" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Research\Research_Projects\GHOST\tests\mesh" />
       <recent name="C:\Research\Research_Projects\GHOST\src" />
       <recent name="C:\Research\Research_Projects\GHOST\src\utils" />
       <recent name="C:\Research\Research_Projects\GHOST\src\local_discretization" />
       <recent name="C:\Research\Research_Projects\GHOST\src\mesh" />
-      <recent name="C:\Research\Research_Projects\GHOST\tests\local_discretization" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Research\Research_Projects\GHOST\src" />
-      <recent name="C:\Research\Research_Projects\GHOST\tests" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -415,26 +401,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.mesh_test">
-    <configuration name="Polynomial" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="GHOST" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/Polynomial.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python tests.pytest for mesh_test_1d.test_plot_mesh_1d">
     <configuration name="mesh_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="GHOST" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -454,68 +421,101 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for test_polynomial.test_legendre_vandermonde" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="Unnamed" type="tests" factoryName="py.test">
+      <module name="GHOST" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="C:\Users\monto\Anaconda3\python.exe" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest for mesh_test_1d.test_mappings_1d" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="GHOST" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/mesh" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_polynomial.test_legendre_vandermonde&quot;" />
+      <option name="_new_target" value="&quot;mesh_test_1d.test_mappings_1d&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for test_polynomial.test_mass_matrix_1d" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for mesh_test_1d.test_plot_mesh" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="GHOST" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/mesh" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_polynomial.test_mass_matrix_1d&quot;" />
+      <option name="_new_target" value="&quot;mesh_test_1d.test_plot_mesh&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="pytest for test_polynomial.test_vandermonde" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest for mesh_test_1d.test_plot_mesh_1d" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="GHOST" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/mesh" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_polynomial.test_vandermonde&quot;" />
+      <option name="_new_target" value="&quot;mesh_test_1d.test_plot_mesh_1d&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest for test_tester.test_new" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+      <module name="GHOST" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/mesh" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_tester.test_new&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python tests.pytest for test_polynomial.test_legendre_vandermonde" />
-      <item itemvalue="Python tests.pytest for test_polynomial.test_mass_matrix_1d" />
-      <item itemvalue="Python tests.pytest for test_polynomial.test_vandermonde" />
-      <item itemvalue="Python.Polynomial" />
+      <item itemvalue="Python tests.Unnamed" />
       <item itemvalue="Python.mesh_test" />
+      <item itemvalue="Python tests.pytest for test_tester.test_new" />
+      <item itemvalue="Python tests.pytest for mesh_test_1d.test_mappings_1d" />
+      <item itemvalue="Python tests.pytest for mesh_test_1d.test_plot_mesh" />
+      <item itemvalue="Python tests.pytest for mesh_test_1d.test_plot_mesh_1d" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.pytest for mesh_test_1d.test_plot_mesh_1d" />
+        <item itemvalue="Python tests.pytest for mesh_test_1d.test_mappings_1d" />
+        <item itemvalue="Python tests.pytest for mesh_test_1d.test_plot_mesh" />
         <item itemvalue="Python.mesh_test" />
-        <item itemvalue="Python.Polynomial" />
-        <item itemvalue="Python.Polynomial" />
-        <item itemvalue="Python.Polynomial" />
-        <item itemvalue="Python.Polynomial" />
+        <item itemvalue="Python tests.pytest for test_tester.test_new" />
       </list>
     </recent_temporary>
   </component>
@@ -555,64 +555,65 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="pytest_for_test_local_residual_test_poly_differentiation - 2019.08.18 at 16h 35m 36s.xml">
-      <configuration name="pytest for test_local_residual.test_poly_differentiation" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_plot_mesh - 2019.11.21 at 12h 45m 16s.xml">
+      <configuration name="pytest for mesh_test_1d.test_plot_mesh" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_test_polynomial_test_orthonormal_vandermonde_1d - 2019.10.31 at 16h 57m 12s.xml">
-      <configuration name="pytest for test_polynomial.test_orthonormal_vandermonde_1d" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_plot_mesh - 2019.11.21 at 12h 46m 02s.xml">
+      <configuration name="pytest for mesh_test_1d.test_plot_mesh" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_test_polynomial_test_orthonormal_vandermonde_1d - 2019.10.31 at 17h 48m 01s.xml">
-      <configuration name="pytest for test_polynomial.test_orthonormal_vandermonde_1d" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_plot_mesh - 2019.11.21 at 12h 46m 51s.xml">
+      <configuration name="pytest for mesh_test_1d.test_plot_mesh" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_test_polynomial_test_orthonormal_vandermonde_1d - 2019.10.31 at 17h 59m 31s.xml">
-      <configuration name="pytest for test_polynomial.test_orthonormal_vandermonde_1d" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_plot_mesh - 2019.11.21 at 12h 48m 29s.xml">
+      <configuration name="pytest for mesh_test_1d.test_plot_mesh" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_test_polynomial_test_legendre_vandermonde - 2019.10.31 at 18h 02m 55s.xml">
-      <configuration name="pytest for test_polynomial.test_legendre_vandermonde" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_plot_mesh - 2019.11.21 at 12h 48m 46s.xml">
+      <configuration name="pytest for mesh_test_1d.test_plot_mesh" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_test_polynomial_test_legendre_vandermonde - 2019.10.31 at 18h 04m 32s.xml">
-      <configuration name="pytest for test_polynomial.test_legendre_vandermonde" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_plot_mesh - 2019.11.21 at 12h 49m 19s.xml">
+      <configuration name="pytest for mesh_test_1d.test_plot_mesh" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_test_polynomial_test_mass_matrix_1d - 2019.10.31 at 18h 08m 45s.xml">
-      <configuration name="pytest for test_polynomial.test_mass_matrix_1d" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_plot_mesh_1d - 2019.11.21 at 12h 49m 47s.xml">
+      <configuration name="pytest for mesh_test_1d.test_plot_mesh_1d" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_test_polynomial_test_mass_matrix_1d - 2019.10.31 at 18h 25m 30s.xml">
-      <configuration name="pytest for test_polynomial.test_mass_matrix_1d" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_plot_mesh_1d - 2019.11.21 at 12h 49m 57s.xml">
+      <configuration name="pytest for mesh_test_1d.test_plot_mesh_1d" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_test_polynomial_test_vandermonde - 2019.10.31 at 18h 26m 02s.xml">
-      <configuration name="pytest for test_polynomial.test_vandermonde" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_mappings_1d - 2019.11.21 at 12h 50m 17s.xml">
+      <configuration name="pytest for mesh_test_1d.test_mappings_1d" configurationId="tests" />
     </history-entry>
-    <history-entry file="pytest_for_test_polynomial_test_mass_matrix_1d - 2019.10.31 at 18h 26m 19s.xml">
-      <configuration name="pytest for test_polynomial.test_mass_matrix_1d" configurationId="tests" />
+    <history-entry file="pytest_for_mesh_test_1d_test_plot_mesh_1d - 2019.11.21 at 12h 51m 14s.xml">
+      <configuration name="pytest for mesh_test_1d.test_plot_mesh_1d" configurationId="tests" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
     <option name="totallyTimeSpent" value="384713000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="0" width="1288" height="687" extended-state="0" />
+    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21498372" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22024292" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3291815" />
-      <window_info anchor="bottom" id="Debug" order="2" sideWeight="0.4996554" visible="true" weight="0.045126352" />
+      <window_info anchor="bottom" id="Debug" order="2" sideWeight="0.4996554" weight="0.35231316" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="5" />
       <window_info anchor="bottom" id="Docker" order="6" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="7" weight="0.4430605" />
+      <window_info anchor="bottom" id="Run" order="7" visible="true" weight="0.08896797" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32740214" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5010338" side_tool="true" weight="0.38659793" />
-      <window_info anchor="bottom" id="Terminal" order="11" weight="0.33096084" />
-      <window_info anchor="bottom" x="172" y="71" width="816" height="486" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" visible="true" weight="0.3024911" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.3291815" />
+      <window_info anchor="bottom" x="-1746" y="184" width="1086" height="765" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" visible="true" weight="0.3024911" />
+      <window_info anchor="right" id="Coverage" sideWeight="0.34570312" side_tool="true" visible="true" weight="0.18947369" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" sideWeight="0.95810056" visible="true" weight="0.21498372" />
+      <window_info anchor="right" id="SciView" order="3" sideWeight="0.6542969" weight="0.18947369" />
       <window_info anchor="right" id="Database" order="4" weight="0.22430407" />
       <window_info anchor="right" x="0" y="0" width="390" height="1206" id="Documentation" order="5" sideWeight="0.041899443" side_tool="true" visible="true" weight="0.33152977" />
     </layout>
@@ -679,6 +680,26 @@
   <component name="debuggerHistoryManager">
     <expressions id="evaluateExpression">
       <expression>
+        <expression-string>mesh.xv[0].reshape(5)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>mesh.xv[0].reshape(0,5)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>mesh.xv[0]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>Dproj</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
         <expression-string>mesh.x_gamma[k][0][:,0]</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
@@ -703,31 +724,9 @@
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>x_gamma[0][1][0]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>x_gamma[0][1]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>x_gamma[0][0]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>x_gamma[0]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/Old1DSolver/highOrderShockTubeDriver.py" />
-    <entry file="file://$PROJECT_DIR$/src/Old1DSolver/spatialDiscHighOrder.py" />
     <entry file="file://$PROJECT_DIR$/src/ElementBase.py" />
     <entry file="file://$PROJECT_DIR$/src/Element1D.py" />
     <entry file="file://$PROJECT_DIR$/src/AffineMesh1D.py" />
@@ -814,94 +813,19 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Quadrature.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="106">
-          <caret line="13" column="45" selection-start-line="13" selection-start-column="45" selection-end-line="13" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/testUtils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/fr_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="19" column="71" selection-start-line="19" selection-start-column="11" selection-end-line="19" selection-end-column="71" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/local_discretization/LocalDiscretization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="70" column="24" lean-forward="true" selection-start-line="70" selection-start-column="24" selection-end-line="70" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/local_discretization/test_local_discretization_1D.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="26" lean-forward="true" selection-start-line="6" selection-start-column="26" selection-end-line="6" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="21" lean-forward="true" selection-start-line="9" selection-start-column="21" selection-end-line="9" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/mesh/AffineMesh1D.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="63" column="1" lean-forward="true" selection-start-line="2" selection-end-line="63" selection-end-column="1" />
-          <folding>
-            <element signature="e#42#60#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Simulation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-385">
-          <caret line="10" column="23" lean-forward="true" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Flux.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret lean-forward="true" />
-          <folding>
-            <element signature="e#0#68#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Polynomial.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
-          <folding>
-            <element signature="e#18#68#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Quadrature.py" />
+    <entry file="file://$PROJECT_DIR$/tests/testUtils.py" />
+    <entry file="file://$PROJECT_DIR$/tests/fr_test.py" />
+    <entry file="file://$PROJECT_DIR$/src/local_discretization/LocalDiscretization.py" />
+    <entry file="file://$PROJECT_DIR$/tests/local_discretization/test_local_discretization_1D.py" />
+    <entry file="file://$PROJECT_DIR$/tests/mesh/plotMesh1D__test.py" />
+    <entry file="file://$PROJECT_DIR$/src/mesh/AffineMesh1D.py" />
+    <entry file="file://$PROJECT_DIR$/src/Simulation.py" />
+    <entry file="file://$PROJECT_DIR$/src/Flux.py" />
+    <entry file="file://$PROJECT_DIR$/src/Polynomial.py" />
     <entry file="file://$PROJECT_DIR$/src/Problem.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
+        <state relative-caret-position="646">
           <caret line="40" column="71" selection-start-line="40" selection-start-column="71" selection-end-line="40" selection-end-column="71" />
           <folding>
             <element signature="e#39#117#0" expanded="true" />
@@ -909,10 +833,52 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tests/mesh/test_tester.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="17" selection-start-line="3" selection-start-column="17" selection-end-line="3" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/mesh/mesh_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-136">
+          <caret line="6" column="18" lean-forward="true" selection-start-line="6" selection-start-column="18" selection-end-line="6" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Discretization.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="127">
+          <caret line="165" column="12" lean-forward="true" selection-start-line="165" selection-start-column="12" selection-end-line="165" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/mesh/mesh_test_1d.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="263">
+          <caret line="46" column="13" selection-start-line="46" selection-start-column="12" selection-end-line="46" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Mesh.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1360">
+          <caret line="80" column="56" selection-start-line="80" selection-start-column="56" selection-end-line="80" selection-end-column="56" />
+          <folding>
+            <element signature="e#46#64#0" expanded="true" />
+            <marker date="1574299228149" expanded="true" signature="2272:2273" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/tests/mesh/meshzoo_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="31" lean-forward="true" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
+        <state relative-caret-position="204">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
           </folding>
@@ -921,46 +887,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Operator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="29" selection-start-line="6" selection-start-column="29" selection-end-line="6" selection-end-column="29" />
+        <state relative-caret-position="17">
+          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
           <folding>
-            <marker date="1574044506269" expanded="true" signature="400:1375" ph="..." />
-            <marker date="1574044506269" expanded="true" signature="1336:1375" ph="..." />
-            <marker date="1574044506269" expanded="true" signature="6077:6080" ph="..." />
-            <marker date="1574044506269" expanded="true" signature="6105:6111" ph="..." />
-            <marker date="1574044506269" expanded="true" signature="6363:6366" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/mesh/mesh_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-          <folding>
-            <marker date="1574291455264" expanded="true" signature="42:43" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Mesh.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-459">
-          <caret line="19" column="22" lean-forward="true" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
-          <folding>
-            <element signature="e#46#64#0" expanded="true" />
-            <marker date="1574291177962" expanded="true" signature="2283:2284" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Discretization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-204">
-          <caret line="32" column="41" lean-forward="true" selection-start-line="32" selection-start-column="41" selection-end-line="32" selection-end-column="41" />
-          <folding>
-            <element signature="e#18#86#0" expanded="true" />
-            <marker date="1574290944124" expanded="true" signature="496:515" ph="..." />
+            <marker date="1574296760570" expanded="true" signature="400:1375" ph="..." />
+            <marker date="1574296760570" expanded="true" signature="1336:1375" ph="..." />
+            <marker date="1574296760570" expanded="true" signature="6338:6341" ph="..." />
+            <marker date="1574296760570" expanded="true" signature="6366:6372" ph="..." />
           </folding>
         </state>
       </provider>
