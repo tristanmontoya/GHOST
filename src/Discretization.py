@@ -10,28 +10,44 @@ Discretization = namedtuple('Discretization', 'H D I_vs I_sv I_gamma_s I_s_gamma
 
 
 # polynomial discretization based on interpolation
-def construct_reference_collocation_dg_fr(d, p, basis='lagrange-lgl',
+def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
                                           volume_nodes='lg',
-                                          surface_nodes='endpoints',  c=0.0):
-    N = cardinality(d,p)
+                                          surface_nodes='endpoints',
+                                          c=0.0):
 
     # maybe encapsulate these vandermonde functions
     if d == 1:
         if volume_nodes == 'lg':
-            V = vandermonde(d,p, basis, qp.line_segment.GaussLegendre(N).points.reshape([N, 1]))
+            V = vandermonde(d,p, basis,
+                            qp.line_segment.GaussLegendre(Nv).points.reshape([Nv, 1]))
         elif volume_nodes == 'lgl':
-            V = vandermonde(d, p, basis, qp.line_segment.GaussLobatto(N).points.reshape([N, 1]))
-        Vf = [vandermonde(d,p,basis,np.array([[-1.0]])), vandermonde(d,p,basis,np.array([[1.0]]))]
+            V = vandermonde(d, p, basis,
+                            qp.line_segment.GaussLobatto(N).points.reshape([Nv, 1]))
+        Vf = [vandermonde(d,p,basis,np.array([[-1.0]])),
+              vandermonde(d,p,basis,np.array([[1.0]]))]
 
     else:
         raise NotImplementedError
 
     return Discretization(H=fr_filter(d,p,c,basis,mass_matrix=True),
                           D=poly_deriv(d,p,1,basis),
-                          I_vs=V.inv,
+                          I_vs=volume_project(d,p,Nv,basis, quadrature=volume_nodes),
                           I_sv=V,
                           I_gamma_s=lift(d,p,basis,scheme=c),
                           I_s_gamma=Vf)
+
+
+def project_to_solution(disc, mesh, u_v):
+    return [disc.I_vs(u_v[k]) for k in range(0, mesh.K)]
+
+
+def evaluate_at_volume_nodes(disc, mesh, u_s):
+    return [disc.I_sv(u_s[k]) for k in range(0, mesh.K)]
+
+
+def evaluate_at_facet_nodes(disc, mesh, u_s):
+    return [[disc.I_s_gamma[gamma](u_s[k]) for
+             gamma in range(0, mesh.Nf[k])] for k in range(0, mesh.K)]
 
 
 def cardinality(d: int, p: int):
@@ -58,7 +74,8 @@ def legendre_basis(d: int, p:int) -> list:
         raise NotImplementedError
 
 
-def change_polynomial_basis(d: int, p: int, basis1: str, basis2: str) -> DenseLinearOperator:
+def change_polynomial_basis(d: int, p: int, basis1: str,
+                            basis2: str) -> DenseLinearOperator:
     Np = cardinality(d,p)
 
     if basis1 == basis2:

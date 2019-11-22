@@ -23,7 +23,8 @@ def test_mappings_1d():
     Dproj = D*P
     J = [Dproj(mesh.xv[k].reshape(Nv)) for k in range(0, mesh.K)]
     Jpoly = [np.polynomial.legendre.leg2poly(J[k]) for k in range(0, mesh.K)]
-    xpoly = [np.polynomial.legendre.leg2poly(P(mesh.xv[k].reshape(Nv))) for k in range(0, mesh.K)]
+    xpoly = [np.polynomial.legendre.leg2poly(P(mesh.xv[k].reshape(Nv)))
+             for k in range(0, mesh.K)]
 
     print("Initial:\n", poly)
     print("Final:\n", np.poly1d(xpoly[0][::-1]))
@@ -40,12 +41,16 @@ def test_plot_mesh_1d():
     p = P_TEST
 
     mesh = make_mesh_1d('test_mesh1', 0.0, 1.0,
-                               K, Nv, 'lg', 'uniform', 'random', transform= lambda x: x**p)
+                        K, Nv, 'lg', 'uniform',
+                        'random', transform=lambda x: x**p)
 
     P = volume_project(1,p,Nv,'legendre','lg')
     D = poly_deriv(1,p,1,'legendre')
     Dproj = D*P
+
     J = [Dproj(mesh.xv[k].reshape(Nv)) for k in range(0, mesh.K)]
     Jpoly = [np.polynomial.legendre.leg2poly(J[k]) for k in range(0, mesh.K)]
-    xpoly = [np.polynomial.legendre.leg2poly(P(mesh.xv[k].reshape(Nv))) for k in range(0, mesh.K)]
+    xpoly = [np.polynomial.legendre.leg2poly(P(mesh.xv[k].reshape(Nv)))
+             for k in range(0, mesh.K)]
+
     plot_mesh(mesh)
