@@ -6,13 +6,12 @@ from collections import namedtuple
 from scipy import special
 import quadpy as qp
 
-Discretization = namedtuple('Discretization', 'H D I_vs I_sv I_gamma_s I_s_gamma')
+Discretization = namedtuple('Discretization', 'H D P_v R_v L R')
 
 
-# polynomial discretization based on interpolation
 def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
                                           volume_nodes='lg',
-                                          surface_nodes='endpoints',
+                                          facet_nodes='endpoints',
                                           c=0.0):
 
     # maybe encapsulate these vandermonde functions
@@ -22,7 +21,7 @@ def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
                             qp.line_segment.GaussLegendre(Nv).points.reshape([Nv, 1]))
         elif volume_nodes == 'lgl':
             V = vandermonde(d, p, basis,
-                            qp.line_segment.GaussLobatto(N).points.reshape([Nv, 1]))
+                            qp.line_segment.GaussLobatto(Nv).points.reshape([Nv, 1]))
         Vf = [vandermonde(d,p,basis,np.array([[-1.0]])),
               vandermonde(d,p,basis,np.array([[1.0]]))]
 
@@ -31,22 +30,24 @@ def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
 
     return Discretization(H=fr_filter(d,p,c,basis,mass_matrix=True),
                           D=poly_deriv(d,p,1,basis),
-                          I_vs=volume_project(d,p,Nv,basis, quadrature=volume_nodes),
-                          I_sv=V,
-                          I_gamma_s=lift(d,p,basis,scheme=c),
-                          I_s_gamma=Vf)
+                          P_v=volume_project(d,p,Nv,basis, quadrature=volume_nodes),
+                          R_v=V,
+                          L=lift(d,p,basis,scheme=c),
+                          R=Vf)
 
+
+# These assume the same local discretization is used everywhere (no adaptivity)
 
 def project_to_solution(disc, mesh, u_v):
-    return [disc.I_vs(u_v[k]) for k in range(0, mesh.K)]
+    return [disc.P_v(u_v[k]) for k in range(0, mesh.K)]
 
 
 def evaluate_at_volume_nodes(disc, mesh, u_s):
-    return [disc.I_sv(u_s[k]) for k in range(0, mesh.K)]
+    return [disc.R_v(u_s[k]) for k in range(0, mesh.K)]
 
 
 def evaluate_at_facet_nodes(disc, mesh, u_s):
-    return [[disc.I_s_gamma[gamma](u_s[k]) for
+    return [[disc.R[gamma](u_s[k]) for
              gamma in range(0, mesh.Nf[k])] for k in range(0, mesh.K)]
 
 
@@ -174,9 +175,9 @@ def volume_project(d: int, p: int, Nv: int, basis: str,
     return M.inv * V.T * W
 
 
-# I don't think this works. Need to make it for one facet at a time
 def lift(d: int, p: int, basis: str, elem_type='simplex',
-         quadrature='endpoints', N_gamma=1.0, scheme=0.0):
+         cubature='endpoints', N_gamma=1.0, scheme=0.0):
+
     if elem_type == 'simplex':
         Nf = d + 1
     else:
@@ -189,7 +190,7 @@ def lift(d: int, p: int, basis: str, elem_type='simplex',
     else:
         raise NotImplementedError
 
-    return [M * Vf[i].T * Wf for i in range(0, Nf)]
+    return [M.inv * Vf[i].T * Wf for i in range(0, Nf)]
 
 
 # should be diagonal (it is the DGSEM)

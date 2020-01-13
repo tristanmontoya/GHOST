@@ -6,11 +6,12 @@ from Operator import DenseLinearOperator, DiagonalOperator
 import matplotlib.pyplot as plt
 from collections import namedtuple
 
-Mesh = namedtuple('Mesh', 'name d K Nf_total Nf FtoE EtoF Nv N_gamma xv xbar x_gamma')
+Mesh = namedtuple('Mesh', 'name d K Nf_total Nf FtoE EtoF f_side Nv N_gamma xv xbar x_gamma n_gamma n_gathered')
 
-# should also have EtoF -- given a facet, what elements are on it
-# and what index is it on that element? for computing numerical flux
-# also normals for each facet
+
+# -1 to 1
+def nonsingular_map_1d(p, x):
+    return 2.0/(2.0**p - 1) * ((0.5*(x + 3.0))**p - 1.0) + 1.0
 
 
 def make_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform',
@@ -23,6 +24,8 @@ def make_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform',
 
     Nf = 2*np.ones(K,dtype=int)
     N_gamma = [[1, 1] for k in range(0,K)]
+    n_gamma = [[np.array([[-1.0]]),np.array([[1.0]])]for k in range(0,K)]
+
     Nv = [N for k in range(0, K)]
 
     # generate vertices
@@ -56,7 +59,8 @@ def make_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform',
           for k in range(0, K)]
 
     # these are overlapped
-    x_gamma = [[np.array([xbar[k] - np.array([h[k]])/2.0]),np.array([xbar[k] + np.array([h[k]])/2.0])] for k in range(0, K)]
+    x_gamma = [[np.array([xbar[k] - np.array([h[k]])/2.0]),
+                np.array([xbar[k] + np.array([h[k]])/2.0])] for k in range(0, K)]
 
     if transform is not None:
         xbar = transform(xbar)
@@ -69,9 +73,20 @@ def make_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform',
 
     EtoF = [np.where(FtoE == f) for f in range(0, Nf_total)]
 
-    return Mesh(name=name, d=1, Nf_total=Nf_total, Nf=Nf, K=K, FtoE=FtoE,
-                EtoF=EtoF, Nv=Nv, N_gamma=N_gamma, xbar=xbar,
-                xv=xv, x_gamma=x_gamma)
+    n_gathered = [(n_gamma[EtoF[f][0][0]][EtoF[f][1][0]],
+                   n_gamma[EtoF[f][0][1]][EtoF[f][1][1]])
+                  for f in range(0, Nf_total)]
+
+    f_side_0 = [1 if (EtoF[FtoE[k,0]][0][0] == k) else -1 for k in range(0, K)]
+    f_side_1 = [1 if (EtoF[FtoE[k, 1]][0][0] == k) else -1 for k in range(0, K)]
+    f_side = [[f_side_0[k], f_side_1[k]] for k in range(0, K)]
+
+    mesh = Mesh(name=name, d=1, Nf_total=Nf_total, Nf=Nf, K=K, FtoE=FtoE,
+                EtoF=EtoF, f_side=f_side, Nv=Nv, N_gamma=N_gamma, xbar=xbar,
+                xv=xv, x_gamma=x_gamma, n_gamma=n_gamma,
+                n_gathered=n_gathered)
+
+    return mesh
 
 
 def eval_grid_function(mesh, f):
@@ -111,6 +126,16 @@ def plot_mesh(mesh, fontsize=8):
 
         plt.show()
         meshplt.savefig("./" + mesh.name + ".pdf", bbox_inches=0, pad_inches=0)
+
+
+def gather_field(mesh, u_gamma):
+
+    if mesh.d == 1:
+        return [(u_gamma[mesh.EtoF[f][0][0]][mesh.EtoF[f][1][0]],
+                 u_gamma[mesh.EtoF[f][0][1]][mesh.EtoF[f][1][1]])
+                for f in range(0, mesh.Nf_total)]
+    else:
+        raise NotImplementedError
 
 
 def plot_on_volume_nodes(mesh, u, plotname, fontsize=8):
