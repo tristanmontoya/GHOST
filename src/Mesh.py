@@ -9,9 +9,8 @@ from collections import namedtuple
 Mesh = namedtuple('Mesh', 'name d K Nf_total Nf FtoE EtoF f_side Nv N_gamma xv xbar x_gamma n_gamma n_gathered')
 
 
-# -1 to 1
-def nonsingular_map_1d(p, x):
-    return 2.0/(2.0**p - 1) * ((0.5*(x + 3.0))**p - 1.0) + 1.0
+def nonsingular_map_1d(p, x, L): # 0 to L
+    return L/(2.0**p - 1) * ((0.5*(x + 3.0))**p - 1.0)
 
 
 def make_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform',

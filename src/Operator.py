@@ -154,6 +154,7 @@ class DiagonalOperator(Operator):
 
         super().__init__(shape_in, shape_out)
         self.vec = vec
+        self.mat = np.diag(vec)
 
         if shape_in == shape_out and np.allclose(np.ones(self.shape_in), self.vec):
             self.__class__ = Identity

@@ -6,7 +6,7 @@ from collections import namedtuple
 from scipy import special
 import quadpy as qp
 
-Discretization = namedtuple('Discretization', 'H D P_v R_v L R')
+Discretization = namedtuple('Discretization', 'M H F K D P_v R_v L Lg R c p')
 
 
 def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
@@ -28,12 +28,18 @@ def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
     else:
         raise NotImplementedError
 
-    return Discretization(H=fr_filter(d,p,c,basis,mass_matrix=True),
+    return Discretization(M=reference_mass_matrix_exact(d,p,basis),
+                          H=fr_filter(d,p,c,basis,mass_matrix=True),
+                          F=fr_filter(d,p,c,basis),
+                          K=fr_K(d,p,c,basis),
                           D=poly_deriv(d,p,1,basis),
                           P_v=volume_project(d,p,Nv,basis, quadrature=volume_nodes),
                           R_v=V,
                           L=lift(d,p,basis,scheme=c),
-                          R=Vf)
+                          Lg=lift(d,p,basis,scheme=0.0),
+                          R=Vf,
+                          c=fr_c(d,p,c,basis),
+                          p=p)
 
 
 # These assume the same local discretization is used everywhere (no adaptivity)
@@ -146,6 +152,7 @@ def fr_filter(d: int, p: int, scheme, basis: str,
             c = 2.0 * p / ((2.0 * p + 1.0) * (p+1.0) * (np.math.factorial(p) * a_p) ** 2.0)
         else:
             c = scheme
+        print("c = ", c)
         Finv = (Identity(Np) + c*M.inv*Dp.T*Dp)
         T = change_polynomial_basis(d, p, 'legendre', basis)
         if mass_matrix:
@@ -154,9 +161,55 @@ def fr_filter(d: int, p: int, scheme, basis: str,
     else:
         raise NotImplementedError
 
+def fr_c(d: int, p: int, scheme, basis: str):
+    Np = cardinality(d, p)
+
+    if d == 1:
+        M = reference_mass_matrix_exact(d, p, 'legendre')
+        Dp = poly_deriv(d, p, p, 'legendre')
+        a_p = special.legendre(p)[p]
+        if scheme == 'huynh':
+            return 2.0 * (p + 1.0) / ((2.0 * p + 1.0) * p * (np.math.factorial(p) * a_p) ** 2.0)
+        elif scheme == 'dg':
+            return 0.0
+        elif scheme == 'sd':
+            return 2.0 * p / ((2.0 * p + 1.0) * (p + 1.0) * (np.math.factorial(p) * a_p) ** 2.0)
+        else:
+            return scheme
+
+
+def fr_K(d: int, p: int, scheme, basis: str, use_metric=False, metric_data=None, k=0) -> DenseLinearOperator:
+
+    Np = cardinality(d,p)
+
+    if d == 1:
+        M = reference_mass_matrix_exact(d, p, 'legendre')
+        Dp = poly_deriv(d, p, p, 'legendre')
+        a_p = special.legendre(p)[p]
+        if scheme == 'huynh':
+            c = 2.0 * (p + 1.0) / ((2.0 * p + 1.0) * p *(np.math.factorial(p) * a_p) ** 2.0)
+        elif scheme == 'dg':
+            c = 0.0
+        elif scheme == 'sd':
+            c = 2.0 * p / ((2.0 * p + 1.0) * (p+1.0) * (np.math.factorial(p) * a_p) ** 2.0)
+        else:
+            c = scheme
+        print("c = ", c)
+
+        if use_metric:
+            Jinv = metric_data.inv_proj_jac[k]
+        else:
+            Jinv = Identity(Np)
+
+        T = change_polynomial_basis(d, p, 'legendre', basis)
+        return T.T * (c*(Jinv*Dp).T*M*(Jinv*Dp)) * T
+
+    else:
+        raise NotImplementedError
+
 
 def volume_project(d: int, p: int, Nv: int, basis: str,
-                        quadrature='lg', scheme=0.0) -> DenseLinearOperator:
+                        quadrature='lg') -> DenseLinearOperator:
     if d == 1:
         if quadrature == 'lg':
             xv = qp.line_segment.GaussLegendre(Nv).points.reshape([Nv, 1])
@@ -166,13 +219,12 @@ def volume_project(d: int, p: int, Nv: int, basis: str,
             W = DiagonalOperator(qp.line_segment.GaussLobatto(Nv).weights)
         else:
             raise NotImplementedError
-        M = fr_filter(d,p,scheme,basis,mass_matrix=True)
         V = vandermonde(d, p, basis, xv)
 
     else:
         raise NotImplementedError
 
-    return M.inv * V.T * W
+    return (V.T * W * V).inv * V.T * W
 
 
 def lift(d: int, p: int, basis: str, elem_type='simplex',
