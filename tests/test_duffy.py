@@ -2,6 +2,7 @@ import quadpy as qp
 import numpy as np
 from matplotlib import pyplot as plt
 
+
 def duffy(xi_1, xi_2):
 
     return (1 + xi_1)*(1-xi_2)/2.0 - 1, xi_2

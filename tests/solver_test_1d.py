@@ -12,7 +12,7 @@ NV_TEST = 10  # >= cardinality
 
 
 def solver_1d_advection():
-    
+
     """ Periodic linear advection test problem """
 
     basis = 'legendre'
@@ -70,7 +70,7 @@ def solver_1d_advection():
 
     # evaluate final solution and plot result
     u_v_tf = Discretization.evaluate_at_volume_nodes(disc, mesh, u_f)
-    Mesh.plot_on_volume_nodes(mesh, u_v_tf, 'sin_final_'+str(scheme))
+    Mesh.plot_on_volume_nodes(mesh, u_v_tf, '../plots/sin_final_'+str(scheme))
     Mesh.plot_mesh(mesh)
 
 
@@ -108,8 +108,8 @@ def solver_1d_eig():
     # compute grid metrics
     metric_data = Solver.compute_metrics(mesh, ref_vol_nodes, ref_fac_nodes, disc, P_MAP)
 
+    # get spectral difference FR coefficient
     c_sd = Discretization.fr_c(1,P_TEST,'sd',basis)
-    print("c_sd = ", c_sd)
 
     # set up solver
     c_min = 0.0*c_sd
@@ -129,7 +129,7 @@ def solver_1d_eig():
 
     eigplt = plt.figure()
     plt.plot(c, emax, '-')
-    eigplt.savefig("./eigs.pdf", bbox_inches=0, pad_inches=0)
+    eigplt.savefig("../plots/test_eigs.pdf", bbox_inches=0, pad_inches=0)
     plt.grid()
     plt.show()
     return
