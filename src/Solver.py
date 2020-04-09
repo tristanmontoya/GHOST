@@ -40,8 +40,6 @@ def compute_metrics(mesh: namedtuple,
             K = disc.c*(Dp.T)*(disc.M*Jmodal)*Dp
             I = Operator.Identity(disc.p + 1)
             FJinv = FJinv + [(I + (disc.M * Jmodal).inv * K ).inv * inv_proj_jac[k]]
-            #FJinv = FJinv + [(disc.P_v*J*disc.R_v + disc.M.inv * disc.K).inv]
-
 
     return MetricData(inv_proj_jac=inv_proj_jac,
                       nodal_dxdxi=nodal_dxdxi,
@@ -85,7 +83,6 @@ def get_eigenvalues(R: callable, K, Np):
 
     A = np.column_stack(cols)
     return np.linalg.eig(A)
-
 
 
 def ode_solve(time_solver: namedtuple, R: callable, u, N_dt, dt,
@@ -156,8 +153,9 @@ def facet_numerical_flux(problem: namedtuple,
                               for i in range(0, mesh.Nf_total)]
 
             # Re-distribute the numerical flux
-            return [[f[mesh.FtoE[k, 0]]*mesh.f_side[k][0], f[mesh.FtoE[k, 1]]*mesh.f_side[k][1]]
-                     for k in range(0, mesh.K)]
+            return [[f[mesh.FtoE[k, 0]]*mesh.f_side[k][0],
+                     f[mesh.FtoE[k, 1]]*mesh.f_side[k][1]]
+                    for k in range(0, mesh.K)]
         else:
             raise NotImplementedError
     else:
@@ -197,9 +195,6 @@ def local_residual(problem: namedtuple, mesh: namedtuple,
                 vol = -1.0*disc.D(u[k])
                 surf = [disc.L[gamma](mesh.n_gamma[k][gamma].reshape(1)*u_f[k][gamma]
                                       - f_n[k][gamma]) for gamma in range(0, 2)]
-
-                # surf_corr = [((I-disc.F)*disc.L[gamma])(mesh.n_gamma[k][gamma].reshape(1)*u_f[k][gamma]
-                #                                       - f_n[k][gamma]) for gamma in range(0, 2)]
 
                 if print_output:
                     print("k: ", k, " vol: ", vol)

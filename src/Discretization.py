@@ -152,7 +152,6 @@ def fr_filter(d: int, p: int, scheme, basis: str,
             c = 2.0 * p / ((2.0 * p + 1.0) * (p+1.0) * (np.math.factorial(p) * a_p) ** 2.0)
         else:
             c = scheme
-        print("c = ", c)
         Finv = (Identity(Np) + c*M.inv*Dp.T*Dp)
         T = change_polynomial_basis(d, p, 'legendre', basis)
         if mass_matrix:
@@ -194,7 +193,6 @@ def fr_K(d: int, p: int, scheme, basis: str, use_metric=False, metric_data=None,
             c = 2.0 * p / ((2.0 * p + 1.0) * (p+1.0) * (np.math.factorial(p) * a_p) ** 2.0)
         else:
             c = scheme
-        print("c = ", c)
 
         if use_metric:
             Jinv = metric_data.inv_proj_jac[k]
