@@ -7,6 +7,7 @@ from scipy import special
 import quadpy as qp
 
 Discretization = namedtuple('Discretization', 'M H F K D P_v R_v L Lg R c p')
+Nodes = namedtuple('Nodes', 'xi_v xi_gamma')
 
 
 def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
@@ -24,7 +25,6 @@ def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
                             qp.line_segment.GaussLobatto(Nv).points.reshape([Nv, 1]))
         Vf = [vandermonde(d,p,basis,np.array([[-1.0]])),
               vandermonde(d,p,basis,np.array([[1.0]]))]
-
     else:
         raise NotImplementedError
 
@@ -40,6 +40,13 @@ def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
                           R=Vf,
                           c=fr_c(d,p,c,basis),
                           p=p)
+
+def make_interpolation_nodes(elem_type, p):
+    if elem_type == 'triangle2d':
+        return qp.triangle.WitherdenVincent(p)
+    else:
+        raise NotImplementedError
+
 
 
 # These assume the same local discretization is used everywhere (no adaptivity)

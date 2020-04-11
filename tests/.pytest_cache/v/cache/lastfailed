@@ -1,5 +1,6 @@
 {
   "residual_test.py::test_res_uniform": true,
   "residual_test.py::test_uniform": true,
-  "solver_test.py": true
+  "solver_test.py": true,
+  "test_modepy.py": true
 }
