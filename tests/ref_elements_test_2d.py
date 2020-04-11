@@ -15,6 +15,7 @@ def plot_tri(p):
                        [-1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]])
     xlg_diag = rot_mat @ xlg_stretch
 
+    basis = mp.simplex_onb(2, p)
 
     mshpltt = plt.figure()
 
@@ -31,6 +32,8 @@ def plot_tri(p):
     plt.axis('off')
     mshpltt.savefig("../plots/tri_" + str(p) +".pdf", bbox_inches=0, pad_inches=0)
     plt.show()
+
+    return mp.vandermonde(basis, xv)
 
 
 def plot_quad(p):
@@ -92,5 +95,6 @@ def plot_quad(p):
     mshpltt.savefig("../plots/quad_" + str(p) +".pdf", bbox_inches=0, pad_inches=0)
     plt.show()
 
-plot_tri(3)
+
+V = plot_tri(3)
 plot_quad(3)
