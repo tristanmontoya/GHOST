@@ -35,24 +35,33 @@ def make_tensor_mesh(n_1, rule_1, n_2, rule_2):
 
     title = rule_1 + ' (N = ' + str(n_1) + ') x ' + rule_2 + ' (N = ' + str(n_2) + ')'
     mshplt = plt.figure()
-    plt.title(title)
-    plt.plot(x[:,0],x[:,1], 'o')
-    plt.plot(v[:,0],v[:,1], '-')
+    #plt.title(title)
+    plt.plot(v[:,0],v[:,1], '-k')
+    for j in range(0,n_1):
+        plt.plot(x[j*(n_2):(j+1)*(n_2),0], x[j*(n_2):(j+1)*(n_2),1], '-k')
+    for i in range(0,n_2):
+        plt.plot(x[i::n_1,0], x[i::n_1,1], '-k')
+    plt.plot(x[:,0],x[:,1],'s',color="k",fillstyle='none',markersize=5)
     ax = plt.axes()
     ax.set_aspect('equal')
-    mshplt.savefig("./mesh_square" + title + ".pdf", bbox_inches=0, pad_inches=0)
+    plt.axis('off')
+    mshplt.savefig("./mesh_square.pdf", bbox_inches=0, pad_inches=0)
     plt.show()
 
     xtri = duffy(x[:,0],x[:,1])
     vtri = duffy(v[:,0],v[:,1])
 
     mshpltt = plt.figure()
-    plt.plot(xtri[0],xtri[1], 'o')
-    plt.plot(vtri[0],vtri[1], '-')
-    plt.title(title)
+    plt.plot(vtri[0],vtri[1], '-k')
+    for j in range(0,n_1):
+        plt.plot(xtri[0][j*(n_2):(j+1)*(n_2)], xtri[1][j*(n_2):(j+1)*(n_2)], '-k')
+    for i in range(0,n_2):
+        plt.plot(xtri[0][i::n_1], xtri[1][i::n_1], '-k')
+    plt.plot(xtri[0],xtri[1],'s',color="k",fillstyle='none',markersize=5)
     ax = plt.axes()
     ax.set_aspect('equal')
-    mshpltt.savefig("./mesh_tri" + title + ".pdf", bbox_inches=0, pad_inches=0)
+    plt.axis('off')
+    mshpltt.savefig("./mesh_tri.pdf", bbox_inches=0, pad_inches=0)
     plt.show()
 
-#make_tensor_mesh(3, 'lgr', 4, 'lgl')
+make_tensor_mesh(4, 'lgl', 4, 'lgr')

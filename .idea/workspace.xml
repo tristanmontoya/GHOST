@@ -2,8 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2baa223a-abd7-41d9-be55-46b5d42979a2" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/tests/lg_roots_plot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/quad_3.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/quad_3.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/tri_3.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/plots/tri_3.pdf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/ref_elements_test_2d.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/ref_elements_test_2d.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_duffy.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_duffy.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -37,6 +41,7 @@
     <SUITE FILE_PATH="coverage/GHOST$pytest_in_test_modepy_py.coverage" NAME="pytest in test_modepy.py Coverage Results" MODIFIED="1586553599964" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_polynomial_test_legendre_vandermonde.coverage" NAME="pytest for test_polynomial.test_legendre_vandermonde Coverage Results" MODIFIED="1572559469246" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_mesh_test_1d_test_plot_mesh.coverage" NAME="pytest for mesh_test_1d.test_plot_mesh Coverage Results" MODIFIED="1574358529697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/mesh" />
+    <SUITE FILE_PATH="coverage/GHOST$lg_roots_plot.coverage" NAME="lg_roots_plot Coverage Results" MODIFIED="1587190232768" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/Euler$temporalDiscretization.coverage" NAME="temporalDiscretization Coverage Results" MODIFIED="1550345862057" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_polynomial_test_orthonormal_vandermonde_1d.coverage" NAME="pytest for test_polynomial.test_orthonormal_vandermonde_1d Coverage Results" MODIFIED="1572559167163" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/GHOST$pytest_for_test_operator_test_dense_linear_operator_scaling_composition.coverage" NAME="pytest for test_operator.test_dense_linear_operator_scaling_composition Coverage Results" MODIFIED="1566077062372" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests/utils" />
@@ -85,7 +90,8 @@
           <entry key="fr_test" value="86" />
           <entry key="mesh_test" value="2632" />
           <entry key="plotMesh1D__test" value="181" />
-          <entry key="py" value="98706" />
+          <entry key="py" value="99478" />
+          <entry key="ref_elements_test_2d" value="26" />
           <entry key="residual_test" value="23" />
           <entry key="solver_test" value="97" />
           <entry key="test_duffy" value="232" />
@@ -97,44 +103,44 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="PLAIN_TEXT" value="4" />
-          <entry key="Python" value="105953" />
+          <entry key="Python" value="106751" />
           <entry key="Scratch" value="3282" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="DGQuadratureSimplex" value="1" />
-          <entry key="py" value="116" />
+          <entry key="py" value="117" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Python" value="115" />
+          <entry key="Python" value="116" />
           <entry key="Scratch" value="1" />
           <entry key="UML" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="23" />
+          <entry key="project.closed" value="27" />
           <entry key="project.open.time.0" value="2" />
           <entry key="project.open.time.10" value="3" />
           <entry key="project.open.time.11" value="1" />
           <entry key="project.open.time.12" value="2" />
-          <entry key="project.open.time.13" value="3" />
-          <entry key="project.open.time.14" value="2" />
+          <entry key="project.open.time.13" value="6" />
+          <entry key="project.open.time.14" value="3" />
           <entry key="project.open.time.15" value="2" />
           <entry key="project.open.time.16" value="3" />
           <entry key="project.open.time.17" value="5" />
           <entry key="project.open.time.18" value="2" />
-          <entry key="project.open.time.19" value="1" />
+          <entry key="project.open.time.19" value="3" />
           <entry key="project.open.time.2" value="1" />
           <entry key="project.open.time.20" value="2" />
           <entry key="project.open.time.22" value="2" />
           <entry key="project.open.time.26" value="1" />
           <entry key="project.open.time.3" value="2" />
           <entry key="project.open.time.67" value="1" />
-          <entry key="project.opened" value="35" />
+          <entry key="project.opened" value="41" />
         </counts>
       </usages-collector>
     </session>
@@ -144,8 +150,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/test_duffy.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="13" column="23" selection-start-line="13" selection-start-column="23" selection-end-line="13" selection-end-column="23" />
+            <state relative-caret-position="1054">
+              <caret line="64" column="14" selection-start-line="64" selection-start-column="14" selection-end-line="64" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -153,8 +159,23 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tests/ref_elements_test_2d.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="387">
-              <caret line="97" lean-forward="true" selection-start-line="97" selection-end-line="97" />
+            <state relative-caret-position="154">
+              <caret line="42" column="13" lean-forward="true" selection-start-line="42" selection-start-column="13" selection-end-line="42" selection-end-column="13" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/lg_roots_plot.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="102">
+              <caret line="9" column="35" selection-start-line="9" selection-start-column="35" selection-end-line="9" selection-end-column="35" />
+              <folding>
+                <element signature="e#0#19#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -296,8 +317,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/DGLagrange.py" />
-        <option value="$PROJECT_DIR$/src/ESFR.py" />
         <option value="$PROJECT_DIR$/src/CollocatedSBP.py" />
         <option value="$PROJECT_DIR$/src/local_discretization/DGLegendre.py" />
         <option value="$PROJECT_DIR$/src/utils/quadUtils.py" />
@@ -346,6 +365,8 @@
         <option value="$PROJECT_DIR$/tests/mesh/.pytest_cache/test_duffy.py" />
         <option value="$PROJECT_DIR$/src/Discretization.py" />
         <option value="$PROJECT_DIR$/tests/test_modepy.py" />
+        <option value="$PROJECT_DIR$/tests/lg_roots_plot.py" />
+        <option value="$PROJECT_DIR$/tests/test_duffy.py" />
         <option value="$PROJECT_DIR$/tests/ref_elements_test_2d.py" />
       </list>
     </option>
@@ -356,7 +377,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-12" />
     <option name="width" value="1932" />
     <option name="height" value="1032" />
@@ -442,27 +463,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.ref_elements_test_2d">
-    <configuration name="ref_elements_test_2d" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="GHOST" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/ref_elements_test_2d.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="solver_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.test_duffy">
+    <configuration name="lg_roots_plot" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="GHOST" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -475,7 +477,29 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/solver_test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/lg_roots_plot.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ref_elements_test_2d" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="GHOST" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/ref_elements_test_2d.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -492,12 +516,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests/mesh/.pytest_cache" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/mesh/.pytest_cache/test_duffy.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/test_duffy.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -562,19 +586,19 @@
     </configuration>
     <list>
       <item itemvalue="Python tests.Unnamed" />
-      <item itemvalue="Python.solver_test" />
       <item itemvalue="Python.test_duffy" />
       <item itemvalue="Python tests.pytest in test_modepy.py" />
       <item itemvalue="Python.test_modepy" />
       <item itemvalue="Python.ref_elements_test_2d" />
+      <item itemvalue="Python.lg_roots_plot" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.test_duffy" />
+        <item itemvalue="Python.lg_roots_plot" />
         <item itemvalue="Python.ref_elements_test_2d" />
         <item itemvalue="Python.ref_elements_test_2d" />
-        <item itemvalue="Python.test_modepy" />
-        <item itemvalue="Python.test_modepy" />
-        <item itemvalue="Python tests.pytest in test_modepy.py" />
+        <item itemvalue="Python.ref_elements_test_2d" />
       </list>
     </recent_temporary>
   </component>
@@ -649,10 +673,10 @@
     <option name="totallyTimeSpent" value="384713000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="0" width="1288" height="688" extended-state="0" />
+    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25895765" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.28582996" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -662,16 +686,16 @@
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="5" />
       <window_info anchor="bottom" id="Docker" order="6" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="7" sideWeight="0.78745925" weight="0.39891696" />
+      <window_info anchor="bottom" id="Run" order="7" sideWeight="0.7846154" weight="0.39679715" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32740214" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.21254072" side_tool="true" visible="true" weight="0.06306306" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.21538462" side_tool="true" visible="true" weight="0.39679715" />
       <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49918568" weight="0.32851985" />
-      <window_info anchor="bottom" x="2675" y="462" width="1149" height="747" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" weight="0.3024911" />
+      <window_info anchor="bottom" x="128" y="30" width="1151" height="650" id="Python Console" order="12" sideWeight="0.49896622" type="WINDOWED" weight="0.3024911" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info active="true" anchor="right" id="SciView" order="3" sideWeight="0.9206642" visible="true" weight="0.0252443" />
+      <window_info active="true" anchor="right" id="SciView" order="3" sideWeight="0.9206642" visible="true" weight="0.025101215" />
       <window_info anchor="right" id="Database" order="4" weight="0.22430407" />
       <window_info anchor="right" x="0" y="0" width="390" height="1206" id="Documentation" order="5" sideWeight="0.079335794" side_tool="true" weight="0.21393442" />
       <window_info anchor="right" id="Coverage" order="6" sideWeight="0.34570312" side_tool="true" visible="true" weight="0.13036437" />
@@ -777,7 +801,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/utils/exampleFunctions.py" />
     <entry file="file://$PROJECT_DIR$/src/scratch/matmul_tests.py" />
     <entry file="file://$PROJECT_DIR$/src/local_discretization/PolynomialSpace.py" />
     <entry file="file://$PROJECT_DIR$/src/utils/quadUtils.py" />
@@ -926,8 +949,18 @@
     <entry file="file://$PROJECT_DIR$/tests/test_modepy.py" />
     <entry file="file://$PROJECT_DIR$/tests/test_duffy.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="13" column="23" selection-start-line="13" selection-start-column="23" selection-end-line="13" selection-end-column="23" />
+        <state relative-caret-position="1054">
+          <caret line="64" column="14" selection-start-line="64" selection-start-column="14" selection-end-line="64" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/lg_roots_plot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="9" column="35" selection-start-line="9" selection-start-column="35" selection-end-line="9" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -988,8 +1021,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/ref_elements_test_2d.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="387">
-          <caret line="97" lean-forward="true" selection-start-line="97" selection-end-line="97" />
+        <state relative-caret-position="154">
+          <caret line="42" column="13" lean-forward="true" selection-start-line="42" selection-start-column="13" selection-end-line="42" selection-end-column="13" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
