@@ -15,7 +15,6 @@ def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
                                           facet_nodes='endpoints',
                                           c=0.0):
 
-    # maybe encapsulate these vandermonde functions
     if d == 1:
         if volume_nodes == 'lg':
             V = vandermonde(d,p, basis,
@@ -46,7 +45,6 @@ def make_interpolation_nodes(elem_type, p):
         return qp.triangle.WitherdenVincent(p)
     else:
         raise NotImplementedError
-
 
 
 # These assume the same local discretization is used everywhere (no adaptivity)
@@ -167,12 +165,10 @@ def fr_filter(d: int, p: int, scheme, basis: str,
     else:
         raise NotImplementedError
 
+
 def fr_c(d: int, p: int, scheme, basis: str):
-    Np = cardinality(d, p)
 
     if d == 1:
-        M = reference_mass_matrix_exact(d, p, 'legendre')
-        Dp = poly_deriv(d, p, p, 'legendre')
         a_p = special.legendre(p)[p]
         if scheme == 'huynh':
             return 2.0 * (p + 1.0) / ((2.0 * p + 1.0) * p * (np.math.factorial(p) * a_p) ** 2.0)
@@ -248,7 +244,3 @@ def lift(d: int, p: int, basis: str, elem_type='simplex',
         raise NotImplementedError
 
     return [M.inv * Vf[i].T * Wf for i in range(0, Nf)]
-
-
-# should be diagonal (it is the DGSEM)
-#M_hu = fr_filter(1, 4, 'huynh', 'lagrange-lgl', mass_matrix=True)
