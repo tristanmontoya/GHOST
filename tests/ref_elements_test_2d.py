@@ -1,7 +1,9 @@
 import modepy as mp
 import quadpy as qp
 import numpy as np
+import scipy.special
 from matplotlib import pyplot as plt
+
 p=3
 
 def duffy(xi_1, xi_2):
@@ -19,6 +21,9 @@ def plot_tri(p):
     xlg_diag = rot_mat @ xlg_stretch
 
     basis = mp.simplex_onb(2, p)
+    vdm = mp.vandermonde(basis,xv)
+    print("Np = ", scipy.special.comb(p+2,2))
+    print("rank(V) = ", np.linalg.matrix_rank(vdm))
 
     mshpltt = plt.figure()
 
@@ -36,50 +41,49 @@ def plot_tri(p):
     mshpltt.savefig("../plots/tri_" + str(p) +".pdf", bbox_inches=0, pad_inches=0)
     plt.show()
 
-    return mp.vandermonde(basis, xv)
 
 
-def plot_quad(p):
+def plot_tensorquad(p):
     n_1 = p+1
     n_2 = p+1
     rule_1 = 'lg'
     rule_2 = 'lgl'
-    x_lg = qp.line_segment.GaussLobatto(n_2).points
+    x_lg = qp.line_segment.gauss_legendre(n_2).points
     xp = np.zeros([2,n_1**2])
     xv = np.zeros([2,n_2**2])
     v = np.array([[-1.0, 1.0, 1.0, -1.0, -1.0],[-1.0, -1.0,1.0,1.0, -1.0]])
 
     for i in range(0, n_1):
         if rule_1 == 'lg':
-            xp[0, i * (n_1):(i + 1) * (n_1)] = qp.line_segment.GaussLegendre(n_1).points[i]
+            xp[0, i * (n_1):(i + 1) * (n_1)] = qp.line_segment.gauss_legendre(n_1).points[i]
         elif rule_1 == 'lgl':
-            xp[0, i * (n_1):(i + 1) * (n_1)] = qp.line_segment.GaussLobatto(n_1).points[i]
+            xp[0, i * (n_1):(i + 1) * (n_1)] = qp.line_segment.gauss_lobatto(n_1).points[i]
         elif rule_1 == 'lgr':
-            xp[0, i * (n_1):(i + 1) * (n_1)] = qp.line_segment.GaussRadau(n_1).points[i]
+            xp[0, i * (n_1):(i + 1) * (n_1)] = qp.line_segment.gauss_radau(n_1).points[i]
 
     for j in range(0, n_1):
         if rule_1 == 'lg':
-            xp[1, j * (n_1):(j + 1) * (n_1)] = qp.line_segment.GaussLegendre(n_1).points
+            xp[1, j * (n_1):(j + 1) * (n_1)] = qp.line_segment.gauss_legendre(n_1).points
         elif rule_1 == 'lgl':
-            xp[1, j * (n_1):(j + 1) * (n_1)] = qp.line_segment.GaussLobatto(n_1).points
+            xp[1, j * (n_1):(j + 1) * (n_1)] = qp.line_segment.gauss_lobatto(n_1).points
         elif rule_1 == 'lgr':
-            xp[1, j * (n_1):(j + 1) * (n_1)] = qp.line_segment.GaussRadau(n_1).points
+            xp[1, j * (n_1):(j + 1) * (n_1)] = qp.line_segment.gauss_radau(n_1).points
 
     for i in range(0, n_2):
         if rule_2 == 'lg':
             xv[0, i * (n_2):(i + 1) * (n_2)] = qp.line_segment.GaussLegendre(n_2).points[i]
         elif rule_2 == 'lgl':
-            xv[0, i * (n_2):(i + 1) * (n_2)] = qp.line_segment.GaussLobatto(n_2).points[i]
+            xv[0, i * (n_2):(i + 1) * (n_2)] = qp.line_segment.gauss_lobatto(n_2).points[i]
         elif rule_2 == 'lgr':
-            xv[0, i * (n_2):(i + 1) * (n_2)] = qp.line_segment.GaussRadau(n_2).points[i]
+            xv[0, i * (n_2):(i + 1) * (n_2)] = qp.line_segment.gauss_radau(n_2).points[i]
 
     for j in range(0, n_2):
         if rule_2 == 'lg':
-            xv[1, j * (n_2):(j + 1) * (n_2)] = qp.line_segment.GaussLegendre(n_2).points
+            xv[1, j * (n_2):(j + 1) * (n_2)] = qp.line_segment.gauss_legendre(n_2).points
         elif rule_2 == 'lgl':
-            xv[1, j * (n_2):(j + 1) * (n_2)] = qp.line_segment.GaussLobatto(n_2).points
+            xv[1, j * (n_2):(j + 1) * (n_2)] = qp.line_segment.gauss_lobatto(n_2).points
         elif rule_2 == 'lgr':
-            xv[1, j * (n_2):(j + 1) * (n_2)] = qp.line_segment.GaussRadau(n_2).points
+            xv[1, j * (n_2):(j + 1) * (n_2)] = qp.line_segment.gauss_radau(n_2).points
 
     mshpltt = plt.figure()
     plt.plot(v[0,:], v[1,:], '-k')
@@ -90,7 +94,9 @@ def plot_quad(p):
     plt.plot(1.0*np.ones(len(x_lg)), x_lg, 's', color="k",fillstyle='none',markersize=10)
 
     plt.plot(xp[0,:], xp[1,:], 's', color="k", markersize=10)
-    plt.plot(xv[0, :], xv[1, :], 'o', color="k", fillstyle='none', markersize=10)
+    
+    xv = qp.quadrilateral.witherden_vincent_05().points
+    plt.plot(xv[:, 0], xv[:, 1], 'o', color="k", fillstyle='none', markersize=10)
 
     ax = plt.axes()
     ax.set_aspect('equal')
@@ -98,6 +104,5 @@ def plot_quad(p):
     mshpltt.savefig("../plots/quad_" + str(p) +".pdf", bbox_inches=0, pad_inches=0)
     plt.show()
 
-
 V = plot_tri(3)
-plot_quad(3)
+plot_tensorquad(3)

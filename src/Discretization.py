@@ -2,43 +2,86 @@
 
 from Operator import DenseLinearOperator, DiagonalOperator, Identity
 import numpy as np
-from collections import namedtuple
+import matplotlib.pyplot as plt
 from scipy import special
 import quadpy as qp
 
-Discretization = namedtuple('Discretization', 'M H F K D P_v R_v L Lg R c p')
-Nodes = namedtuple('Nodes', 'xi_v xi_gamma')
 
+class SpatialDiscretization:
+    
+    def __init__(self, mesh, f, f_star, element_to_discretization, p,
+                 xi_omega, xi_gamma):
+        
+        # mesh
+        self.mesh = mesh
+        
+        # spatial dimension
+        self.d = mesh.d  
+        
+        # volume flux function
+        self.f = f 
+        
+        # numerical flux function
+        self.f_star = f_star 
+        
+        # map from element index to discretization type index
+        self.element_to_discretization = element_to_discretization  
+        
+        # polynomial degree
+        self.p = p
+        
+        # number of discretization types
+        self.Nd = len(self.p) 
+        
+        # dimension of polynomial space (assume total-degree for now)
+        self.Np = [special.comb(self.p[i] + self.d, self.d, 
+                                exact=True) for i in range(0,self.Nd)]
+        # flux nodes
+        self.xi_omega = xi_omega
+        self.N_omega = [xi_omega[i].shape[0] for i in range(0,self.Nd)]
+        
+        # facet nodes
+        self.xi_gamma = xi_gamma
+        self.Nf = [len(xi_gamma[i]) for i in range(0,self.Nd)]
+        self.N_gamma = [[xi_gamma[i][gamma].shape[0] for gamma in range(0,self.Nf[i])] for i in range(0,self.Nd)]
+        
 
-def construct_reference_dg_fr(d, p, Nv, basis='lagrange-lgl',
-                                          volume_nodes='lg',
-                                          facet_nodes='endpoints',
-                                          c=0.0):
-
-    if d == 1:
-        if volume_nodes == 'lg':
-            V = vandermonde(d,p, basis,
-                            qp.line_segment.GaussLegendre(Nv).points.reshape([Nv, 1]))
-        elif volume_nodes == 'lgl':
-            V = vandermonde(d, p, basis,
-                            qp.line_segment.GaussLobatto(Nv).points.reshape([Nv, 1]))
-        Vf = [vandermonde(d,p,basis,np.array([[-1.0]])),
-              vandermonde(d,p,basis,np.array([[1.0]]))]
-    else:
-        raise NotImplementedError
-
-    return Discretization(M=reference_mass_matrix_exact(d,p,basis),
-                          H=fr_filter(d,p,c,basis,mass_matrix=True),
-                          F=fr_filter(d,p,c,basis),
-                          K=fr_K(d,p,c,basis),
-                          D=poly_deriv(d,p,1,basis),
-                          P_v=volume_project(d,p,Nv,basis, quadrature=volume_nodes),
-                          R_v=V,
-                          L=lift(d,p,basis,scheme=c),
-                          Lg=lift(d,p,basis,scheme=0.0),
-                          R=Vf,
-                          c=fr_c(d,p,c,basis),
-                          p=p)
+    def plot(self):
+        
+        if self.d == 1:
+            
+            x_L = np.amin(self.mesh.v[:,0])
+            x_R = np.amax(self.mesh.v[:,0])
+            L = x_R - x_L
+            meshplt = plt.figure()
+            ax = plt.axes()
+            plt.xlim([x_L - 0.1 * L, x_R + 0.1 * L])
+            plt.ylim([-0.1 * L, 0.1 * L])
+            ax.get_xaxis().set_visible(False)  
+            ax.get_yaxis().set_visible(False)  
+            ax.set_aspect('equal')
+            plt.axis('off')
+        
+            color = iter(plt.cm.rainbow(np.linspace(0, 1, self.mesh.K)))
+            
+            # loop through all elemeents
+            for k in range(0, self.mesh.K):
+                
+                # plot flux nodes
+                x_omega = self.mesh.X[k](self.xi_omega[self.element_to_discretization[k]])
+                ax.plot(x_omega, np.zeros(self.N_omega[self.element_to_discretization[k]]), "o", color = next(color))
+                
+                # plot vertices
+                for gamma in range(0, self.mesh.Nv_local[k]):
+                    ax.plot(self.mesh.v[self.mesh.local_to_vertex[k][gamma][0]],0.0,
+                            's', color="black")
+    
+            plt.show()
+            meshplt.savefig("../plots/" + self.mesh.name + "_nodes.pdf", bbox_inches=0, pad_inches=0)
+                
+        else:
+            raise NotImplementedError
+                
 
 def make_interpolation_nodes(elem_type, p):
     if elem_type == 'triangle2d':
@@ -46,8 +89,6 @@ def make_interpolation_nodes(elem_type, p):
     else:
         raise NotImplementedError
 
-
-# These assume the same local discretization is used everywhere (no adaptivity)
 
 def project_to_solution(disc, mesh, u_v):
     return [disc.P_v(u_v[k]) for k in range(0, mesh.K)]
@@ -96,12 +137,15 @@ def change_polynomial_basis(d: int, p: int, basis1: str,
 
         # Nodal
         if basis1 == 'lagrange-lg':
-            xs = qp.line_segment.GaussLegendre(Np).points.reshape([Np,1])
+            xs = qp.line_segment.gauss_legendre(Np).points.reshape([Np,1])
             return vandermonde(1, p, basis2, xs)
         if basis1 == 'lagrange-lgl':
-            xs = qp.line_segment.GaussLobatto(Np).points.reshape([Np,1])
+            xs = qp.line_segment.gauss_lobatto(Np).points.reshape([Np,1])
             return vandermonde(1, p, basis2, xs)
-        if basis2 == 'lagrange-lg' or basis2 == 'lagrange-lgl':
+        if basis1 == 'lagrange-uniform':
+            xs = np.linspace(-1,1,Np).reshape([Np,1])
+            return vandermonde(1, p, basis2, xs)
+        if basis2 == 'lagrange-lg' or basis2 == 'lagrange-lgl' or basis2 == 'lagrange_uniform':
             return change_polynomial_basis(d,p,basis2, basis1).inv
 
         # Modal
@@ -213,10 +257,10 @@ def volume_project(d: int, p: int, Nv: int, basis: str,
                         quadrature='lg') -> DenseLinearOperator:
     if d == 1:
         if quadrature == 'lg':
-            xv = qp.line_segment.GaussLegendre(Nv).points.reshape([Nv, 1])
+            xv = qp.line_segment.gauss_legendre(Nv).points.reshape([Nv, 1])
             W = DiagonalOperator(qp.line_segment.GaussLegendre(Nv).weights)
         elif quadrature == 'lgl':
-            xv = qp.line_segment.GaussLobatto(Nv).points.reshape([Nv, 1])
+            xv = qp.line_segment.gauss_lobatto(Nv).points.reshape([Nv, 1])
             W = DiagonalOperator(qp.line_segment.GaussLobatto(Nv).weights)
         else:
             raise NotImplementedError

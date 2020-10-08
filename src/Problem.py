@@ -1,18 +1,54 @@
 # GHOST - Physical Problem Definition
 
+from abc import ABC, abstractmethod
 import numpy as np
-from collections import namedtuple
 
-ConstantAdvectionEquation = namedtuple('ConstantAdvectionEquation', 'problem_type t_f N_e physical_flux numerical_flux d a')
+class PhysicalFlux(ABC):
+    
+    def __init__(self, d, N_e):
+        self.d = d
+        self.N_e = N_e
+        
+    @abstractmethod
+    def __call__(self, u,x):
+        pass
+        
+class VariableAdvectionPhysicalFlux(PhysicalFlux):
+    
+    def __init__(self, d, a):
+        super().__init__(d, 1)
+        self.a = a
+    
+    def __call__(self, u,x):
+        return [self.a(x)[i]*u for i in range(0, self.d)]
 
 
-def const_advection_init(d, a, t_f, beta):
-    return ConstantAdvectionEquation(problem_type='const_advection',
-                                     N_e=1,
-                                     t_f = t_f,
-                                     physical_flux=lambda u,x: a*u,
-                                     numerical_flux=(lambda u_1,u_2,n_1: 0.5*a*n_1[0]*(u_1 + u_2) + 0.5*np.abs(a)*(1.0-beta)*(u_1 - u_2)),
-                                     d=d,
-                                     a=a)
+class ConstantAdvectionPhysicalFlux(PhysicalFlux):
+    
+    def __init__(self, d, a):
+        super().__init__(d, 1)
+        self.a = a
+        
+    def __call__(self, u,x):
+        return [self.a[i]*u for i in range(0, self.d)]
+
+ 
+class NumericalFlux(ABC):
+    def __init__(self, d, N_e):
+    
+    @abstractmethod
+    def __call__(self, um, up, x, n):
+        pass
 
 
+class ConstantAdvectionNumericalFlux(NumericalFlux):
+    
+    def __init__(self, d, a, alpha):
+        super().__init__(d, 1)
+        self.a = a
+        self.alpha = alpha
+        
+    def __call__(self, um, up, x, n):
+        a_dot_n = *sum([self.a[i]*n[i] for i in range(0, self.d)])
+        
+        return 0.5*a_dot_n*(u_m + u_p) - 0.5*alpha*np.abs(a_dot_n)*(u_p - u_m)

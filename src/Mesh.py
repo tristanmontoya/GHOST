@@ -1,108 +1,105 @@
 # GHOST - Mesh Data Structure (Unstructured)
 
 import numpy as np
-import quadpy as qp
-from Operator import DenseLinearOperator, DiagonalOperator
 import matplotlib.pyplot as plt
-from collections import namedtuple
-
-Mesh = namedtuple('Mesh', 'name d K Nf_total Nf FtoE EtoF f_side Nv N_gamma xv xbar x_gamma n_gamma n_gathered')
+from abc import ABC, abstractmethod
 
 
 def nonsingular_map_1d(p, x, L): # 0 to L
     return L/(2.0**p - 1) * ((0.5*(x + 3.0))**p - 1.0)
 
-
-def make_mesh_1d(name, x_L, x_R, K, N, nodes='lg', spacing='uniform',
-                        indexing='ordered', periodic=True, transform=None):
-
-    if periodic:
-        Nf_total = K
-    else:
-        Nf_total = K + 1
-
-    Nf = 2*np.ones(K,dtype=int)
-    N_gamma = [[1, 1] for k in range(0,K)]
-    n_gamma = [[np.array([[-1.0]]),np.array([[1.0]])]for k in range(0,K)]
-
-    Nv = [N for k in range(0, K)]
-
-    # generate vertices
-    if spacing == 'uniform':
-        v = np.linspace(x_L, x_R, K+1).reshape([K+1, 1])
-    else:
-        raise NotImplementedError
-
-    # vertex (facet) to element connectivity maps
-    FtoE = np.zeros((K, 2), dtype=int)
-    FtoE[:, 0] = np.arange(0, K)  # left endpoints
-    FtoE[:, 1] = np.arange(1, K+1)  # right endpoints
-
-    if indexing == 'random':  # simulates an unstructured grid
-        np.random.shuffle(FtoE[:, 0])
-        FtoE[:, 1] = FtoE[:, 0] + 1
-
-    if nodes=='lg':
-        xi = qp.line_segment.GaussLegendre(N).points
-    elif nodes == 'lgl':
-        xi = qp.line_segment.GaussLobatto(N).points
-    else:
-        raise NotImplementedError
-
-    h = [(v[FtoE[k, 1], 0] - v[FtoE[k, 0], 0]) for k in range(0, K)]
-
-    xbar = 0.5 * (v[FtoE[:, 0], 0] + v[FtoE[:, 1], 0]).reshape((K,1))
-    detJv = [DiagonalOperator(np.ones(Nv[k])*h[k]/2.0)
-             for k in range(0, K)]
-    xv = [detJv[k](xi).reshape(Nv[k],1) + np.ones((Nv[k], 1))*xbar[k, 0]
-          for k in range(0, K)]
-
-    # these are overlapped
-    x_gamma = [[np.array([xbar[k] - np.array([h[k]])/2.0]),
-                np.array([xbar[k] + np.array([h[k]])/2.0])] for k in range(0, K)]
-
-    if transform is not None:
-        xbar = transform(xbar)
-        xv = [transform(xv[i]) for i in range(0, K)]
-        x_gamma = [ [transform(x_gamma[i][0]), transform(x_gamma[i][1])] for i in range(0, K)]
-
-    if periodic:
-        endpoint = np.where(FtoE[:, 1] == K)
-        FtoE[endpoint, 1] = 0
-
-    EtoF = [np.where(FtoE == f) for f in range(0, Nf_total)]
-
-    n_gathered = [(n_gamma[EtoF[f][0][0]][EtoF[f][1][0]],
-                   n_gamma[EtoF[f][0][1]][EtoF[f][1][1]])
-                  for f in range(0, Nf_total)]
-
-    f_side_0 = [1 if (EtoF[FtoE[k,0]][0][0] == k) else -1 for k in range(0, K)]
-    f_side_1 = [1 if (EtoF[FtoE[k, 1]][0][0] == k) else -1 for k in range(0, K)]
-    f_side = [[f_side_0[k], f_side_1[k]] for k in range(0, K)]
-
-    mesh = Mesh(name=name, d=1, Nf_total=Nf_total, Nf=Nf, K=K, FtoE=FtoE,
-                EtoF=EtoF, f_side=f_side, Nv=Nv, N_gamma=N_gamma, xbar=xbar,
-                xv=xv, x_gamma=x_gamma, n_gamma=n_gamma,
-                n_gathered=n_gathered)
-
-    return mesh
+class Mesh(ABC):
+    
+    def __init__(self, name, d):
+        
+        # name and dimension
+        self.name = name
+        self.d = d
+        
+        # generate local to local connectivity (kappa,gamma to rho,nu)
+        self.local_to_local = {}
+        for f in range(0,self.Nf_global):
+            self.local_to_local[self.global_to_local[f][0][0],self.global_to_local[f][0][1]] = self.global_to_local[f][1][:]
+            self.local_to_local[self.global_to_local[f][1][0],self.global_to_local[f][1][1]] = self.global_to_local[f][0][:]
+    
+        # evaluate the mapping and metric terms from affine mesh
+        self.compute_affine_mapping()
+        
+    
+    @abstractmethod 
+    def compute_affine_mapping(self):
+        pass
+    
+    def map_mesh(self, f_map=lambda x: x, J_map = None):
+        
+        if J_map is None:
+            J_map = lambda x: np.eye(self.d)
+        
+        self.X = [(lambda xi, k=k: f_map(self.X_affine[k](xi))) for k in range(0,self.K)]
+        self.J = [(lambda xi, k=k: J_map(self.X_affine[k](xi)) @ self.J_affine[k](xi)) for k in range(0,self.K)]
+        self.detJ = [(lambda xi, k=k: np.linalg.det(self.J(xi))) for k in range(0,self.K)]
+    
+    @abstractmethod
+    def plot_mesh(self, fontsize=8):
+        pass
+    
+    @abstractmethod
+    def plot_on_flux_nodes(self, u, plotname, fontsize=8):
+        pass
 
 
-def eval_grid_function(mesh, f):
-    return [f(mesh.xv[k]) for k in range(0, mesh.K)]
+class Mesh1D(Mesh):
+    
+    def __init__(self, name, x_L, x_R, K, 
+                 spacing='uniform', 
+                 periodic=True,
+                 transform=False):
+        
+        # number of elements
+        self.K = K
 
-
-def eval_facet_function(mesh, f):
-    return [[f(mesh.x_gamma[k][gamma]) for gamma in range(0,mesh.Nf[k])] for k in range(0, mesh.K)]
-
-
-def plot_mesh(mesh, fontsize=8):
-
-    if mesh.d == 1:
-        mins = [np.amin(mesh.xv[k]) for k in range(0, mesh.K)]
-        maxes = [np.amax(mesh.xv[k]) for k in range(0, mesh.K)]
-        x_L = min(mins)
-        x_R = max(maxes)
+        # generate vertices
+        if spacing == 'uniform':
+            self.v = np.linspace(x_L, x_R, self.K+1).reshape([self.K+1, 1])
+        else:
+            raise NotImplementedError
+            
+        # generate element to vertex connectivity
+        self.Nv_local = [2 for k in range(0,self.K)]
+        self.Nv_global = self.K+1
+        
+        # generate local facet to global vertex connectivity
+        self.local_to_vertex = [[[k],[k+1]] for k in range(0,self.K)]
+        
+        # generate global to local facet connectivity
+        self.Nf_local = [2 for k in range(0,self.K)]
+        if periodic:
+            self.global_to_local = [[[k,1],[k+1,0]] for k in range(0,self.K-1)]
+            self.global_to_local.insert(0,[[self.K-1,1],[0,0]])
+            self.Nf_global = self.K
+        else:
+            self.global_to_local = [[[k,1],[k+1,0]] for k in range(0,self.K)]
+            self.Nf_global = self.K+1
+        
+        self.map_mesh()
+        
+        super().__init__(name,1)
+        
+    def compute_affine_mapping(self):
+        
+        # from (-1, 1)
+        self.X_affine = [(lambda xi, k=k: self.v[self.local_to_vertex[k][0][0]] + 0.5*(self.v[self.local_to_vertex[k][1][0]] \
+                                -self.v[self.local_to_vertex[k][0][0]])*(xi+1)) \
+                             for k in range(0,self.K)]
+        
+        self.J_affine = [(lambda xi,k=k: np.array([0.5*(self.v[self.local_to_vertex[k][1][0]] \
+                                                    -self.v[self.local_to_vertex[k][0][0]])])) \
+                                                     for k in range(0,self.K)]
+                                                                    
+    def plot_mesh(self, fontsize=8):
+        
+        x_L = np.amin(self.v[:,0])
+        x_R = np.amax(self.v[:,0])
         L = x_R - x_L
         meshplt = plt.figure()
         ax = plt.axes()
@@ -112,57 +109,20 @@ def plot_mesh(mesh, fontsize=8):
         ax.get_yaxis().set_visible(False)  # this removes the ticks and numbers for y axis
         ax.set_aspect('equal')
         plt.axis('off')
-
-        color = iter(plt.cm.rainbow(np.linspace(0, 1, mesh.K)))
-        for k in range(0, mesh.K):
-            ax.plot(mesh.xv[k][:,0], np.zeros(mesh.Nv[k]), '-o', markersize=fontsize/4, color=next(color))
-            plt.text(mesh.xbar[k,0], 0.05 * L, str(k)+ "\n" +str(mesh.FtoE[k]), color='black',
-                     fontsize=fontsize, ha='center')
-
-            for gamma in range(0, mesh.Nf[k]):
-                ax.plot(mesh.x_gamma[k][gamma][:,0], np.zeros(mesh.N_gamma[k][gamma]),
-                        '-x', markersize=fontsize/4, color='black')
-
+    
+        color = iter(plt.cm.rainbow(np.linspace(0, 1, self.K)))
+        for k in range(0, self.K):
+            ax.plot([self.v[k,0], self.v[k+1,0]],[0.0,0.0], '-', color=next(color))
+            plt.text((self.v[k,0] + self.v[k+1,0])*0.5, 0.05 * L,
+                     str(k), color='black', fontsize=fontsize, ha='center')
+    
         plt.show()
-        meshplt.savefig("./" + mesh.name + ".pdf", bbox_inches=0, pad_inches=0)
+        meshplt.savefig("../plots/" + self.name + ".pdf", bbox_inches=0, pad_inches=0)
+    
 
-
-def gather_field(mesh, u_gamma):
-
-    if mesh.d == 1:
-        return [(u_gamma[mesh.EtoF[f][0][0]][mesh.EtoF[f][1][0]],
-                 u_gamma[mesh.EtoF[f][0][1]][mesh.EtoF[f][1][1]])
-                for f in range(0, mesh.Nf_total)]
-    else:
+    def plot_on_flux_nodes(self, u, plotname, fontsize=8):
         raise NotImplementedError
+        
 
-
-def plot_on_volume_nodes(mesh, u, plotname, fontsize=8):
-
-    if mesh.d == 1:
-
-        meshplt = plt.figure()
-        ax = plt.axes()
-        color = iter(plt.cm.rainbow(np.linspace(0, 1, mesh.K)))
-        for k in range(0, mesh.K):
-            ax.plot(mesh.xv[k][:,0], u[k], '-o', markersize=fontsize/4, color=next(color))
-
-        plt.show()
-        meshplt.savefig("./" + mesh.name + "_" + plotname + ".pdf", bbox_inches=0, pad_inches=0)
-
-
-def plot_on_volume_and_facet_nodes(mesh, u_v, u_gamma, plotname, fontsize=8):
-
-    if mesh.d == 1:
-        meshplt = plt.figure()
-        ax = plt.axes()
-        color = iter(plt.cm.rainbow(np.linspace(0, 1, mesh.K)))
-        for k in range(0, mesh.K):
-            col = next(color)
-            ax.plot(mesh.xv[k][:,0], u_v[k], '-o', markersize=fontsize/4, color=col)
-            for gamma in range(0, mesh.Nf[k]):
-                ax.plot(mesh.x_gamma[k][gamma][:,0], u_gamma[k][gamma],
-                        '-x', markersize=fontsize/4, color=col)
-
-        plt.show()
-        meshplt.savefig("./" + mesh.name + "_" + plotname + ".pdf", bbox_inches=0, pad_inches=0)
+#class Mesh2D(Mesh):
+    

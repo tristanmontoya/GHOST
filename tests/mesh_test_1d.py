@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import signal
 import quadpy as qp
-from Mesh import make_mesh_1d, plot_mesh
+from Mesh import *
 from Operator import DiagonalOperator
 from Discretization import volume_project, poly_deriv, \
     construct_reference_dg_fr, fr_filter, vandermonde, reference_mass_matrix_exact
@@ -10,6 +10,11 @@ N_TEST = 6
 P_TEST = 3
 K_TEST = 3
 
+def test_construct_mesh():
+    
+    
+    
+    
 
 def test_mappings_1d():
 
@@ -49,7 +54,7 @@ def test_mappings_1d():
 
     assert np.allclose(poly, np.poly1d(xpoly[0][::-1])), 'Mesh projection failed'
     assert np.allclose(np.polyder(poly), np.poly1d(Jpoly[0][::-1])), 'Metric calculation failed'
-
+    
 
 def test_plot_mesh_1d():
     K = K_TEST

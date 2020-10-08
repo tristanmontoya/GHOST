@@ -1,4 +1,4 @@
-# GHOST - Solver Components
+# GHOST - Solver Components (Deprecated)
 
 from collections import namedtuple
 import Operator
@@ -191,7 +191,6 @@ def local_residual(problem: namedtuple, mesh: namedtuple,
             if spatial_solver.form == 'strong':
 
                 # volume and surface residuals
-                I = Operator.Identity(len(u[k]))
                 vol = -1.0*disc.D(u[k])
                 surf = [disc.L[gamma](mesh.n_gamma[k][gamma].reshape(1)*u_f[k][gamma]
                                       - f_n[k][gamma]) for gamma in range(0, 2)]
