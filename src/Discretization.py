@@ -43,7 +43,9 @@ class SpatialDiscretization:
         # facet nodes
         self.xi_gamma = xi_gamma
         self.Nf = [len(xi_gamma[i]) for i in range(0,self.Nd)]
-        self.N_gamma = [[xi_gamma[i][gamma].shape[0] for gamma in range(0,self.Nf[i])] for i in range(0,self.Nd)]
+        self.N_gamma = [[xi_gamma[i][gamma].shape[0] 
+                         for gamma in range(0,self.Nf[i])] 
+                        for i in range(0,self.Nd)]
         
 
     def plot(self):
@@ -53,6 +55,7 @@ class SpatialDiscretization:
             x_L = np.amin(self.mesh.v[:,0])
             x_R = np.amax(self.mesh.v[:,0])
             L = x_R - x_L
+            
             meshplt = plt.figure()
             ax = plt.axes()
             plt.xlim([x_L - 0.1 * L, x_R + 0.1 * L])
@@ -69,7 +72,10 @@ class SpatialDiscretization:
                 
                 # plot flux nodes
                 x_omega = self.mesh.X[k](self.xi_omega[self.element_to_discretization[k]])
-                ax.plot(x_omega, np.zeros(self.N_omega[self.element_to_discretization[k]]), "o", color = next(color))
+                
+                ax.plot(x_omega, 
+                        np.zeros(self.N_omega[self.element_to_discretization[k]]),
+                        "o", color = next(color))
                 
                 # plot vertices
                 for gamma in range(0, self.mesh.Nv_local[k]):
@@ -77,7 +83,8 @@ class SpatialDiscretization:
                             's', color="black")
     
             plt.show()
-            meshplt.savefig("../plots/" + self.mesh.name + "_nodes.pdf", bbox_inches=0, pad_inches=0)
+            meshplt.savefig("../plots/" + self.mesh.name + "_nodes.pdf",
+                            bbox_inches=0, pad_inches=0)
                 
         else:
             raise NotImplementedError
@@ -88,7 +95,6 @@ def make_interpolation_nodes(elem_type, p):
         return qp.triangle.WitherdenVincent(p)
     else:
         raise NotImplementedError
-
 
 def project_to_solution(disc, mesh, u_v):
     return [disc.P_v(u_v[k]) for k in range(0, mesh.K)]
