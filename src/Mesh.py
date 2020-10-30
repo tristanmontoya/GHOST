@@ -1,4 +1,4 @@
-# GHOST - Mesh Data Structure (Unstructured)
+# GHOST - Mesh Data Structure and Utilities
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from functools import partial
 import meshio
 
+# tolerance for detecting points on boundaries
 BC_TOL = 1.0e-8
 
 class Mesh(ABC):
@@ -17,33 +18,40 @@ class Mesh(ABC):
         self.d = d
         
         # evaluate the mapping and metric terms from affine mesh
+        self.v_affine = np.copy(self.v)
         self.compute_affine_mapping()
         self.map_mesh()
         
     @abstractmethod 
     def compute_affine_mapping(self):
         pass
-    
-    
-    @abstractmethod
-    def plot_mesh(self, fontsize=8):
-        pass
-    
-    def map_mesh(self, f_map=lambda x: x, J_map = None):
+
+    def map_mesh(self, f_map=None, J_map = None):
         
         # default is to keep original affine mapping, do not curve
-        if J_map is None:
+        if J_map is None and f_map is None:
+            f_map = lambda x: x
             J_map = lambda x: np.eye(self.d)
         
-        self.X = [(lambda xi, k=k: f_map(self.X_affine[k](xi))) 
-                  for k in range(0,self.K)]
-        self.J = [(lambda xi, k=k: 
+        self.X = []
+        self.J = []
+        self.detJ = []
+        
+        isMoved = np.zeros(self.Nv_global,dtype=int)
+        
+        for k in range(0,self.K):
+            self.X.append(lambda xi, k=k: f_map(self.X_affine[k](xi))) 
+            self.J.append(lambda xi, k=k: 
                    J_map(self.X_affine[k](xi)) @ self.J_affine[k](xi))
-                  for k in range(0,self.K)]
-        self.detJ = [(lambda xi, k=k: np.linalg.det(self.J(xi))) 
-                     for k in range(0,self.K)]
-    
-    
+            self.detJ.append(lambda xi, k=k: np.linalg.det(self.J(xi)))
+        
+            # move each vertex only once
+            for i in range(0,self.Nv_local[k]):
+                if isMoved[self.element_to_vertex[k][i]] == 0:
+                    self.v[:,self.element_to_vertex[k][i]]= f_map(
+                        self.v_affine[:,self.element_to_vertex[k][i]])
+                    isMoved[self.element_to_vertex[k][i]] = 1
+                    
     def add_bc_at_facet(self, local_index, bc_index):
         
         self.local_to_bc_index[local_index] = bc_index
@@ -61,7 +69,7 @@ class Mesh(ABC):
             for gamma in range(0,self.Nf_local[k]): 
                 
                 # get physical vertex locations for this local facet
-                facet_vertices = [self.v[self.local_to_vertex[k][gamma][i]] 
+                facet_vertices = [self.v[:,self.local_to_vertex[k][gamma][i]] 
                                   for i in range(0,len(
                                           self.local_to_vertex[k][gamma]))]
                
@@ -90,27 +98,33 @@ class Mesh(ABC):
                 k,gamma = local_index[0], local_index[1]
                 
                 # get physical vertex locations for this local facet
-                facet_vertices = [self.v[self.local_to_vertex[k][gamma][i]]
+                facet_vertices = [self.v[:,self.local_to_vertex[k][gamma][i]]
                                   for i in range(0,len(
                                           self.local_to_vertex[k][gamma]))]
                 
                 midpoint = sum(facet_vertices)/len(facet_vertices)
-                
+
                 for other_index in self.local_to_bc_index:
+                    
+                    
                     if self.local_to_bc_index[other_index] == bc_index[1]:
                         nu,rho = other_index[0], other_index[1]
-                        
-                        other_facet_vertices = [self.v[self.local_to_vertex[nu][rho][i]]
+            
+                        other_facet_vertices = [
+                            self.v[:,self.local_to_vertex[nu][rho][i]]
                                       for i in range(0,len(
                                               self.local_to_vertex[nu][rho]))]
                         other_midpoint = sum(other_facet_vertices)/len(
                             other_facet_vertices)   
                         
-                        # match up if corresponds to translation along a coordinate axis
-                        if max([midpoint[hyperplane_axes[axis]] - other_midpoint[hyperplane_axes[axis]] 
-                                for axis in range(0,len(hyperplane_axes))]) < BC_TOL:
-                            
-                            
+                        # match up if corresponds to translation along 
+                        # a coordinate axis
+                        if (max(np.abs([midpoint[hyperplane_axes[axis]] - other_midpoint[
+                                hyperplane_axes[axis]] 
+                                for axis in range(
+                                        0,len(hyperplane_axes))])) < BC_TOL) or self.d == 1:
+                            # if d is 1, then any two facets on the periodic bcs are neighbours
+                    
                             # add local-to-local connectivity to dictionary
                             self.local_to_local[k,gamma] = (nu,rho)
                             self.local_to_local[nu,rho] = (k,gamma)             
@@ -140,7 +154,7 @@ class Mesh1D(Mesh):
 
         # generate vertices
         if spacing == 'uniform':
-            self.v = np.linspace(x_L, x_R, self.K+1).reshape([self.K+1, 1])
+            self.v = np.array([np.linspace(x_L, x_R, self.K+1)])
         else:
             raise NotImplementedError
             
@@ -155,17 +169,8 @@ class Mesh1D(Mesh):
         
         # when evaluating fluxes look for this when local to local is None
         self.local_to_bc_index = {}
-        
-        if periodic:
-            global_to_local = [[(k,1),(k+1,0)] for k in range(0,self.K-1)]
-            global_to_local.insert(0,[(self.K-1,1),(0,0)])
-            
-        else:
-           global_to_local = [[(k,1),(k+1,0)] for k in range(0,self.K)]
     
         # generate local to local connectivity (kappa,gamma to rho,nu)
-
-        # get interior facet to facet connectivity
         for k in range(0,self.K):
             
             for gamma in range(0,2):
@@ -177,9 +182,11 @@ class Mesh1D(Mesh):
                 for nu in range(0,self.K):
                     if nu == k:
                         continue
+                    
                     try:
                         rho = self.local_to_vertex[nu].index(
                             (self.local_to_vertex[k][gamma][0],))
+                        
                     except ValueError:
                         # this element is not a neighbour of (k,gamma)
                         continue 
@@ -194,45 +201,16 @@ class Mesh1D(Mesh):
     def compute_affine_mapping(self):
         
         # map from (-1, 1) to physical element
-        self.X_affine = [(lambda xi, k=k: self.v[
+        self.X_affine = [(lambda xi, k=k: self.v[0,
             self.local_to_vertex[k][0][0]] + 0.5*(
-                self.v[self.local_to_vertex[k][1][0]] -self.v[
-                                  self.local_to_vertex[k][0][0]])*(xi+1)) 
+                self.v[0,self.local_to_vertex[k][1][0]] 
+                - self.v[0,self.local_to_vertex[k][0][0]])*(xi+1))
                          for k in range(0,self.K)]
         
-        self.J_affine = [(lambda xi,k=k: 
-                          np.array([0.5*(
-                              self.v[self.local_to_vertex[k][1][0]] -self.v[
-                                  self.local_to_vertex[k][0][0]])]))
+        self.J_affine = [(lambda xi,k=k: np.array([0.5*(
+                              self.v[0,self.local_to_vertex[k][1][0]] 
+                              - self.v[0,self.local_to_vertex[k][0][0]])]))
                          for k in range(0,self.K)]
-    
-        
-    def plot_mesh(self, fontsize=8):
-        
-        x_L = np.amin(self.v[:,0])
-        x_R = np.amax(self.v[:,0])
-        L = x_R - x_L
-        
-        meshplt = plt.figure()
-        ax = plt.axes()
-        plt.xlim([x_L - 0.1 * L, x_R + 0.1 * L])
-        plt.ylim([-0.1 * L, 0.1 * L])
-        ax.get_xaxis().set_visible(False) 
-        ax.get_yaxis().set_visible(False)  
-        ax.set_aspect('equal')
-        plt.axis('off')
-    
-        color = iter(plt.cm.rainbow(np.linspace(0, 1, self.K)))
-        for k in range(0, self.K):
-            ax.plot([self.v[k,0], self.v[k+1,0]],[0.0,0.0], '-', 
-                    color=next(color))
-            plt.text((self.v[k,0] + self.v[k+1,0])*0.5, 0.05 * L,
-                     str(k), color='black', fontsize=fontsize, ha='center')
-    
-        plt.show()
-        meshplt.savefig("../plots/" + self.name + ".pdf", 
-                        bbox_inches=0, pad_inches=0)
-     
 
 class Mesh2D(Mesh):
     
@@ -241,8 +219,8 @@ class Mesh2D(Mesh):
         # assume gmsh format for now
         mesh_data = meshio.read(filename)
         
-        self.v = mesh_data.points[:,0:2]
-        self.Nv_global = self.v.shape[0]
+        self.v = mesh_data.points[:,0:2].T
+        self.Nv_global = self.v.shape[1]
         self.K = mesh_data.cells[0][1].shape[0]
         self.element_to_vertex = [list(mesh_data.cells[0][1][k]) 
                                   for k in range(0,self.K)]
@@ -265,7 +243,7 @@ class Mesh2D(Mesh):
         # when evaluating fluxes look for this when local to local is None
         self.local_to_bc_index = {}
         
-        # get interior facet to facet connectivity
+        # generate local to local connectivity (kappa,gamma to rho,nu)
         for k in range(0,self.K):
             for gamma in range(0,self.Nf_local[k]):
                 
@@ -290,29 +268,28 @@ class Mesh2D(Mesh):
         
                            
     def compute_affine_mapping(self):
-        pass
         
-    
-    def plot_mesh(self, fontsize=8):
+        self.X_affine = []
+        for k in range(0,self.K):
+            
+            # affine triangle mapping
+            if self.Nv_local[k] == 3:
+                
+                self.X_affine.append(lambda xi,k=k: 
+                                     -0.5*(xi[0]+xi[1])*self.v_affine[:,self.element_to_vertex[k][0]] \
+                                         + 0.5*(xi[0] + 1)*self.v_affine[:,self.element_to_vertex[k][1]] \
+                                             + 0.5*(xi[1] + 1)*self.v_affine[:,self.element_to_vertex[k][2]])
+                
+            else: 
+                raise NotImplementedError
         
-        x_L = np.amin(self.v[:,0])
-        x_R = np.amax(self.v[:,0])
-        y_L = np.amin(self.v[:,1])
-        y_R = np.amax(self.v[:,1])
         
-        W = x_R - x_L
-        H = y_R - y_L
+    @staticmethod
+    def grid_transformation(warp_factor=0.2):
         
-        plt.xlim([x_L - 0.1 * W, x_R + 0.1 * W])
-        plt.ylim([y_L - 0.1 * H, y_R + 0.1 * H])
-
+        return lambda xi: np.array([xi[0] + warp_factor*np.sin(
+                np.pi*xi[0])*np.sin(np.pi*xi[1]),
+                xi[1] + warp_factor*np.exp(1-xi[1])*np.sin(
+                np.pi*xi[0])*np.sin(np.pi*xi[1])])
         
-        meshplt = plt.figure()
-        ax = plt.axes()
-        ax.get_xaxis().set_visible(False) 
-        ax.get_yaxis().set_visible(False) 
-        plt.axis('off')
-        plt.show()
-        meshplt.savefig("../plots/" + self.name + ".pdf",
-                        bbox_inches=0, pad_inches=0)
     

@@ -87,7 +87,8 @@ class Operator:
 
     def __pow__(self, power, modulo=None):
         if self.shape_in != self.shape_out:
-            raise TypeError("Operator must be an endomorphism to exponentiate.")
+            raise TypeError(
+                "Operator must be an endomorphism to exponentiate.")
         if int(power) != power:
             raise TypeError("Operator must be taken to integer power.")
         if power == 0:
@@ -112,7 +113,8 @@ class DenseLinearOperator(Operator):
     """Dense matrix operator on column vectors"""
 
     def __init__(self, mat: np.ndarray) -> None:
-        assert(len(mat.shape) == 2), "DenseLinearOperator must be initialized with 2D array."
+        assert(len(mat.shape) == 2), \
+            "DenseLinearOperator must be initialized with 2D array."
         shape_in = (mat.shape[1],)
         shape_out = (mat.shape[0],)
 
@@ -148,7 +150,8 @@ class DenseLinearOperator(Operator):
 
 class DiagonalOperator(Operator):
     def __init__(self, vec: np.ndarray) -> None:
-        assert (len(vec.shape) == 1), "Diagonal Operator must be initialized with 1D array."
+        assert (len(vec.shape) == 1), \
+            "Diagonal Operator must be initialized with 1D array."
         shape_in = (vec.shape[0],)
         shape_out = (vec.shape[0],)
 
@@ -156,7 +159,8 @@ class DiagonalOperator(Operator):
         self.vec = vec
         self.mat = np.diag(vec)
 
-        if shape_in == shape_out and np.allclose(np.ones(self.shape_in), self.vec):
+        if shape_in == shape_out and np.allclose(np.ones(self.shape_in),
+                                                 self.vec):
             self.__class__ = Identity
 
     def __repr__(self):
