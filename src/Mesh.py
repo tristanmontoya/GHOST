@@ -66,7 +66,7 @@ class Mesh(ABC):
         # have to loop through all facets and see which ones have midpoints 
         # on which indicated boundary
         for k in range(0,self.K):
-            for gamma in range(0,self.Nf_local[k]): 
+            for gamma in range(0,self.Nf[k]): 
                 
                 # get physical vertex locations for this local facet
                 facet_vertices = [self.v[:,self.local_to_vertex[k][gamma][i]] 
@@ -149,7 +149,7 @@ class Mesh1D(Mesh):
         self.K = K
         self.Nv_global = self.K+1
         self.Nv_local = [2 for k in range(0,self.K)]
-        self.Nf_local = self.Nv_local.copy()
+        self.Nf = self.Nv_local.copy()
         
 
         # generate vertices
@@ -226,7 +226,7 @@ class Mesh2D(Mesh):
                                   for k in range(0,self.K)]
         self.Nv_local = [len(self.element_to_vertex[k]) 
                          for k in range(0,self.K)]
-        self.Nf_local = self.Nv_local.copy()
+        self.Nf = self.Nv_local.copy()
         
         # get facet to vertex connectivity
         self.local_to_vertex = [[(self.element_to_vertex[k][i],
@@ -245,7 +245,7 @@ class Mesh2D(Mesh):
         
         # generate local to local connectivity (kappa,gamma to rho,nu)
         for k in range(0,self.K):
-            for gamma in range(0,self.Nf_local[k]):
+            for gamma in range(0,self.Nf[k]):
                 
                 # initially assume face has no neignbours before searching
                 self.local_to_local[k,gamma] = None

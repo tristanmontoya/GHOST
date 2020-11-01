@@ -35,9 +35,10 @@ class ConstantAdvectionPhysicalFlux(PhysicalFlux):
  
 class NumericalFlux(ABC):
     def __init__(self, d, N_e):
+        raise NotImplementedError
     
     @abstractmethod
-    def __call__(self, um, up, x, n):
+    def __call__(self, u_m, u_p, x, n):
         pass
 
 
@@ -48,7 +49,6 @@ class ConstantAdvectionNumericalFlux(NumericalFlux):
         self.a = a
         self.alpha = alpha
         
-    def __call__(self, um, up, x, n):
-        a_dot_n = *sum([self.a[i]*n[i] for i in range(0, self.d)])
-        
+    def __call__(self, u_m, u_p, x, n):
+        a_dot_n = np.dot(self.a, n)
         return 0.5*a_dot_n*(u_m + u_p) - 0.5*alpha*np.abs(a_dot_n)*(u_p - u_m)

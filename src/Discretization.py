@@ -4,26 +4,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import special
-#import quadpy as qp
+import quadpy as qp
+import modepy as mp
 
 
 class SpatialDiscretization:
     
-    def __init__(self, mesh, f, f_star, element_to_discretization, p,
-                 xi_omega, xi_gamma, pde_form="conservative", 
-                 discretization_form="weak", parameters=None):
+    def __init__(self, mesh, element_to_discretization, p,
+                 xi_omega, xi_gamma, W, W_gamma):
         
         # mesh
         self.mesh = mesh
         
         # spatial dimension
         self.d = mesh.d  
-        
-        # volume flux function
-        self.f = f 
-        
-        # numerical flux function
-        self.f_star = f_star 
         
         # map from element index to discretization type index
         self.element_to_discretization = element_to_discretization  
@@ -37,18 +31,33 @@ class SpatialDiscretization:
         # dimension of polynomial space (assume total-degree for now)
         self.Np = [special.comb(self.p[i] + self.d, self.d, 
                                 exact=True) for i in range(0,self.Nd)]
-        # flux nodes
+        
+        # volume nodes (probably should check dimension compatibility)
         self.xi_omega = xi_omega
+        self.W = W
         self.N_omega = [xi_omega[i].shape[1] for i in range(0,self.Nd)]
         
-        # facet nodes
+        # facet nodes (probably should check dimension compatibility)
         self.xi_gamma = xi_gamma
+        self.W_gamma = W_gamma
         self.Nf = [len(xi_gamma[i]) for i in range(0,self.Nd)]
+        
+        # maybe check if this is compatible w/ mesh.N_gamma[k]
         self.N_gamma = [[xi_gamma[i][gamma].shape[1] 
                          for gamma in range(0,self.Nf[i])] 
                         for i in range(0,self.Nd)]
     
+        self.V = None
+        self.V_gamma = None
+        self.M = None
+        self.Minv = None
+        self.L = None
+    
         self.get_facet_permutation()
+        self.set_interpolation()
+        self.build_projection()
+        self.build_lift()
+        
         
     @staticmethod
     def map_unit_to_facets(xi_ref, element_type="triangle"):
@@ -70,6 +79,7 @@ class SpatialDiscretization:
         
         else:
             raise NotImplementedError
+            
         
     def get_facet_permutation(self):
         
@@ -85,12 +95,86 @@ class SpatialDiscretization:
             self.facet_permutation = [
                 [np.eye(self.N_gamma[
                     self.element_to_discretization[k]][gamma])[::-1]
-                 for gamma in range(0,self.mesh.Nf_local[k])] 
+                 for gamma in range(0,self.mesh.Nf[k])] 
                                       for k in range(0,self.mesh.K)]
             
         else:
             raise NotImplementedError
+        
+        
+    def set_interpolation(self):
+        # currently only simplex
+        
+        basis = [mp.simplex_onb(self.d,self.p[i]) for i in range(0,self.Nd)]
+        
+        if self.d == 1:  
+            
+            self.V = [mp.vandermonde(basis[i],self.xi_omega[i][0,:]) 
+                      for i in range(0,self.Nd)]
+              
+            self.V_gamma = [[mp.vandermonde(basis[i],self.xi_gamma[i][gamma][0,:]) 
+                        for gamma in range(0,self.Nf[i])] for i in range(0,self.Nd)]
+        
+        else:
+            
+            self.V = [mp.vandermonde(basis[i],self.xi_omega[i]) 
+                      for i in range(0,self.Nd)]
+        
+        self.V_gamma = [[mp.vandermonde(basis[i],self.xi_gamma[i][gamma]) 
+                        for gamma in range(0,self.Nf[i])]
+                        for i in range(0,self.Nd)]
+        
+        
+    def build_local_mass(self):
+        
+        self.M = [self.V[i].T @ self.W[i] @ self.V[i] for i in range(0,self.Nd)]
+       
+        
+    def invert_local_mass(self):
+        
+        if self.M is None:
+            
+            self.build_local_mass()
+            
+        self.Minv = [self.M[i] for i in range(0, self.Nd)]
+        
+    
+    def build_projection(self):
+        
+        if self.Minv is None:
+            
+            self.invert_local_mass()
+        
+        self.P = [self.Minv[i] @ self.V[i].T @ self.W[i] 
+                  for i in range(0,self.Nd)]
+        
+        
+    def build_lift(self):
+        
+        if self.Minv is None:
+            
+            self.invert_local_mass()
+        
+        self.L = [[self.Minv @ self.V_gamma[i][gamma].T @ self.W_gamma[i][gamma] 
+                   for gamma in range(0,self.Nf[i])]
+                  for i in range(0,self.Nd)]
+        
+    
+    def set_differentiation(self, D):
+        
+        self.D = D
+        
+    
+    def build_weak_residual(self, f, f_star):
+        
+        raise NotImplementedError
 
+
+    def build_strong_residual(self, f, f_star):
+        
+        raise NotImplementedError
+        
+        
     def plot(self, markersize=5, resolution=20):
         
         if self.d == 1:
@@ -169,13 +253,10 @@ class SpatialDiscretization:
                                    self.Nf[self.element_to_discretization[k]]):
                     
                     # facet edges
-                    
                     edge_points = np.array([
                     self.mesh.X[k](ref_edge_points[gamma][:,i]) 
                                    for i in range(0,resolution)]).T  
                     
-                    #v_gamma = self.mesh.v[:,[self.mesh.local_to_vertex[k][gamma][0],
-                    #                         self.mesh.local_to_vertex[k][gamma][1]]]
                     ax.plot(edge_points[0,:], edge_points[1,:], '-', color="black")
                     
                     # facet nodes
@@ -189,4 +270,11 @@ class SpatialDiscretization:
             plt.show()
             meshplt.savefig("../plots/" + self.mesh.name + "_discretization.pdf",
                             bbox_inches="tight", pad_inches=0)
+            
+
+class TimeIntegrator:
+    
+    def __init__(self, residual, disc_type="rk45"):
+        
+        raise NotImplementedError
             
