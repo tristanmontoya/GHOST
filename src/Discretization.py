@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.tri as tri
 from scipy import special
 from math import floor
 import modepy as mp
@@ -106,6 +107,7 @@ class SpatialDiscretization:
                                       for k in range(0,self.mesh.K)]
             
         elif self.d==2:
+            
             # assume all nodes are counterclockwise ordered
             self.facet_permutation = [
                 [np.eye(self.N_gamma[
@@ -118,8 +120,8 @@ class SpatialDiscretization:
         
         
     def build_interpolation(self):
-        # currently only simplex
         
+        # currently only simplex
         basis = [mp.simplex_onb(self.d,self.p[i]) for i in range(0,self.Nd)]
         
         if self.d == 1:  
@@ -308,6 +310,9 @@ class SpatialDiscretization:
                             "_discretization.pdf",
                             bbox_inches="tight", pad_inches=0)
             
+        else: 
+            raise NotImplementedError
+            
 
 class SimplexQuadratureDiscretization(SpatialDiscretization):
     
@@ -332,7 +337,6 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             volume_quadrature = mp.XiaoGimbutasSimplexQuadrature(tau,2)
             volume_nodes = volume_quadrature.nodes
             W = np.diag(volume_quadrature.weights)
-          
             
             facet_quadrature = mp.LegendreGaussQuadrature(floor((mu-1)/2))
             facet_nodes = SpatialDiscretization.map_unit_to_facets(
