@@ -3,8 +3,8 @@
 import Mesh
 import Problem
 import Discretization
-
 import numpy as np
+
 
 class Solver:
     
@@ -14,49 +14,70 @@ class Solver:
         self.d = mesh.d
         
         # physical problem
-        if params.problem == "constant_advection":
+        if params["problem"] == "constant_advection":
             
-            f = Problem.ConstantAdvectionPhysicalFlux(params.a)
-            f_star = Problem.ConstantAdvectionNumericalFlux(params.a, 
-                                                            params.alpha)
+            f = Problem.ConstantAdvectionPhysicalFlux(params["wave_speed"])
+            f_star = Problem.ConstantAdvectionNumericalFlux(
+                params["wave_speed"], 
+                params["upwind_parameter"])
             
+        elif params["problem"] == "projection":
+            pass
+        
         else:
             raise NotImplementedError
         
         # initial condition
-        if params.ic == "sine":
-            if wavelengths in params:
-                self.u_0 = sine_wave(params.wavelengths) 
+        if params["initial_condition"] == "sine":
+            if "wavelength" in params:
+                self.u_0 = Solver.sine_wave(params["wavelength"]) 
             else:
-                self.u_0 = sine_wave(np.ones(self.d)) 
+                self.u_0 = Solver.sine_wave(np.ones(self.d)) 
             
         else:
             raise NotImplementedError
+            
+        # exact solution
+        if params["problem"] == "projection":
+            self.u = self.u_0
         
         # spatial discretization
-        if params.integration_type == "quadrature":
-            discretization = D
+        if params["integration_type"] == "quadrature":
+            self.discretization = Discretization.SimplexQuadratureDiscretization(
+                self.params["solution_degree"], 
+                self.params["volume_quadrature_degree"], 
+                self.params["facet_quadrature_degree"])
                 
-            if facet_integration_rule in params:
+            if "facet_integration_rule" in params:
                 raise NotImplementedError
         
-        elif params.integration_type == "collocation":
+        elif params["integration_type"] == "collocation":
             raise NotImplementedError
             
         else:
             raise NotImplementedError
             
-        
+        # save params
+        self.params = params
         
     @staticmethod
-    def sine_wave(wavelengths):
+    def sine_wave(wavelength):
         # numpy array of length d wavelengths
         def g(x):
-            return np.prod(np.sin(2.0*np.pi*x/wavelengths))
+            return np.prod(np.sin(2.0*np.pi*x/wavelength))
         
         return g
+    
+    #def evaluate_on_volume_nodes(g,k):
         
         
-    def project_function(g):
+    def project_function(self,g):
+        raise NotImplementedError
         
+    def solve(self):
+        if self.params["problem"] == "projection":
+            self.uhat = self.project_function(self.u_0)
+        
+        else:
+            raise NotImplementedError
         

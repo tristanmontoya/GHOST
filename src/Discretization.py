@@ -3,6 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import special
+from math import floor
 import modepy as mp
 
 
@@ -44,18 +45,33 @@ class SpatialDiscretization:
         self.N_gamma = [[xi_gamma[i][gamma].shape[1] 
                          for gamma in range(0,self.Nf[i])] 
                         for i in range(0,self.Nd)]
-    
+        
+        # initialize and build operators
         self.V = None
         self.V_gamma = None
         self.M = None
         self.Minv = None
         self.L = None
+        self.facet_permutation = None
     
-        self.get_facet_permutation()
-        self.set_interpolation()
+        self.build_facet_permutation()
+        self.build_interpolation()
         self.build_projection()
         self.build_lift()
         
+        # evaluate grid nodes, normals, and metric
+        self.x_omega = None
+        self.x_gamma = None
+        self.n = None
+        self.J = None
+        self.detJ = None
+        self.detJ_gamma = None
+        
+        self.map_volume_nodes()
+        self.map_facet_nodes()
+        
+        # init residual function
+        self.residual = None
         
     @staticmethod
     def map_unit_to_facets(xi_ref, element_type="triangle"):
@@ -80,7 +96,7 @@ class SpatialDiscretization:
             raise NotImplementedError
             
         
-    def get_facet_permutation(self):
+    def build_facet_permutation(self):
         
         # indexed using mesh local indices
         
@@ -101,7 +117,7 @@ class SpatialDiscretization:
             raise NotImplementedError
         
         
-    def set_interpolation(self):
+    def build_interpolation(self):
         # currently only simplex
         
         basis = [mp.simplex_onb(self.d,self.p[i]) for i in range(0,self.Nd)]
@@ -159,10 +175,27 @@ class SpatialDiscretization:
                   for i in range(0,self.Nd)]
         
     
-    def set_differentiation(self, D):
+    def build_differentiation(self):
         
-        self.D = D
+        raise NotImplementedError
         
+    
+    def map_volume_nodes(self):
+        
+        self.x_omega = [np.array([self.mesh.X[k](self.xi_omega[self.element_to_discretization[k]][:,i]) 
+                                     for i in range(0,self.N_omega[self.element_to_discretization[k]])]).T
+                    for k in range(0,self.mesh.K)]
+                
+    
+    def map_facet_nodes(self):
+        
+          self.x_gamma = [[np.array([
+                    self.mesh.X[k](self.xi_gamma[self.element_to_discretization[k]][gamma][:,i]) 
+                                   for i in range(0,self.N_gamma[
+                                           self.element_to_discretization[k]][gamma])]).T
+              for gamma in range(0,self.mesh.Nf[k])]
+              for k in range(0,self.mesh.K)]
+    
     
     def build_weak_residual(self, f, f_star):
         
@@ -196,18 +229,20 @@ class SpatialDiscretization:
             # loop through all elemeents
             for k in range(0, self.mesh.K):
                 
-                # plot flux nodes
-                x_omega = np.array([[self.mesh.X[k](self.xi_omega[self.element_to_discretization[k]][0,i]) 
-                                     for i in range(0,self.N_omega[self.element_to_discretization[k]])]])
-                
-                ax.plot(x_omega[0,:], 
+                # plot volume nodes
+                ax.plot(self.x_omega[k][0,:], 
                         np.zeros(self.N_omega[self.element_to_discretization[k]]),
-                        "o", markersize=markersize, color = next(color))
+                        "o", 
+                        markersize=markersize, 
+                        color = next(color))
                 
-                # plot vertices
-                for gamma in range(0, self.mesh.Nv_local[k]):
-                    ax.plot(self.mesh.v[0,self.mesh.local_to_vertex[k][gamma][0]],0.0,
-                            's', markersize=markersize, color="black")
+                # plot facet nodes
+                for gamma in range(0, self.mesh.Nf[k]):
+                    ax.plot(self.x_gamma[k][gamma][0,:],
+                            np.array([0.0]),
+                            's', 
+                            markersize=markersize, 
+                            color="black")
     
             plt.show()
             meshplt.savefig("../plots/" + self.mesh.name + "_nodes.pdf",
@@ -233,41 +268,44 @@ class SpatialDiscretization:
         
             color = iter(plt.cm.rainbow(np.linspace(0, 1, self.mesh.K)))
             
-            # only works for triangles, otherwise need to do this for each discretization 
-            # type and put in loop over k
+            # only works for triangles, otherwise need to do this 
+            # for each discretization type and put in loop over k
             ref_edge_points = SpatialDiscretization.map_unit_to_facets(
                 np.linspace(-1.0,1.0,resolution))
 
             # loop through all elemeents
             for k in range(0, self.mesh.K):
          
-                # plot flux nodes
-                x_omega = np.array([self.mesh.X[k](self.xi_omega[self.element_to_discretization[k]][:,i]) 
-                                   for i in range(0,self.N_omega[self.element_to_discretization[k]])]).T  
-                ax.plot(x_omega[0,:], x_omega[1,:],"o", markersize=markersize, color = next(color))
+                # plot volume nodes
+                ax.plot(self.x_omega[k][0,:], 
+                      self.x_omega[k][1,:],
+                      "o",
+                      markersize=markersize,
+                      color = next(color))
                 
-                
-                # plot facets
-                for gamma in range(0, 
-                                   self.Nf[self.element_to_discretization[k]]):
+                for gamma in range(0, self.mesh.Nf[k]):
                     
-                    # facet edges
+                    # plot facet edge curves
                     edge_points = np.array([
                     self.mesh.X[k](ref_edge_points[gamma][:,i]) 
                                    for i in range(0,resolution)]).T  
                     
-                    ax.plot(edge_points[0,:], edge_points[1,:], '-', color="black")
+                    ax.plot(edge_points[0,:], 
+                            edge_points[1,:], 
+                            '-', 
+                            color="black")
                     
-                    # facet nodes
-                    x_gamma = np.array([
-                    self.mesh.X[k](self.xi_gamma[self.element_to_discretization[k]][gamma][:,i]) 
-                                   for i in range(0,self.N_gamma[
-                                           self.element_to_discretization[k]][gamma])]).T  
-                    
-                    ax.plot(x_gamma[0,:], x_gamma[1,:], "o", markersize=markersize, color = "black")
+                    # plot facet nodes
+                    ax.plot(self.x_gamma[k][gamma][0,:], 
+                            self.x_gamma[k][gamma][1,:],
+                            "o", 
+                            markersize=markersize, 
+                            color = "black")
                                  
             plt.show()
-            meshplt.savefig("../plots/" + self.mesh.name + "_discretization.pdf",
+            meshplt.savefig("../plots/" + 
+                            self.mesh.name + 
+                            "_discretization.pdf",
                             bbox_inches="tight", pad_inches=0)
             
 
@@ -281,19 +319,34 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
         if mu is None:
             mu = 2*p + 1
         
-        if mesh.d == 2:
+        if mesh.d == 1:
+            volume_quadrature = mp.LegendreGaussQuadrature(floor((mu-1)/2))
+            volume_nodes = np.array([volume_quadrature.nodes])
+            W = np.diag(volume_quadrature.weights)
+            
+            facet_nodes = [np.array([[-1.0]]),np.array([[1.0]])]
+            W_gamma = [np.array([[1.0]]),np.array([[1.0]])]
+        
+        elif mesh.d == 2:
             
             volume_quadrature = mp.XiaoGimbutasSimplexQuadrature(tau,2)
+            volume_nodes = volume_quadrature.nodes
             W = np.diag(volume_quadrature.weights)
           
-            # facet nodes and quadrature 
-            facet_quadrature = mp.LegendreGaussQuadrature(np.floor((mu-1)/2))
+            
+            facet_quadrature = mp.LegendreGaussQuadrature(floor((mu-1)/2))
             facet_nodes = SpatialDiscretization.map_unit_to_facets(
-            facet_quadrature.nodes,element_type="triangle") 
+                facet_quadrature.nodes,
+                element_type="triangle") 
             W_gamma = np.diag(facet_quadrature.weights)
+            
+        else: 
+            raise NotImplementedError
     
-        super.__init__(self, mesh, [0]*mesh.K, [p],
-                 [volume_quadrature.nodes], [facet_nodes], [W], [W_gamma])
+            
+        super().__init__(mesh, [0]*mesh.K, [p],
+                 [volume_nodes], [facet_nodes], [W], [W_gamma])
+    
     
 class SimplexCollocationDiscretization(SpatialDiscretization):
     

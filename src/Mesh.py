@@ -1,7 +1,6 @@
 # GHOST - Mesh Data Structure and Utilities
 
 import numpy as np
-import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 from functools import partial
 import meshio
@@ -142,9 +141,7 @@ class Mesh(ABC):
 class Mesh1D(Mesh):
     
     def __init__(self, name, x_L, x_R, K, 
-                 spacing='uniform', 
-                 periodic=True,
-                 transform=None):
+                 spacing='uniform'):
         
         self.K = K
         self.Nv_global = self.K+1
