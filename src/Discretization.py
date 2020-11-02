@@ -1,10 +1,8 @@
 # GHOST - Spatial and Temporal Discretization
 
-#from Operator import DenseLinearOperator, DiagonalOperator, Identity
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import special
-import quadpy as qp
 import modepy as mp
 
 
@@ -68,7 +66,8 @@ class SpatialDiscretization:
         
         if element_type == "triangle":
             bottom = np.reshape(np.array([xi_ref,-np.ones(N_gamma)]),(2,N_gamma))
-            left = np.reshape(np.array([-np.ones(N_gamma),np.flip(xi_ref)]),(2,N_gamma))
+            left = np.reshape(np.array([-np.ones(N_gamma),
+                                        np.flip(xi_ref)]),(2,N_gamma))
             hypotenuse = np.array([[1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)],
                        [-1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]]) @ np.array(
                            [np.sqrt(2.0)*np.flip(xi_ref), np.zeros(N_gamma)])
@@ -155,7 +154,7 @@ class SpatialDiscretization:
             
             self.invert_local_mass()
         
-        self.L = [[self.Minv @ self.V_gamma[i][gamma].T @ self.W_gamma[i][gamma] 
+        self.L = [[self.Minv[i] @ self.V_gamma[i][gamma].T @ self.W_gamma[i][gamma] 
                    for gamma in range(0,self.Nf[i])]
                   for i in range(0,self.Nd)]
         
@@ -271,6 +270,37 @@ class SpatialDiscretization:
             meshplt.savefig("../plots/" + self.mesh.name + "_discretization.pdf",
                             bbox_inches="tight", pad_inches=0)
             
+
+class SimplexQuadratureDiscretization(SpatialDiscretization):
+    
+    def __init__(self, mesh, p, tau=None, mu=None):
+        
+        if tau is None:
+            tau = 2*p
+            
+        if mu is None:
+            mu = 2*p + 1
+        
+        if mesh.d == 2:
+            
+            volume_quadrature = mp.XiaoGimbutasSimplexQuadrature(tau,2)
+            W = np.diag(volume_quadrature.weights)
+          
+            # facet nodes and quadrature 
+            facet_quadrature = mp.LegendreGaussQuadrature(np.floor((mu-1)/2))
+            facet_nodes = SpatialDiscretization.map_unit_to_facets(
+            facet_quadrature.nodes,element_type="triangle") 
+            W_gamma = np.diag(facet_quadrature.weights)
+    
+        super.__init__(self, mesh, [0]*mesh.K, [p],
+                 [volume_quadrature.nodes], [facet_nodes], [W], [W_gamma])
+    
+class SimplexCollocationDiscretization(SpatialDiscretization):
+    
+    def __init__(self, mesh, p, q=None, r=None):
+        
+        raise NotImplementedError
+
 
 class TimeIntegrator:
     

@@ -15,8 +15,8 @@ class PhysicalFlux(ABC):
         
 class VariableAdvectionPhysicalFlux(PhysicalFlux):
     
-    def __init__(self, d, a):
-        super().__init__(d, 1)
+    def __init__(self, a):
+        super().__init__(len(a), 1)
         self.a = a
     
     def __call__(self, u,x):
@@ -25,8 +25,8 @@ class VariableAdvectionPhysicalFlux(PhysicalFlux):
 
 class ConstantAdvectionPhysicalFlux(PhysicalFlux):
     
-    def __init__(self, d, a):
-        super().__init__(d, 1)
+    def __init__(self,a):
+        super().__init__(len(a), 1)
         self.a = a
         
     def __call__(self, u,x):
@@ -44,11 +44,11 @@ class NumericalFlux(ABC):
 
 class ConstantAdvectionNumericalFlux(NumericalFlux):
     
-    def __init__(self, d, a, alpha):
-        super().__init__(d, 1)
+    def __init__(self, a, alpha):
+        super().__init__(len(a), 1)
         self.a = a
         self.alpha = alpha
         
     def __call__(self, u_m, u_p, x, n):
         a_dot_n = np.dot(self.a, n)
-        return 0.5*a_dot_n*(u_m + u_p) - 0.5*alpha*np.abs(a_dot_n)*(u_p - u_m)
+        return 0.5*a_dot_n*(u_m + u_p) - 0.5*self.alpha*np.abs(a_dot_n)*(u_p - u_m)
