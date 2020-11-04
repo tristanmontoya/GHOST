@@ -58,7 +58,7 @@ class SpatialDiscretization:
         self.build_facet_permutation()
         self.build_interpolation()
         self.build_projection()
-        self.build_lift()
+        #self.build_lift()
         
         # evaluate grid nodes, normals, and metric
         self.x_omega = None
@@ -121,23 +121,23 @@ class SpatialDiscretization:
         
     def build_interpolation(self):
         
-        # currently only simplex
-        basis = [mp.simplex_onb(self.d,self.p[i]) for i in range(0,self.Nd)]
+        # currently only simplex total-degree space
+        self.basis = [mp.simplex_onb(self.d,self.p[i]) for i in range(0,self.Nd)]
         
         if self.d == 1:  
             
-            self.V = [mp.vandermonde(basis[i],self.xi_omega[i][0,:]) 
+            self.V = [mp.vandermonde(self.basis[i],self.xi_omega[i][0,:]) 
                       for i in range(0,self.Nd)]
               
-            self.V_gamma = [[mp.vandermonde(basis[i],self.xi_gamma[i][gamma][0,:]) 
+            self.V_gamma = [[mp.vandermonde(self.basis[i],self.xi_gamma[i][gamma][0,:]) 
                         for gamma in range(0,self.Nf[i])] for i in range(0,self.Nd)]
         
         else:
             
-            self.V = [mp.vandermonde(basis[i],self.xi_omega[i]) 
+            self.V = [mp.vandermonde(self.basis[i],self.xi_omega[i]) 
                       for i in range(0,self.Nd)]
         
-        self.V_gamma = [[mp.vandermonde(basis[i],self.xi_gamma[i][gamma]) 
+        self.V_gamma = [[mp.vandermonde(self.basis[i],self.xi_gamma[i][gamma]) 
                         for gamma in range(0,self.Nf[i])]
                         for i in range(0,self.Nd)]
         
@@ -325,7 +325,7 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             mu = 2*p + 1
         
         if mesh.d == 1:
-            volume_quadrature = mp.LegendreGaussQuadrature(floor((mu-1)/2))
+            volume_quadrature = mp.LegendreGaussQuadrature(floor((tau-1)/2))
             volume_nodes = np.array([volume_quadrature.nodes])
             W = np.diag(volume_quadrature.weights)
             

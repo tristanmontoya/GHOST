@@ -1,11 +1,13 @@
 # GHOST - Solver Components
 
-import Mesh
 import Problem
 import Discretization
 
 import numpy as np
+import modepy as mp
 import matplotlib.pyplot as plt
+
+from scipy import special
 
 
 class Solver:
@@ -18,13 +20,18 @@ class Solver:
         # physical problem
         if params["problem"] == "constant_advection":
             
-            f = Problem.ConstantAdvectionPhysicalFlux(params["wave_speed"])
-            f_star = Problem.ConstantAdvectionNumericalFlux(
+            self.f = Problem.ConstantAdvectionPhysicalFlux(params["wave_speed"])
+            self.f_star = Problem.ConstantAdvectionNumericalFlux(
                 params["wave_speed"], 
                 params["upwind_parameter"])
             
+            self.N_eq = 1
+            
         elif params["problem"] == "projection":
-            pass
+            self.N_eq = 1
+        
+        elif params["problem"] == "compressible_euler":
+            self.N_eq = self.d + 2
         
         else:
             raise NotImplementedError
@@ -32,9 +39,9 @@ class Solver:
         # initial condition
         if params["initial_condition"] == "sine":
             if "wavelength" in params:
-                self.u_0 = Solver.sine_wave(params["wavelength"]) 
+                self.u_0 = [Solver.sine_wave(params["wavelength"])]
             else:
-                self.u_0 = Solver.sine_wave(np.ones(self.d)) 
+                self.u_0 = [Solver.sine_wave(np.ones(self.d))]
             
         else:
             raise NotImplementedError
@@ -67,231 +74,349 @@ class Solver:
     def sine_wave(wavelength):
         # numpy array of length d wavelengths
         def g(x):
-            return np.apply_along_axis(lambda xi: np.prod(np.sin(2.0*np.pi*xi/wavelength)), 0,x)
+            return np.apply_along_axis(
+                lambda xi: 
+                    np.prod(
+                        np.sin(2.0*np.pi*xi/wavelength)),
+                    0,x)
         
         return g
         
     def project_function(self,g):
+        # takes list of functions as input
         
-        return [self.discretization.P[self.discretization.element_to_discretization[k]] @
-                g(self.discretization.x_omega[k]) for k in range(0,self.discretization.mesh.K)]
+        return [[self.discretization.P[
+            self.discretization.element_to_discretization[k]] @
+                g[e](self.discretization.x_omega[k]) 
+                for e in range(0,self.N_eq)]
+                for k in range(0,self.discretization.mesh.K)]
             
             
         raise NotImplementedError
         
     def run(self):
+        
+        # run problem
         if self.params["problem"] == "projection":
-            self.uhat = self.project_function(self.u_0)
+            self.u_hat = self.project_function(self.u_0)
         
         else:
             raise NotImplementedError
-    
-    def plot_exact_solution(self, markersize=4, resolution=20):
         
-        if self.d == 1:
-            
-            x_L = np.amin(self.discretization.mesh.v[0,:])
-            x_R = np.amax(self.discretization.mesh.v[0,:])
-            L = x_R - x_L
-            
-            meshplt = plt.figure()
-            ax = plt.axes()
-            plt.xlim([x_L - 0.1 * L, x_R + 0.1 * L])
-            #plt.ylim([-0.1 * L, 0.1 * L])
-            #ax.get_xaxis().set_visible(False)  
-            #ax.get_yaxis().set_visible(False)  
-            #ax.set_aspect('equal')
-            #plt.axis('off')
-            ax.set_xlabel('$x$')
-            ax.set_ylabel('$\mathcal{U}(x,T)$')
+   
+    def post_process(self, solution_resolution=10):
         
-            color = iter(plt.cm.rainbow(
-                np.linspace(0, 1, self.discretization.mesh.K)))
+        # reconstruct nodal values at integration points
+        self.u_h = []
+        self.u_h_gamma = []
+        for k in range(0, self.discretization.mesh.K):
+            self.u_h.append([])
+            self.u_h_gamma.append([]) 
+            for e in range(0, self.N_eq):
+                self.u_h[k].append(self.discretization.V[
+                 self.discretization.element_to_discretization[k]] @ self.u_hat[k][e])
+             
+            for gamma in range(0, self.discretization.mesh.Nf[k]):
+                self.u_h_gamma[k].append([])
+                for e in range(0, self.N_eq):
+                    self.u_h_gamma[k][gamma].append((self.discretization.V_gamma[
+                 self.discretization.element_to_discretization[k]][gamma] 
+                        @ self.u_hat[k][e]))
+             
+        # max and min values at integration points
+        self.u_hmin = [min([np.amin(self.u_h[k][e]) 
+                           for k in range(0,self.discretization.mesh.K)]) 
+                      for e in range(0,self.N_eq)] 
+        self.u_hmax = [max([np.amax(self.u_h[k][e]) 
+                           for k in range(0,self.discretization.mesh.K)]) 
+                      for e in range(0,self.N_eq)] 
+
+        # get geometry info for visualization
+        self.xmin = np.amin(self.discretization.mesh.v, axis=1)
+        self.xmax = np.amax(self.discretization.mesh.v, axis=1)
+        self.extent = self.xmax - self.xmin
+
+        # reconstruct nodal values at visualization points
+        if self.discretization.basis is None:
+            self.x_v = self.discretization.x_omega
+            self.u_hv = self.u_h
+            self.u_hvmin = self.u_hmin
+            self.u_hmax = self.u_hmax
+        else:
+            if self.d == 1:
+                ref_volume_points =  mp.equidistant_nodes(
+                    self.d, solution_resolution)
+                
+                N_plot = special.comb(solution_resolution + self.d, 
+                                      self.d,  exact=True)
+            else:
+                ref_volume_points =  mp.XiaoGimbutasSimplexQuadrature(
+                    solution_resolution, self.d).nodes
+                N_plot = ref_volume_points.shape[1]
             
-            # loop through all elemeents
+            self.u_hv = []
+            self.x_v = []
             for k in range(0, self.discretization.mesh.K):
                 
-                # plot on volume nodes
-                ax.plot(self.discretization.x_omega[k][0,:], 
-                        self.u(self.discretization.x_omega[k]),
-                        "-", 
-                        markersize=markersize, 
-                        color = next(color))
+                # get x at visualization points
+                self.x_v.append(np.array(
+                    [self.discretization.mesh.X[k](ref_volume_points[:,i]) 
+                                 for i in range(0,N_plot)]).T)
+                
+                self.u_hv.append([])
+                V_plot = mp.vandermonde(self.discretization.basis[
+                            self.discretization.element_to_discretization[k]],
+                            ref_volume_points)
+                for e in range(0, self.N_eq):
+                     self.u_hv[k].append(V_plot @ self.u_hat[k][e])
+                     
+        # max and min values at visualization points
+        self.u_hvmin = [min([np.amin(self.u_hv[k][e]) 
+                           for k in range(0,self.discretization.mesh.K)]) 
+                      for e in range(0,self.N_eq)] 
+        self.u_hvmax = [max([np.amax(self.u_hv[k][e]) 
+                           for k in range(0,self.discretization.mesh.K)]) 
+                      for e in range(0,self.N_eq)] 
+        
+        if self.u is not None:
+            
+            # evaluate exact solution at visualization points
+            self.u_v = [[self.u[e](self.x_v[k]) 
+                               for e in range(0, self.N_eq)] 
+                              for k in range(0,self.discretization.mesh.K)]
+            self.u_vmin = [min([np.amin(self.u_v[k][e]) 
+                           for k in range(0,self.discretization.mesh.K)]) 
+                      for e in range(0,self.N_eq)] 
+            self.u_vmax = [max([np.amax(self.u_v[k][e]) 
+                           for k in range(0,self.discretization.mesh.K)]) 
+                      for e in range(0,self.N_eq)] 
+        
+      
+        # global visualization (concatenated)
+        self.x_v_global = np.concatenate(
+            [self.x_v[k] for k in range(0,self.discretization.mesh.K)], axis=1)
+        self.u_v_global = [np.concatenate(
+            [self.u_v[k][e] for k in range(0,self.discretization.mesh.K)]) 
+            for e in range(0, self.N_eq)]
+        self.u_hv_global = [np.concatenate(
+            [self.u_hv[k][e] for k in range(0,self.discretization.mesh.K)]) 
+            for e in range(0, self.N_eq)]
+        
+        # get colours for each element
+        self.color = iter(plt.cm.rainbow(
+            np.linspace(0, 1, self.discretization.mesh.K)))
+        
+        self.color_exact = iter(plt.cm.rainbow(
+            np.linspace(0, 1, self.discretization.mesh.K)))
     
+    def plot(self, 
+             equation_index=0,
+             plot_exact=True, 
+             plot_numerical=True, 
+             plot_nodes=False,
+             markersize=4, 
+             geometry_resolution=10,
+             u_range = [-1.0,1.0]):
+        
+        # asking for exact solution that doesn't exist
+        if plot_exact and self.u is None:
+            return ValueError
+        
+        if self.d == 1:
+        
+            meshplt = plt.figure()
+            ax = plt.axes()
+            plt.xlim([self.xmin[0] - 0.025 * self.extent[0], 
+                      self.xmax[0] + 0.025 * self.extent[0]])
+            plt.xlabel("$x$")
+        
+            # loop through all elemeents
+            for k in range(0, self.discretization.mesh.K):
+                current_color = next(self.color)
+                
+                # plot exact solution on visualization nodes
+                if plot_exact:
+                        exact, = ax.plot(self.x_v[k][0,:], 
+                           self.u_v[k][equation_index],
+                            "-k") 
+                # plot numerical solution on visualization nodes
+                if plot_numerical:
+                    numerical, = ax.plot(self.x_v[k][0,:], 
+                           self.u_hv[k][equation_index],
+                            "-", color = current_color) 
+                    
+                    #plot node positions
+                    if plot_nodes:
+                        ax.plot(self.discretization.x_omega[k][0,:], 
+                           self.u_h[k][equation_index], "o",
+                          markersize=markersize,
+                          color = current_color)
+                        
+                        ax.plot(self.discretization.x_gamma[k][0][0,0], 
+                                self.u_h_gamma[k][0][equation_index][0], 
+                                    "s", 
+                                    markersize=markersize, 
+                                    color="black")
+                                
+                        ax.plot(self.discretization.x_gamma[k][1][0,0], 
+                                self.u_h_gamma[k][1][equation_index][0],
+                                    "s", 
+                                    markersize=markersize, 
+                                    color="black")
+                  
+            # make legend labels
+            if plot_numerical:
+                if self.N_eq == 1:
+                    numerical.set_label("$\mathcal{U}^h(x,t)$")
+                else:
+                    numerical.set_label("$\mathcal{U}_{" 
+                                                + str(equation_index) 
+                                                +"^h(x,t)$")
+            if plot_exact:
+                if self.N_eq == 1:
+                    exact.set_label("$\mathcal{U}(x,t)$")
+                else:
+                    exact.set_label("$\mathcal{U}_{" 
+                                                + str(equation_index) 
+                                                +"(x,t)$")
+            ax.legend()
             plt.show()
-            meshplt.savefig("../plots/" + self.params["project_title"] + "_exact.pdf")
+            
+            meshplt.savefig("../plots/" + self.params["project_title"] + 
+                            "_exact.pdf")
+            
             
         elif self.d == 2:
             
-            x_L = np.amin(self.discretization.mesh.v[0,:])
-            x_H = np.amax(self.discretization.mesh.v[0,:])
-            y_L = np.amin(self.discretization.mesh.v[1,:])
-            y_H = np.amax(self.discretization.mesh.v[1,:])
-            W = x_H - x_L
-            H = y_H - y_L
+            # place contours
+            contours = np.linspace(u_range[0], 
+                                   u_range[1],100)
             
-            meshplt = plt.figure()
-            ax = plt.axes()
-            plt.xlim([x_L - 0.1 * W, x_H + 0.1 * W])
-            plt.ylim([y_L - 0.1 * H, y_H + 0.1 * H])
-            ax.get_xaxis().set_visible(False)  
-            ax.get_yaxis().set_visible(False)  
-            ax.set_aspect('equal')
-            plt.axis('off')
-        
-            color = iter(plt.cm.rainbow(np.linspace(0, 1, self.discretization.mesh.K)))
+            # set up plots
+            if plot_numerical:
+                
+                numerical = plt.figure(1)
+                ax = plt.axes()
+                ax.set_xlim([self.xmin[0] - 0.025 * self.extent[0],
+                              self.xmax[0] + 0.025 * self.extent[0]])
+                
+                ax.set_ylim([self.xmin[1] - 0.025 * self.extent[1],
+                              self.xmax[1] + 0.025 * self.extent[1]]) 
+                ax.set_aspect('equal')
+                plt.xlabel("$x_1$")
+                plt.ylabel("$x_2$")
+                #plt.axis('off')
+                
+            if plot_exact: 
+                
+                exact = plt.figure(2)
+                ax2 = plt.axes()
+                ax2.set_xlim([self.xmin[0] - 0.025 * self.extent[0],
+                              self.xmax[0] + 0.025 * self.extent[0]])
+                
+                ax2.set_ylim([self.xmin[1] - 0.025 * self.extent[1],
+                              self.xmax[1] + 0.025 * self.extent[1]])
+                ax2.set_aspect('equal')
+                plt.xlabel("$x_1$")
+                plt.ylabel("$x_2$")
+                #plt.axis('off')
             
             # only works for triangles, otherwise need to do this 
             # for each discretization type and put in loop over k
             ref_edge_points = Discretization.SpatialDiscretization.map_unit_to_facets(
-                np.linspace(-1.0,1.0,resolution))
+                np.linspace(-1.0,1.0,geometry_resolution))
 
-            # loop through all elemeents
+            # loop through all elements
             for k in range(0, self.discretization.mesh.K):
-         
-                # plot volume nodes
-                x = self.discretization.x_omega[k][0,:]
-                y = self.discretization.x_omega[k][1,:]
                 
-                ax.plot(x, y, "o",
-                      markersize=markersize,
-                      color = next(color))
-                
-                ax.tricontourf(x,y,
-                              self.u(np.array([x,y])),
-                              vmin=-1.0, vmax=1.0, levels=30, cmap="RdBu_r")
-                
-                
+                if plot_nodes and plot_numerical:
+                    
+                    ax.plot(self.discretization.x_omega[k][0,:], 
+                            self.discretization.x_omega[k][1,:], "o",
+                          markersize=markersize,
+                          markeredgecolor='black',
+                          color = next(self.color))
+                        
+                if plot_nodes and plot_exact:
+                    
+                    ax2.plot(self.discretization.x_omega[k][0,:],
+                             self.discretization.x_omega[k][1,:], "o",
+                             markersize=markersize,
+                             markeredgecolor='black',
+                             color = next(self.color_exact))
+                    
                 for gamma in range(0, self.discretization.mesh.Nf[k]):
                     
                     # plot facet edge curves
                     edge_points = np.array([
-                    self.discretization.mesh.X[k](ref_edge_points[gamma][:,i]) 
-                                   for i in range(0,resolution)]).T  
+                    self.discretization.mesh.X[k](
+                        ref_edge_points[gamma][:,i])
                     
-                    ax.plot(edge_points[0,:], 
-                            edge_points[1,:], 
-                            '-', 
-                            color="black")
+                    for i in range(0,geometry_resolution)]).T 
                     
-                    # plot facet nodes
-                    ax.plot(self.discretization.x_gamma[k][gamma][0,:], 
-                            self.discretization.x_gamma[k][gamma][1,:],
-                            "o", 
-                            markersize=markersize, 
-                            color = "black")
-                                 
+                    if plot_numerical:
+                        ax.plot(edge_points[0,:], 
+                                    edge_points[1,:], 
+                                    '-', 
+                                    color="black")
+                        
+                        if plot_nodes:
+                           
+                            # plot facet nodes
+                            ax.plot(self.discretization.x_gamma[k][gamma][0,:], 
+                                    self.discretization.x_gamma[k][gamma][1,:],
+                                    "s", 
+                                    markersize=0.5*markersize, 
+                                    color="black")
+                            
+                    if plot_exact:
+                        ax2.plot(edge_points[0,:], 
+                                    edge_points[1,:], 
+                                    '-', 
+                                    color="black")
+                        
+                        if plot_nodes:
+                           
+                            # plot facet nodes
+                            ax2.plot(self.discretization.x_gamma[k][gamma][0,:], 
+                                    self.discretization.x_gamma[k][gamma][1,:],
+                                    "s", 
+                                    markersize=0.5*markersize, 
+                                    color="black")
+                        
+            if plot_numerical:
+                contour_numerical = ax.tricontourf(
+                        self.x_v_global[0,:], self.x_v_global[1,:],
+                        self.u_hv_global[equation_index],
+                                   levels=contours,
+                                   cmap="jet")
+                cbar = numerical.colorbar(contour_numerical)
+                if self.N_eq == 1:
+                    cbar.ax.set_ylabel("$\mathcal{U}^h(\mathbf{x},t)$")  
+                else:
+                    cbar.ax.set_ylabel("$\mathcal{U}_{" + str(equation_index) +"}^h(\mathbf{x},t)$")
+                cbar.set_ticks(np.linspace(u_range[0],u_range[1],10))
+                numerical.savefig(
+                    "../plots/" + self.params["project_title"]
+                    + "_numerical.pdf", bbox_inches="tight", pad_inches=0)
+            
+            if plot_exact:
+                contour_exact = ax2.tricontourf(
+                        self.x_v_global[0,:], self.x_v_global[1,:],
+                        self.u_v_global[equation_index],
+                                   levels=contours,
+                                   cmap="jet")
+                cbar_ex = exact.colorbar(contour_exact)
+                if self.N_eq == 1:
+                    cbar_ex.ax.set_ylabel("$\mathcal{U}(\mathbf{x},t)$")
+                else:
+                    cbar_ex.ax.set_ylabel("$\mathcal{U}_{" + str(equation_index) +"}(\mathbf{x},t)$")
+                cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],10))
+                exact.savefig(
+                    "../plots/" + self.params["project_title"]
+                    + "_exact.pdf", bbox_inches="tight", pad_inches=0)
+            
             plt.show()
             
-            meshplt.savefig(
-                "../plots/" + self.params["project_title"] + "_numerical.pdf",
-                            bbox_inches="tight", pad_inches=0)
-        
-        else:
-            raise NotImplementedError
-
-    def plot_numerical_solution(self, markersize=4, resolution=20):
-        
-        if self.d == 1:
-            
-            x_L = np.amin(self.discretization.mesh.v[0,:])
-            x_R = np.amax(self.discretization.mesh.v[0,:])
-            L = x_R - x_L
-            
-            meshplt = plt.figure()
-            ax = plt.axes()
-            plt.xlim([x_L - 0.1 * L, x_R + 0.1 * L])
-            #plt.ylim([-0.1 * L, 0.1 * L])
-            #ax.get_xaxis().set_visible(False)  
-            #ax.get_yaxis().set_visible(False)  
-            #ax.set_aspect('equal')
-            #plt.axis('off')
-            ax.set_xlabel('$x$')
-            ax.set_ylabel('$\mathcal{U}(x,T)$')
-        
-            color = iter(plt.cm.rainbow(
-                np.linspace(0, 1, self.discretization.mesh.K)))
-            
-            # loop through all elemeents
-            for k in range(0, self.discretization.mesh.K):
-                
-                # plot on volume nodes
-                ax.plot(self.discretization.x_omega[k][0,:], 
-                        self.discretization.V[self.discretization.element_to_discretization[k]] @ self.uhat[k],
-                        "-", 
-                        markersize=markersize, 
-                        color = next(color))
-    
-            plt.show()
-            meshplt.savefig("../plots/" + self.params["project_title"] + "_exact.pdf")
-            
-        elif self.d == 2:
-            
-            x_L = np.amin(self.discretization.mesh.v[0,:])
-            x_H = np.amax(self.discretization.mesh.v[0,:])
-            y_L = np.amin(self.discretization.mesh.v[1,:])
-            y_H = np.amax(self.discretization.mesh.v[1,:])
-            W = x_H - x_L
-            H = y_H - y_L
-            
-            meshplt = plt.figure()
-            ax = plt.axes()
-            plt.xlim([x_L - 0.1 * W, x_H + 0.1 * W])
-            plt.ylim([y_L - 0.1 * H, y_H + 0.1 * H])
-            ax.get_xaxis().set_visible(False)  
-            ax.get_yaxis().set_visible(False)  
-            ax.set_aspect('equal')
-            plt.axis('off')
-        
-            color = iter(plt.cm.rainbow(np.linspace(0, 1, self.discretization.mesh.K)))
-            
-            # only works for triangles, otherwise need to do this 
-            # for each discretization type and put in loop over k
-            ref_edge_points = Discretization.SpatialDiscretization.map_unit_to_facets(
-                np.linspace(-1.0,1.0,resolution))
-
-            # loop through all elemeents
-            for k in range(0, self.discretization.mesh.K):
-         
-                # plot volume nodes
-                x = self.discretization.x_omega[k][0,:]
-                y = self.discretization.x_omega[k][1,:]
-                
-                ax.plot(x, y, "o",
-                      markersize=markersize,
-                      color = next(color))
-                
-                ax.tricontourf(x,y,
-                               self.discretization.V[self.discretization.element_to_discretization[k]] @ self.uhat[k],
-                               self.u(np.array([x,y])),
-                               vmin=-1.0, vmax=1.0, levels=30, cmap="RdBu_r")
-                
-                
-                for gamma in range(0, self.discretization.mesh.Nf[k]):
-                    
-                    # plot facet edge curves
-                    edge_points = np.array([
-                    self.discretization.mesh.X[k](ref_edge_points[gamma][:,i]) 
-                                   for i in range(0,resolution)]).T  
-                    
-                    ax.plot(edge_points[0,:], 
-                            edge_points[1,:], 
-                            '-', 
-                            color="black")
-                    
-                    # plot facet nodes
-                    ax.plot(self.discretization.x_gamma[k][gamma][0,:], 
-                            self.discretization.x_gamma[k][gamma][1,:],
-                            "o", 
-                            markersize=markersize, 
-                            color = "black")
-                                 
-                
-            plt.show()
-            
-            meshplt.savefig(
-                "../plots/" + self.params["project_title"] + "_exact.pdf",
-                            bbox_inches="tight", pad_inches=0)
-        
         else:
             raise NotImplementedError
