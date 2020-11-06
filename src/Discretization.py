@@ -184,17 +184,19 @@ class SpatialDiscretization:
     
     def map_volume_nodes(self):
         
-        self.x_omega = [np.array([self.mesh.X[k](self.xi_omega[self.element_to_discretization[k]][:,i]) 
-                                     for i in range(0,self.N_omega[self.element_to_discretization[k]])]).T
-                    for k in range(0,self.mesh.K)]
+        self.x_omega = [(mp.vandermonde(
+            self.mesh.basis_geo,
+            self.xi_omega[self.element_to_discretization[k]]) 
+            @ self.mesh.xhat_geo[k]).T
+            for k in range(0,self.mesh.K)]
                 
     
     def map_facet_nodes(self):
         
-          self.x_gamma = [[np.array([
-                    self.mesh.X[k](self.xi_gamma[self.element_to_discretization[k]][gamma][:,i]) 
-                                   for i in range(0,self.N_gamma[
-                                           self.element_to_discretization[k]][gamma])]).T
+          self.x_gamma = [[(mp.vandermonde(
+              self.mesh.basis_geo,
+              self.xi_gamma[self.element_to_discretization[k]][gamma])
+              @ self.mesh.xhat_geo[k]).T
               for gamma in range(0,self.mesh.Nf[k])]
               for k in range(0,self.mesh.K)]
     
@@ -361,7 +363,7 @@ class SimplexCollocationDiscretization(SpatialDiscretization):
 
 class TimeIntegrator:
     
-    def __init__(self, residual, disc_type="rk45"):
+    def __init__(self, residual, disc_type="rk44"):
         
         raise NotImplementedError
             

@@ -1,6 +1,7 @@
 # GHOST - Mesh Data Structure and Utilities
 
 import numpy as np
+import modepy as mp
 from abc import ABC, abstractmethod
 from functools import partial
 import meshio
@@ -25,26 +26,42 @@ class Mesh(ABC):
     def compute_affine_mapping(self):
         pass
 
-    def map_mesh(self, f_map=None, J_map = None):
+    def map_mesh(self, f_map=None, p_geo=3):
         
         # default is to keep original affine mapping, do not curve
-        if J_map is None and f_map is None:
+        if f_map is None:
             f_map = lambda x: x
-            J_map = lambda x: np.eye(self.d)
+        
+        # geometry degree
+        self.p_geo = p_geo
         
         self.X = []
         self.J = []
         self.detJ = []
         
+        # for simplex mesh only
+        self.basis_geo = mp.simplex_onb(self.d,self.p_geo) # modal basis for geometry
+        if self.d == 1:
+            self.xi_geo =np.array([mp.LegendreGaussQuadrature(self.p_geo).nodes])
+            self.Vinv_geo =np.linalg.inv(mp.vandermonde(self.basis_geo, self.xi_geo[0]))
+        else:
+            self.xi_geo = mp.warp_and_blend_nodes(self.d, self.p_geo)
+            self.Vinv_geo =np.linalg.inv(mp.vandermonde(self.basis_geo, self.xi_geo))
+        
+        self.Np_geo = self.xi_geo.shape[1]
+        self.x_geo = []
+        self.xhat_geo = []
         isMoved = np.zeros(self.Nv_global,dtype=int)
-        
         for k in range(0,self.K):
-            self.X.append(lambda xi, k=k: f_map(self.X_affine[k](xi))) 
-            self.J.append(lambda xi, k=k: 
-                   J_map(self.X_affine[k](xi)) @ self.J_affine[k](xi))
-            self.detJ.append(lambda xi, k=k: np.linalg.det(self.J(xi)))
+            
+            # perturbed nodes
+            self.x_geo.append(np.array([f_map(self.X_affine[k](self.xi_geo[:,i])) 
+                                 for i in range(0,self.Np_geo)]).T)
+            
+            # modal coefficients in basis_geo for displacement field
+            self.xhat_geo.append(self.Vinv_geo @ self.x_geo[k].T)
         
-            # move each vertex only once
+            # move each vertex (only once)
             for i in range(0,self.Nv_local[k]):
                 if isMoved[self.element_to_vertex[k][i]] == 0:
                     self.v[:,self.element_to_vertex[k][i]]= f_map(
@@ -203,11 +220,6 @@ class Mesh1D(Mesh):
                 self.v[0,self.local_to_vertex[k][1][0]] 
                 - self.v[0,self.local_to_vertex[k][0][0]])*(xi+1))
                          for k in range(0,self.K)]
-        
-        self.J_affine = [(lambda xi,k=k: np.array([0.5*(
-                              self.v[0,self.local_to_vertex[k][1][0]] 
-                              - self.v[0,self.local_to_vertex[k][0][0]])]))
-                         for k in range(0,self.K)]
 
 class Mesh2D(Mesh):
     
@@ -266,7 +278,11 @@ class Mesh2D(Mesh):
                            
     def compute_affine_mapping(self):
         
+        
         self.X_affine = []
+        
+      
+        
         for k in range(0,self.K):
             
             # affine triangle mapping
@@ -276,10 +292,10 @@ class Mesh2D(Mesh):
                                      -0.5*(xi[0]+xi[1])*self.v_affine[:,self.element_to_vertex[k][0]] \
                                          + 0.5*(xi[0] + 1)*self.v_affine[:,self.element_to_vertex[k][1]] \
                                              + 0.5*(xi[1] + 1)*self.v_affine[:,self.element_to_vertex[k][2]])
-                
             else: 
                 raise NotImplementedError
         
+            
         
     @staticmethod
     def grid_transformation(warp_factor=0.2):

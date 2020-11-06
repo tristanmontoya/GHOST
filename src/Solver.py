@@ -25,12 +25,15 @@ class Solver:
                 params["wave_speed"], 
                 params["upwind_parameter"])
             
+            self.is_unsteady = True
             self.N_eq = 1
             
         elif params["problem"] == "projection":
+            self.is_unsteady = False
             self.N_eq = 1
         
         elif params["problem"] == "compressible_euler":
+            self.is_unsteady = True
             self.N_eq = self.d + 2
         
         else:
@@ -52,6 +55,12 @@ class Solver:
         
         # spatial discretization
         if params["integration_type"] == "quadrature":
+            
+            if "volume_quadrature_degree" not in params:
+                params["volume_quadrature_degree"] = None
+            if "facet_quadrature_degree" not in params:
+                params["facet_quadrature_degree"] = None
+                
             self.discretization = Discretization.SimplexQuadratureDiscretization(
                 mesh,
                 params["solution_degree"], 
@@ -66,6 +75,15 @@ class Solver:
             
         else:
             raise NotImplementedError
+            
+        # time discretization
+        if self.is_unsteady:
+            self.calculate_time_step()
+            
+            if params["time_integrator"] == "rk44":
+                self.time_integrator = Discretization.RK44(self.dt)
+            else:
+                raise NotImplementedError
             
         # save params
         self.params = params
@@ -93,6 +111,9 @@ class Solver:
             
             
         raise NotImplementedError
+        
+    def get_time_step(self, CFL, L):
+        pass
         
     def run(self):
         
@@ -144,25 +165,24 @@ class Solver:
             self.u_hmax = self.u_hmax
         else:
             if self.d == 1:
-                ref_volume_points =  mp.equidistant_nodes(
-                    self.d, solution_resolution)
-                
-                N_plot = special.comb(solution_resolution + self.d, 
-                                      self.d,  exact=True)
+                ref_volume_points =  np.array(mp.equidistant_nodes(
+                    self.d, solution_resolution))
+                V_geo_to_plot = mp.vandermonde(self.discretization.mesh.basis_geo,
+                                        ref_volume_points[0])
             else:
                 ref_volume_points =  mp.XiaoGimbutasSimplexQuadrature(
-                    solution_resolution, self.d).nodes
-                N_plot = ref_volume_points.shape[1]
-            
+                    solution_resolution, self.d).nodes 
+                V_geo_to_plot = mp.vandermonde(self.discretization.mesh.basis_geo,
+                                        ref_volume_points)
+        
             self.u_hv = []
             self.x_v = []
             for k in range(0, self.discretization.mesh.K):
                 
                 # get x at visualization points
-                self.x_v.append(np.array(
-                    [self.discretization.mesh.X[k](ref_volume_points[:,i]) 
-                                 for i in range(0,N_plot)]).T)
-                
+                self.x_v.append((V_geo_to_plot 
+                                 @ self.discretization.mesh.xhat_geo[k]).T)
+                    
                 self.u_hv.append([])
                 V_plot = mp.vandermonde(self.discretization.basis[
                             self.discretization.element_to_discretization[k]],
@@ -239,6 +259,7 @@ class Solver:
                         exact, = ax.plot(self.x_v[k][0,:], 
                            self.u_v[k][equation_index],
                             "-k") 
+                        
                 # plot numerical solution on visualization nodes
                 if plot_numerical:
                     numerical, = ax.plot(self.x_v[k][0,:], 
@@ -285,7 +306,6 @@ class Solver:
             meshplt.savefig("../plots/" + self.params["project_title"] + 
                             "_exact.pdf")
             
-            
         elif self.d == 2:
             
             # place contours
@@ -325,6 +345,8 @@ class Solver:
             # for each discretization type and put in loop over k
             ref_edge_points = Discretization.SpatialDiscretization.map_unit_to_facets(
                 np.linspace(-1.0,1.0,geometry_resolution))
+            V_edge_geo = [mp.vandermonde(self.discretization.mesh.basis_geo, ref_edge_points[gamma])
+                          for gamma in range(0,3)]
 
             # loop through all elements
             for k in range(0, self.discretization.mesh.K):
@@ -348,11 +370,7 @@ class Solver:
                 for gamma in range(0, self.discretization.mesh.Nf[k]):
                     
                     # plot facet edge curves
-                    edge_points = np.array([
-                    self.discretization.mesh.X[k](
-                        ref_edge_points[gamma][:,i])
-                    
-                    for i in range(0,geometry_resolution)]).T 
+                    edge_points = (V_edge_geo[gamma] @ self.discretization.mesh.xhat_geo[k]).T
                     
                     if plot_numerical:
                         ax.plot(edge_points[0,:], 
