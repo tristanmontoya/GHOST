@@ -37,18 +37,17 @@ class Mesh(ABC):
         
         # for simplex mesh only (represent geometry in modal basis)
         self.basis_geo = mp.simplex_onb(self.d,self.p_geo) 
+        self.grad_basis_geo = mp.grad_simplex_onb(self.d, self.p_geo)
     
         if self.d == 1:
             
             self.xi_geo =np.array([mp.LegendreGaussQuadrature(self.p_geo).nodes])
             self.Vinv_geo =np.linalg.inv(mp.vandermonde(self.basis_geo, self.xi_geo[0]))
-            self.grad_basis_geo = [mp.grad_simplex_onb(self.d, self.p_geo)]
             
         else:
             
             self.xi_geo = mp.warp_and_blend_nodes(self.d, self.p_geo)
             self.Vinv_geo =np.linalg.inv(mp.vandermonde(self.basis_geo, self.xi_geo))
-            self.grad_basis_geo = mp.grad_simplex_onb(self.d, self.p_geo)
         
         self.Np_geo = self.xi_geo.shape[1]
         self.x_geo = []
@@ -142,17 +141,19 @@ class Mesh(ABC):
                         
                         # match up if corresponds to translation along 
                         # a coordinate axis
-                        if (max(np.abs([midpoint[hyperplane_axes[axis]] - other_midpoint[
-                                hyperplane_axes[axis]] 
+                        if (max(np.abs([midpoint[hyperplane_axes[axis]] 
+                                        - other_midpoint[hyperplane_axes[axis]] 
                                 for axis in range(
-                                        0,len(hyperplane_axes))])) < BC_TOL) or self.d == 1:
-                            # if d is 1, then any two facets on the periodic bcs are neighbours
-                    
+                                        0,len(hyperplane_axes))])) 
+                            < BC_TOL) or self.d == 1:
+                            # if d is 1, then any two facets
+                            # on the periodic bcs are neighbours
+                            
                             # add local-to-local connectivity to dictionary
                             self.local_to_local[k,gamma] = (nu,rho)
                             self.local_to_local[nu,rho] = (k,gamma)             
                             break
-                    
+                        
         
     @staticmethod
     def hyperplane_indicator(coeffs, tol, x):
@@ -300,7 +301,6 @@ class Mesh2D(Mesh):
                 raise NotImplementedError
         
             
-        
     @staticmethod
     def grid_transformation(warp_factor=0.2):
         

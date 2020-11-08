@@ -6,7 +6,6 @@ import Discretization
 import numpy as np
 import modepy as mp
 import matplotlib.pyplot as plt
-from scipy import special
 
 
 class Solver:
@@ -89,6 +88,7 @@ class Solver:
         # save params
         self.params = params
         
+        
     @staticmethod
     def sine_wave(wavelength):
         # numpy array of length d wavelengths
@@ -101,6 +101,7 @@ class Solver:
         
         return g
         
+    
     def project_function(self,g):
         # takes list of functions as input
         
@@ -113,9 +114,11 @@ class Solver:
             
         raise NotImplementedError
         
+        
     def get_time_step(self, CFL, L):
         pass
         
+    
     def run(self):
         
         # run problem
@@ -225,10 +228,12 @@ class Solver:
         self.color_exact = iter(plt.cm.rainbow(
             np.linspace(0, 1, self.discretization.mesh.K)))
     
+    
     def plot(self, 
              equation_index=0,
              plot_exact=True, 
              plot_numerical=True, 
+             plot_curves=True,
              plot_nodes=False,
              markersize=4, 
              geometry_resolution=10,
@@ -379,10 +384,12 @@ class Solver:
                                    @ self.discretization.mesh.xhat_geo[k]).T
                     
                     if plot_numerical:
-                        ax.plot(edge_points[0,:], 
-                                    edge_points[1,:], 
-                                    '-', 
-                                    color="black")
+                        
+                        if plot_curves:
+                            ax.plot(edge_points[0,:], 
+                                        edge_points[1,:], 
+                                        '-', 
+                                        color="black")
                         
                         if plot_nodes:
                            
@@ -394,10 +401,12 @@ class Solver:
                                     color="black")
                             
                     if plot_exact:
-                        ax2.plot(edge_points[0,:], 
-                                    edge_points[1,:], 
-                                    '-', 
-                                    color="black")
+                        
+                        if plot_curves:
+                            ax2.plot(edge_points[0,:], 
+                                        edge_points[1,:], 
+                                        '-', 
+                                        color="black")
                         
                         if plot_nodes:
                            

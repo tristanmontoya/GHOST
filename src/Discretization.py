@@ -23,6 +23,9 @@ class SpatialDiscretization:
         # polynomial degree
         self.p = p
         
+        # reference element normal vectors
+        self.n_hat = n_hat
+        
         # number of discretization types
         self.Nd = len(self.p) 
         
@@ -43,9 +46,6 @@ class SpatialDiscretization:
                          for gamma in range(0,self.Nf[i])] 
                         for i in range(0,self.Nd)]
         
-        # facet normals
-        self.n_hat = n_hat
-        
         # initialize and build operators
         self.V = None
         self.V_gamma = None
@@ -60,12 +60,16 @@ class SpatialDiscretization:
         self.build_lift()
         
         # evaluate grid nodes, normals and metric
-        self.x_omega = None
-        self.x_gamma = None
-        self.x_prime_omega = None
-        self.J_omega = None
-        self.J_gamma = None
-        self.n_gamma = None
+        self.x_omega = []
+        self.x_gamma = []
+        self.x_prime_omega = []
+        self.x_prime_gamma = []
+        self.x_prime_inv_omega = []
+        self.x_prime_inv_gamma = []
+        self.J_omega = [] 
+        self.J_gamma = []
+        self.Jf_gamma = []
+        self.n_gamma = [] 
         self.map_nodes()
         
         # init residual function
@@ -176,7 +180,7 @@ class SpatialDiscretization:
             self.invert_local_mass()
         
         self.L = [[self.Minv[i] @ self.V_gamma[i][gamma].T 
-                   @ self.W_gamma[i][gamma] 
+                   @ self.W_gamma[i][gamma]
                    for gamma in range(0,self.Nf[i])]
                   for i in range(0,self.Nd)]
         
@@ -206,49 +210,90 @@ class SpatialDiscretization:
     
     def map_nodes(self):
         
-        self.x_omega = []
-        self.x_gamma = []
-        self.x_prime_omega = []
-        self.x_prime_gamma = []
-        self.J_omega = [] # TODO
-        self.J_gamma = [] # TODO
-        self.n_gamma = [] # TODO
-        
+        # go through each element (note: this could be done in parallel)
         for k in range(0, self.mesh.K):
             i = self.element_to_discretization[k]
+            
             # volume node positions
             self.x_omega.append((mp.vandermonde(
                 self.mesh.basis_geo,
                 self.xi_omega[i]) 
                 @ self.mesh.xhat_geo[k]).T)
-        
-            # jacobian at volume nodes
-            self.x_prime_omega.append(
-                np.zeros([self.N_omega[i], self.d, self.d]))
-            if self.d==1:
-                V_geo_xi = [mp.vandermonde(
-                    self.mesh.grad_basis_geo, self.xi_omega[i])]
-            else:
-                V_geo_xi = list(mp.vandermonde(
-                    self.mesh.grad_basis_geo, self.xi_omega[i]))
-                
-            for m in range(0, self.d):
-                self.x_prime_omega[k][:,:,m] = V_geo_xi[m] @ self.mesh.xhat_geo[k]
-                
-            # jacobian at facet nodes
             
-            # Jacobian determinant at volume nodes
-            self.J_omega.append(
-                np.array([np.linalg.det(self.x_prime_omega[k][i,:,:]) 
-                          for i in range(
-                                  0,self.N_omega[
-                                      self.element_to_discretization[k]])]))
-                
             # facet node positions
             self.x_gamma.append([(mp.vandermonde(self.mesh.basis_geo,
             self.xi_gamma[self.element_to_discretization[k]][gamma]) 
                                   @ self.mesh.xhat_geo[k]).T
                                  for gamma in range(0,self.mesh.Nf[k])])
+        
+            # jacobian at volume and facet nodes
+            self.x_prime_omega.append(
+                np.zeros([self.N_omega[i], self.d, self.d]))
+            self.x_prime_gamma.append([
+                np.zeros([self.N_gamma[i][gamma], self.d, self.d])
+                for gamma in range(0,self.mesh.Nf[k])])
+            
+            # vandermonde derivatives of geometry mapping
+            if self.d==1:
+                V_geo_xi = [mp.vandermonde(
+                    self.mesh.grad_basis_geo, self.xi_omega[i])]
+                V_geo_gamma_xi = [[mp.vandermonde(
+                    self.mesh.grad_basis_geo, self.xi_gamma[i][gamma])] 
+                    for gamma in range(0,self.mesh.Nf[k])]
+            else:
+                V_geo_xi = list(mp.vandermonde(
+                    self.mesh.grad_basis_geo, self.xi_omega[i]))      
+                V_geo_gamma_xi = [mp.vandermonde(
+                    self.mesh.grad_basis_geo, self.xi_gamma[i][gamma]) 
+                    for gamma in range(0,self.mesh.Nf[k])]
+                
+            for m in range(0, self.d):
+                # jacobian at volume nodes
+                self.x_prime_omega[k][:,:,m] = V_geo_xi[m] @ self.mesh.xhat_geo[k]
+                
+                # jacobian at facet nodes
+                for gamma in range(0,self.mesh.Nf[k]):
+                    self.x_prime_gamma[k][gamma][:,:,m] = V_geo_gamma_xi[gamma][m] \
+                    @ self.mesh.xhat_geo[k]
+            
+            # inverse Jacobian
+            self.x_prime_inv_omega.append(np.array([ 
+                np.linalg.inv(self.x_prime_omega[k][j,:,:])
+                for j in range(0,self.N_omega[i])]))
+            
+            self.x_prime_inv_gamma.append([np.array([ 
+                np.linalg.inv(self.x_prime_gamma[k][gamma][j,:,:])
+                for j in range(0,self.N_gamma[i][gamma])]) 
+                for gamma in range(0,self.mesh.Nf[k])]) 
+            
+            # Jacobian determinant
+            self.J_omega.append(
+                np.array([np.linalg.det(self.x_prime_omega[k][j,:,:]) 
+                          for j in range(0,self.N_omega[i])]))
+            
+            self.J_gamma.append([np.array([np.linalg.det(
+                self.x_prime_gamma[k][gamma][j,:,:]) 
+                          for j in range(0,self.N_gamma[i][gamma])]) 
+                                 for gamma in range(0, self.mesh.Nf[k])])
+            
+            # Unscaled normal vectors
+            n_gamma_unscl = [np.array([
+                self.J_gamma[i][gamma][j]*self.x_prime_inv_gamma[k][gamma][j,:,:].T @ 
+                self.n_hat[i][gamma]
+                for j in range(0,self.N_gamma[i][gamma])])
+                for gamma in range(0,self.mesh.Nf[k])]
+            
+            # facet jacobian
+            self.Jf_gamma.append([np.array([np.linalg.norm(
+                n_gamma_unscl[gamma][j,:]) 
+                for j in range(0,self.N_gamma[i][gamma])])
+                for gamma in range(0,self.mesh.Nf[k])])
+            
+            # unit normal vectors
+            self.n_gamma.append([np.array(
+                [n_gamma_unscl[gamma][j,:]/self.Jf_gamma[k][gamma][j]
+                for j in range(0,self.N_gamma[i][gamma])])
+                for gamma in range(0,self.mesh.Nf[k])])
         
         
     def build_local_residual(self, f, f_star, N_eq):
@@ -291,7 +336,7 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             
             facet_nodes = [np.array([[-1.0]]),np.array([[1.0]])]
             W_gamma = [np.array([[1.0]]),np.array([[1.0]])]
-            n_hat = [np.array([-1.0]), np.array([-1.0])]
+            n_hat = [np.array([-1.0]), np.array([1.0])]
         
         elif mesh.d == 2:
             
@@ -303,7 +348,7 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             facet_nodes = SpatialDiscretization.map_unit_to_facets(
                 facet_quadrature.nodes,
                 element_type="triangle") 
-            W_gamma = np.diag(facet_quadrature.weights)
+            W_gamma = [np.diag(facet_quadrature.weights) for gamma in range(0,3)]
             n_hat = [np.array([0.0,-1.0]), 
                      np.array([1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]),
                      np.array([-1.0, 0.0])]
