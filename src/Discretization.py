@@ -1,17 +1,15 @@
 # GHOST - Spatial and Temporal Discretization
 
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.tri as tri
 from scipy import special
-from math import floor
+from math import floor, ceil
 import modepy as mp
 
 
 class SpatialDiscretization:
     
     def __init__(self, mesh, element_to_discretization, p,
-                 xi_omega, xi_gamma, W, W_gamma):
+                 xi_omega, xi_gamma, W, W_gamma, n_hat, form = "weak"):
         
         # mesh
         self.mesh = mesh
@@ -32,20 +30,21 @@ class SpatialDiscretization:
         self.Np = [special.comb(self.p[i] + self.d, self.d, 
                                 exact=True) for i in range(0,self.Nd)]
         
-        # volume nodes (probably should check dimension compatibility)
+        # volume nodes/weights (probably should check dimension compatibility)
         self.xi_omega = xi_omega
         self.W = W
         self.N_omega = [xi_omega[i].shape[1] for i in range(0,self.Nd)]
         
-        # facet nodes (probably should check dimension compatibility)
+        # facet nodes/weights (probably should check dimension compatibility)
         self.xi_gamma = xi_gamma
         self.W_gamma = W_gamma
         self.Nf = [len(xi_gamma[i]) for i in range(0,self.Nd)]
-        
-        # maybe check if this is compatible w/ mesh.N_gamma[k]
         self.N_gamma = [[xi_gamma[i][gamma].shape[1] 
                          for gamma in range(0,self.Nf[i])] 
                         for i in range(0,self.Nd)]
+        
+        # facet normals
+        self.n_hat = n_hat
         
         # initialize and build operators
         self.V = None
@@ -58,18 +57,16 @@ class SpatialDiscretization:
         self.build_facet_permutation()
         self.build_interpolation()
         self.build_projection()
-        #self.build_lift()
+        self.build_lift()
         
-        # evaluate grid nodes, normals, and metric
+        # evaluate grid nodes, normals and metric
         self.x_omega = None
         self.x_gamma = None
-        self.n = None
-        self.J = None
-        self.detJ = None
-        self.detJ_gamma = None
-        
-        self.map_volume_nodes()
-        self.map_facet_nodes()
+        self.x_prime_omega = None
+        self.J_omega = None
+        self.J_gamma = None
+        self.n_gamma = None
+        self.map_nodes()
         
         # init residual function
         self.residual = None
@@ -82,15 +79,17 @@ class SpatialDiscretization:
         N_gamma = xi_ref.shape[0]
         
         if element_type == "triangle":
-            bottom = np.reshape(np.array([xi_ref,-np.ones(N_gamma)]),(2,N_gamma))
+            bottom = np.reshape(np.array([xi_ref,-np.ones(N_gamma)]),
+                                (2,N_gamma))
             left = np.reshape(np.array([-np.ones(N_gamma),
                                         np.flip(xi_ref)]),(2,N_gamma))
             hypotenuse = np.array([[1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)],
                        [-1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]]) @ np.array(
                            [np.sqrt(2.0)*np.flip(xi_ref), np.zeros(N_gamma)])
 
-            # counter-clockwise ordering of all nodes, so neighbouring edges always
-            # have reversed order (i.e. permutation is just a flipping)
+            # counter-clockwise ordering of all nodes, so neighbouring 
+            # edges always have reversed order 
+            # (i.e. permutation is just a flipping)
             return [bottom,hypotenuse,left] 
         
         else:
@@ -122,19 +121,22 @@ class SpatialDiscretization:
     def build_interpolation(self):
         
         # currently only simplex total-degree space
-        self.basis = [mp.simplex_onb(self.d,self.p[i]) for i in range(0,self.Nd)]
+        self.basis = [mp.simplex_onb(self.d,self.p[i]) 
+                      for i in range(0,self.Nd)]
         
         if self.d == 1:  
             
-            self.V = [mp.vandermonde(self.basis[i],self.xi_omega[i][0,:]) 
+            self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i][0,:]) 
                       for i in range(0,self.Nd)]
               
-            self.V_gamma = [[mp.vandermonde(self.basis[i],self.xi_gamma[i][gamma][0,:]) 
-                        for gamma in range(0,self.Nf[i])] for i in range(0,self.Nd)]
+            self.V_gamma = [[mp.vandermonde(self.basis[i],
+                                            self.xi_gamma[i][gamma][0,:]) 
+                        for gamma in range(0,self.Nf[i])] 
+                            for i in range(0,self.Nd)]
         
         else:
             
-            self.V = [mp.vandermonde(self.basis[i],self.xi_omega[i]) 
+            self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i]) 
                       for i in range(0,self.Nd)]
         
         self.V_gamma = [[mp.vandermonde(self.basis[i],self.xi_gamma[i][gamma]) 
@@ -144,7 +146,8 @@ class SpatialDiscretization:
         
     def build_local_mass(self):
         
-        self.M = [self.V[i].T @ self.W[i] @ self.V[i] for i in range(0,self.Nd)]
+        self.M = [self.V[i].T @ self.W[i] @ self.V[i] 
+                  for i in range(0,self.Nd)]
        
         
     def invert_local_mass(self):
@@ -172,150 +175,105 @@ class SpatialDiscretization:
             
             self.invert_local_mass()
         
-        self.L = [[self.Minv[i] @ self.V_gamma[i][gamma].T @ self.W_gamma[i][gamma] 
+        self.L = [[self.Minv[i] @ self.V_gamma[i][gamma].T 
+                   @ self.W_gamma[i][gamma] 
                    for gamma in range(0,self.Nf[i])]
                   for i in range(0,self.Nd)]
         
     
     def build_differentiation(self):
+    
+        self.grad_basis = [mp.grad_simplex_onb(self.d,self.p[i])
+                           for i in range(0, self.Nd)]
+        
+        if self.d==1:
+            self.V_xi = [[mp.vandermonde(self.grad_basis[i], self.xi_omega[i])]
+                         for i in range(0,self.Nd)]
+        else:
+            self.V_xi =[list(mp.vandermonde(self.grad_basis[i], 
+                                            self.xi_omega[i]))
+                        for i in range(0,self.Nd)]
+            
+        if self.P is None:
+            self.build_projection()
+        
+        self.Dhat = [[self.P[i] @ self.V_xi[i][m] for m in range(0, self.d)]
+                     for i in range(0, self.Nd)]
+                              
         
         raise NotImplementedError
         
     
-    def map_volume_nodes(self):
+    def map_nodes(self):
         
-        self.x_omega = [(mp.vandermonde(
-            self.mesh.basis_geo,
-            self.xi_omega[self.element_to_discretization[k]]) 
-            @ self.mesh.xhat_geo[k]).T
-            for k in range(0,self.mesh.K)]
+        self.x_omega = []
+        self.x_gamma = []
+        self.x_prime_omega = []
+        self.x_prime_gamma = []
+        self.J_omega = [] # TODO
+        self.J_gamma = [] # TODO
+        self.n_gamma = [] # TODO
+        
+        for k in range(0, self.mesh.K):
+            i = self.element_to_discretization[k]
+            # volume node positions
+            self.x_omega.append((mp.vandermonde(
+                self.mesh.basis_geo,
+                self.xi_omega[i]) 
+                @ self.mesh.xhat_geo[k]).T)
+        
+            # jacobian at volume nodes
+            self.x_prime_omega.append(
+                np.zeros([self.N_omega[i], self.d, self.d]))
+            if self.d==1:
+                V_geo_xi = [mp.vandermonde(
+                    self.mesh.grad_basis_geo, self.xi_omega[i])]
+            else:
+                V_geo_xi = list(mp.vandermonde(
+                    self.mesh.grad_basis_geo, self.xi_omega[i]))
                 
-    
-    def map_facet_nodes(self):
+            for m in range(0, self.d):
+                self.x_prime_omega[k][:,:,m] = V_geo_xi[m] @ self.mesh.xhat_geo[k]
+                
+            # jacobian at facet nodes
+            
+            # Jacobian determinant at volume nodes
+            self.J_omega.append(
+                np.array([np.linalg.det(self.x_prime_omega[k][i,:,:]) 
+                          for i in range(
+                                  0,self.N_omega[
+                                      self.element_to_discretization[k]])]))
+                
+            # facet node positions
+            self.x_gamma.append([(mp.vandermonde(self.mesh.basis_geo,
+            self.xi_gamma[self.element_to_discretization[k]][gamma]) 
+                                  @ self.mesh.xhat_geo[k]).T
+                                 for gamma in range(0,self.mesh.Nf[k])])
         
-          self.x_gamma = [[(mp.vandermonde(
-              self.mesh.basis_geo,
-              self.xi_gamma[self.element_to_discretization[k]][gamma])
-              @ self.mesh.xhat_geo[k]).T
-              for gamma in range(0,self.mesh.Nf[k])]
-              for k in range(0,self.mesh.K)]
-    
-    
-    def build_weak_residual(self, f, f_star):
         
+    def build_local_residual(self, f, f_star, N_eq):
+        
+        def local_residual(self, k, f_omega, f_star_gamma, N_eq):
+            r = np.zeros([N_eq, self.N_p[self.element_to_discretization[k]]])
+            
+            for e in range(0, N_eq):
+                r[e,:] = sum([self.vol[k][m] @ f_omega[m][e,:] 
+                              for m in (0,self.d)]) \
+                + sum([self.fac[k][gamma] @ f_star_gamma[gamma][e,:] 
+                       for gamma in (0, self.d)])
+            return r
+        
+        return [lambda f_omega, f_star_gamma, k=k: local_residual(
+            self, k, f_omega, f_star_gamma, N_eq)
+                for k in range(0, self.mesh.K)]
+    
         raise NotImplementedError
 
-
-    def build_strong_residual(self, f, f_star):
         
+    def build_global_residual(self):
         raise NotImplementedError
         
         
-    def plot(self, markersize=5, resolution=20):
-        
-        if self.d == 1:
-            
-            x_L = np.amin(self.mesh.v[0,:])
-            x_R = np.amax(self.mesh.v[0,:])
-            L = x_R - x_L
-            
-            meshplt = plt.figure()
-            ax = plt.axes()
-            plt.xlim([x_L - 0.1 * L, x_R + 0.1 * L])
-            plt.ylim([-0.1 * L, 0.1 * L])
-            ax.get_xaxis().set_visible(False)  
-            ax.get_yaxis().set_visible(False)  
-            ax.set_aspect('equal')
-            plt.axis('off')
-        
-            color = iter(plt.cm.rainbow(np.linspace(0, 1, self.mesh.K)))
-            
-            # loop through all elemeents
-            for k in range(0, self.mesh.K):
-                
-                # plot volume nodes
-                ax.plot(self.x_omega[k][0,:], 
-                        np.zeros(self.N_omega[self.element_to_discretization[k]]),
-                        "o", 
-                        markersize=markersize, 
-                        color = next(color))
-                
-                # plot facet nodes
-                for gamma in range(0, self.mesh.Nf[k]):
-                    ax.plot(self.x_gamma[k][gamma][0,:],
-                            np.array([0.0]),
-                            's', 
-                            markersize=markersize, 
-                            color="black")
-    
-            plt.show()
-            meshplt.savefig("../plots/" + self.mesh.name + "_nodes.pdf",
-                            bbox_inches=0, pad_inches=0)
-               
-        elif self.d==2:
-            
-            x_L = np.amin(self.mesh.v[0,:])
-            x_H = np.amax(self.mesh.v[0,:])
-            y_L = np.amin(self.mesh.v[1,:])
-            y_H = np.amax(self.mesh.v[1,:])
-            W = x_H - x_L
-            H = y_H - y_L
-            
-            meshplt = plt.figure()
-            ax = plt.axes()
-            plt.xlim([x_L - 0.1 * W, x_H + 0.1 * W])
-            plt.ylim([y_L - 0.1 * H, y_H + 0.1 * H])
-            ax.get_xaxis().set_visible(False)  
-            ax.get_yaxis().set_visible(False)  
-            ax.set_aspect('equal')
-            plt.axis('off')
-        
-            color = iter(plt.cm.rainbow(np.linspace(0, 1, self.mesh.K)))
-            
-            # only works for triangles, otherwise need to do this 
-            # for each discretization type and put in loop over k
-            ref_edge_points = SpatialDiscretization.map_unit_to_facets(
-                np.linspace(-1.0,1.0,resolution))
-
-            # loop through all elemeents
-            for k in range(0, self.mesh.K):
-         
-                # plot volume nodes
-                ax.plot(self.x_omega[k][0,:], 
-                      self.x_omega[k][1,:],
-                      "o",
-                      markersize=markersize,
-                      color = next(color))
-                
-                for gamma in range(0, self.mesh.Nf[k]):
-                    
-                    # plot facet edge curves
-                    edge_points = np.array([
-                    self.mesh.X[k](ref_edge_points[gamma][:,i]) 
-                                   for i in range(0,resolution)]).T  
-                    
-                    ax.plot(edge_points[0,:], 
-                            edge_points[1,:], 
-                            '-', 
-                            color="black")
-                    
-                    # plot facet nodes
-                    ax.plot(self.x_gamma[k][gamma][0,:], 
-                            self.x_gamma[k][gamma][1,:],
-                            "o", 
-                            markersize=markersize, 
-                            color = "black")
-                                 
-            plt.show()
-            meshplt.savefig("../plots/" + 
-                            self.mesh.name + 
-                            "_discretization.pdf",
-                            bbox_inches="tight", pad_inches=0)
-            
-        else: 
-            raise NotImplementedError
-            
-
 class SimplexQuadratureDiscretization(SpatialDiscretization):
     
     def __init__(self, mesh, p, tau=None, mu=None):
@@ -333,6 +291,7 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             
             facet_nodes = [np.array([[-1.0]]),np.array([[1.0]])]
             W_gamma = [np.array([[1.0]]),np.array([[1.0]])]
+            n_hat = [np.array([-1.0]), np.array([-1.0])]
         
         elif mesh.d == 2:
             
@@ -345,13 +304,16 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
                 facet_quadrature.nodes,
                 element_type="triangle") 
             W_gamma = np.diag(facet_quadrature.weights)
+            n_hat = [np.array([0.0,-1.0]), 
+                     np.array([1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]),
+                     np.array([-1.0, 0.0])]
             
         else: 
             raise NotImplementedError
     
             
         super().__init__(mesh, [0]*mesh.K, [p],
-                 [volume_nodes], [facet_nodes], [W], [W_gamma])
+                 [volume_nodes], [facet_nodes], [W], [W_gamma], [n_hat])
     
     
 class SimplexCollocationDiscretization(SpatialDiscretization):
@@ -363,7 +325,67 @@ class SimplexCollocationDiscretization(SpatialDiscretization):
 
 class TimeIntegrator:
     
-    def __init__(self, residual, disc_type="rk44"):
+    def __init__(self, residual, dt, discretization_type="rk44"):
         
-        raise NotImplementedError
+        self.dt_target = dt
+        self.discretization_type = discretization_type
+        self.R = residual
+    
+    @staticmethod
+    def calculate_time_step(spatial_discretization, wave_speed, beta):
+        
+        h = np.amin(
+            spatial_discretization.mesh.extent)/(
+                spatial_discretization.mesh.K ** (
+                    1.0/spatial_discretization.d))
+        return beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed
+        
+    def run(self, u_0, T):
+        
+        N_t = ceil(T/self.dt_target) 
+        dt = T/N_t
+        u = np.copy(u_0)
+        t = 0
+        
+        for n in range(0,N_t):
+            
+            u = self.time_step(u,t,dt)
+            t = t + dt
+        
+        return u
+
+    def time_step(self, u, t, dt):
+        
+        if self.discretization_type == "rk44":
+        
+            r_u = self.R(u)
+
+            u_hat_nphalf = [[u[k][e] + 0.5 * dt * r_u[k][e] 
+                            for e in range(0, len(u[k]))]
+                            for k in range(0, len(u))]
+            
+            r_u_hat_nphalf = self.R(u_hat_nphalf, t + 0.5*dt)
+
+            u_tilde_nphalf = [[u[k][e] + 0.5 * dt * r_u_hat_nphalf[k][e]
+                            for e in range(0, len(u[k]))]
+                            for k in range(0, len(u))]
+                    
+            r_u_tilde_nphalf = self.R(u_tilde_nphalf, t + 0.5*dt)
+
+            u_bar_np1 = [[u[k][e] + dt * r_u_tilde_nphalf[k][e] 
+                          for e in range(0, len(u[k]))]
+                          for k in range(0, len(u))]
+                         
+            r_u_bar_np1 = self.R(u_bar_np1, t + 1.0*dt)
+
+            return [[u[k][e] + 1. / 6. * dt * (r_u[k][e] + 2. * (r_u_hat_nphalf[k][e] + r_u_tilde_nphalf[k][e])
+                                               + r_u_bar_np1[k][e])
+                        for e in range(0, len(u[k]))]
+                        for k in range(0, len(u))]
+            
+        else:
+            raise NotImplementedError
+
+    
+    
             

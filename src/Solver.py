@@ -6,7 +6,6 @@ import Discretization
 import numpy as np
 import modepy as mp
 import matplotlib.pyplot as plt
-
 from scipy import special
 
 
@@ -39,7 +38,7 @@ class Solver:
         else:
             raise NotImplementedError
         
-        # initial condition
+        # initial conditions
         if params["initial_condition"] == "sine":
             if "wavelength" in params:
                 self.u_0 = [Solver.sine_wave(params["wavelength"])]
@@ -78,13 +77,15 @@ class Solver:
             
         # time discretization
         if self.is_unsteady:
-            self.calculate_time_step()
-            
-            if params["time_integrator"] == "rk44":
-                self.time_integrator = Discretization.RK44(self.dt)
-            else:
-                raise NotImplementedError
-            
+             pass
+             # self.time_integrator = Discretization.TimeIntegrator(self.dt)
+      
+        # boundary conditions
+        self.bcs = {} # initially set homogeneous
+        for bc_index in self.discretization.mesh.local_to_bc_index.values():
+            self.bcs[bc_index] = lambda x,t: np.zeros(self.N_eq)
+         
+        
         # save params
         self.params = params
         
@@ -151,11 +152,6 @@ class Solver:
         self.u_hmax = [max([np.amax(self.u_h[k][e]) 
                            for k in range(0,self.discretization.mesh.K)]) 
                       for e in range(0,self.N_eq)] 
-
-        # get geometry info for visualization
-        self.xmin = np.amin(self.discretization.mesh.v, axis=1)
-        self.xmax = np.amax(self.discretization.mesh.v, axis=1)
-        self.extent = self.xmax - self.xmin
 
         # reconstruct nodal values at visualization points
         if self.discretization.basis is None:
@@ -246,8 +242,10 @@ class Solver:
         
             meshplt = plt.figure()
             ax = plt.axes()
-            plt.xlim([self.xmin[0] - 0.025 * self.extent[0], 
-                      self.xmax[0] + 0.025 * self.extent[0]])
+            plt.xlim([self.discretization.mesh.xmin[0] 
+                      - 0.025 * self.discretization.mesh.extent[0], 
+                      self.discretization.mesh.xmax[0] 
+                      + 0.025 * self.discretization.mesh.extent[0]])
             plt.xlabel("$x$")
         
             # loop through all elemeents
@@ -317,35 +315,42 @@ class Solver:
                 
                 numerical = plt.figure(1)
                 ax = plt.axes()
-                ax.set_xlim([self.xmin[0] - 0.025 * self.extent[0],
-                              self.xmax[0] + 0.025 * self.extent[0]])
+                ax.set_xlim([self.discretization.mesh.xmin[0] 
+                             - 0.025 * self.discretization.mesh.extent[0],
+                              self.discretization.mesh.xmax[0] 
+                              + 0.025 * self.discretization.mesh.extent[0]])
                 
-                ax.set_ylim([self.xmin[1] - 0.025 * self.extent[1],
-                              self.xmax[1] + 0.025 * self.extent[1]]) 
+                ax.set_ylim([self.discretization.mesh.xmin[1] 
+                             - 0.025 * self.discretization.mesh.extent[1],
+                              self.discretization.mesh.xmax[1] 
+                              + 0.025 * self.discretization.mesh.extent[1]]) 
                 ax.set_aspect('equal')
                 plt.xlabel("$x_1$")
                 plt.ylabel("$x_2$")
-                #plt.axis('off')
                 
             if plot_exact: 
                 
                 exact = plt.figure(2)
                 ax2 = plt.axes()
-                ax2.set_xlim([self.xmin[0] - 0.025 * self.extent[0],
-                              self.xmax[0] + 0.025 * self.extent[0]])
+                ax2.set_xlim([self.discretization.mesh.xmin[0] 
+                              - 0.025 * self.discretization.mesh.extent[0],
+                              self.discretization.mesh.xmax[0] 
+                              + 0.025 * self.discretization.mesh.extent[0]])
                 
-                ax2.set_ylim([self.xmin[1] - 0.025 * self.extent[1],
-                              self.xmax[1] + 0.025 * self.extent[1]])
+                ax2.set_ylim([self.discretization.mesh.xmin[1] 
+                              - 0.025 * self.discretization.mesh.extent[1],
+                              self.discretization.mesh.xmax[1] 
+                              + 0.025 * self.discretization.mesh.extent[1]])
                 ax2.set_aspect('equal')
                 plt.xlabel("$x_1$")
                 plt.ylabel("$x_2$")
-                #plt.axis('off')
             
             # only works for triangles, otherwise need to do this 
             # for each discretization type and put in loop over k
             ref_edge_points = Discretization.SpatialDiscretization.map_unit_to_facets(
                 np.linspace(-1.0,1.0,geometry_resolution))
-            V_edge_geo = [mp.vandermonde(self.discretization.mesh.basis_geo, ref_edge_points[gamma])
+            V_edge_geo = [mp.vandermonde(
+                self.discretization.mesh.basis_geo, ref_edge_points[gamma])
                           for gamma in range(0,3)]
 
             # loop through all elements
@@ -370,7 +375,8 @@ class Solver:
                 for gamma in range(0, self.discretization.mesh.Nf[k]):
                     
                     # plot facet edge curves
-                    edge_points = (V_edge_geo[gamma] @ self.discretization.mesh.xhat_geo[k]).T
+                    edge_points = (V_edge_geo[gamma] 
+                                   @ self.discretization.mesh.xhat_geo[k]).T
                     
                     if plot_numerical:
                         ax.plot(edge_points[0,:], 
@@ -396,8 +402,9 @@ class Solver:
                         if plot_nodes:
                            
                             # plot facet nodes
-                            ax2.plot(self.discretization.x_gamma[k][gamma][0,:], 
-                                    self.discretization.x_gamma[k][gamma][1,:],
+                            ax2.plot(
+                                self.discretization.x_gamma[k][gamma][0,:],
+                                self.discretization.x_gamma[k][gamma][1,:],
                                     "s", 
                                     markersize=0.5*markersize, 
                                     color="black")
@@ -412,7 +419,9 @@ class Solver:
                 if self.N_eq == 1:
                     cbar.ax.set_ylabel("$\mathcal{U}^h(\mathbf{x},t)$")  
                 else:
-                    cbar.ax.set_ylabel("$\mathcal{U}_{" + str(equation_index) +"}^h(\mathbf{x},t)$")
+                    cbar.ax.set_ylabel("$\mathcal{U}_{" 
+                                       + str(equation_index) 
+                                       +"}^h(\mathbf{x},t)$")
                 cbar.set_ticks(np.linspace(u_range[0],u_range[1],10))
                 numerical.savefig(
                     "../plots/" + self.params["project_title"]
@@ -428,7 +437,9 @@ class Solver:
                 if self.N_eq == 1:
                     cbar_ex.ax.set_ylabel("$\mathcal{U}(\mathbf{x},t)$")
                 else:
-                    cbar_ex.ax.set_ylabel("$\mathcal{U}_{" + str(equation_index) +"}(\mathbf{x},t)$")
+                    cbar_ex.ax.set_ylabel("$\mathcal{U}_{" 
+                                          + str(equation_index) 
+                                          +"}(\mathbf{x},t)$")
                 cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],10))
                 exact.savefig(
                     "../plots/" + self.params["project_title"]

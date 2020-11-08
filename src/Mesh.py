@@ -21,7 +21,7 @@ class Mesh(ABC):
         self.v_affine = np.copy(self.v)
         self.compute_affine_mapping()
         self.map_mesh()
-        
+    
     @abstractmethod 
     def compute_affine_mapping(self):
         pass
@@ -35,18 +35,20 @@ class Mesh(ABC):
         # geometry degree
         self.p_geo = p_geo
         
-        self.X = []
-        self.J = []
-        self.detJ = []
-        
-        # for simplex mesh only
-        self.basis_geo = mp.simplex_onb(self.d,self.p_geo) # modal basis for geometry
+        # for simplex mesh only (represent geometry in modal basis)
+        self.basis_geo = mp.simplex_onb(self.d,self.p_geo) 
+    
         if self.d == 1:
+            
             self.xi_geo =np.array([mp.LegendreGaussQuadrature(self.p_geo).nodes])
             self.Vinv_geo =np.linalg.inv(mp.vandermonde(self.basis_geo, self.xi_geo[0]))
+            self.grad_basis_geo = [mp.grad_simplex_onb(self.d, self.p_geo)]
+            
         else:
+            
             self.xi_geo = mp.warp_and_blend_nodes(self.d, self.p_geo)
             self.Vinv_geo =np.linalg.inv(mp.vandermonde(self.basis_geo, self.xi_geo))
+            self.grad_basis_geo = mp.grad_simplex_onb(self.d, self.p_geo)
         
         self.Np_geo = self.xi_geo.shape[1]
         self.x_geo = []
@@ -68,6 +70,11 @@ class Mesh(ABC):
                         self.v_affine[:,self.element_to_vertex[k][i]])
                     isMoved[self.element_to_vertex[k][i]] = 1
                     
+        # get geometry info for mapped grid
+        self.xmin = np.amin(self.v, axis=1)
+        self.xmax = np.amax(self.v, axis=1)
+        self.extent = self.xmax - self.xmin
+        
     def add_bc_at_facet(self, local_index, bc_index):
         
         self.local_to_bc_index[local_index] = bc_index
@@ -278,10 +285,7 @@ class Mesh2D(Mesh):
                            
     def compute_affine_mapping(self):
         
-        
         self.X_affine = []
-        
-      
         
         for k in range(0,self.K):
             
