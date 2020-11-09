@@ -4,15 +4,21 @@ import numpy as np
 from scipy import special
 from math import floor, ceil
 import modepy as mp
-
+import matplotlib.pyplot as plt
 
 class SpatialDiscretization:
     
     def __init__(self, mesh, element_to_discretization, p,
-                 xi_omega, xi_gamma, W, W_gamma, n_hat, form = "weak"):
+                 xi_omega, xi_gamma, W, W_gamma,
+                 n_hat, form = "weak", name=None):
         
         # mesh
         self.mesh = mesh
+        
+        if name is None:
+            self.name = self.mesh.name
+        else:
+            self.name=name
         
         # spatial dimension
         self.d = mesh.d  
@@ -74,6 +80,10 @@ class SpatialDiscretization:
         
         # init residual function
         self.residual = None
+        
+        # assign a colour to each element
+        self.color = iter(plt.cm.rainbow(
+            np.linspace(0, 1, self.mesh.K)))
         
     @staticmethod
     def map_unit_to_facets(xi_ref, element_type="triangle"):
@@ -143,9 +153,9 @@ class SpatialDiscretization:
             self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i]) 
                       for i in range(0,self.Nd)]
         
-        self.V_gamma = [[mp.vandermonde(self.basis[i],self.xi_gamma[i][gamma]) 
-                        for gamma in range(0,self.Nf[i])]
-                        for i in range(0,self.Nd)]
+            self.V_gamma = [[mp.vandermonde(self.basis[i],self.xi_gamma[i][gamma]) 
+                            for gamma in range(0,self.Nf[i])]
+                            for i in range(0,self.Nd)]
         
         
     def build_local_mass(self):
@@ -318,6 +328,105 @@ class SpatialDiscretization:
     def build_global_residual(self):
         raise NotImplementedError
         
+
+    def plot(self, plot_nodes=True, markersize=4, geometry_resolution=10):
+        
+        if self.d == 1:
+        
+            mesh_plot = plt.figure()
+            ax = plt.axes()
+            ax.axes.yaxis.set_visible(False)
+            plt.xlim([self.mesh.xmin[0] 
+                      - 0.025 * self.mesh.extent[0], 
+                      self.mesh.xmax[0] 
+                      + 0.025 * self.mesh.extent[0]])
+            plt.xlabel("$x$")
+            
+            for k in range(0, self.mesh.K):
+                current_color = next(self.color)
+                
+                #plot node positions
+                if plot_nodes:
+                    ax.plot(self.x_omega[k][0,:], 
+                      np.zeros(self.N_omega[
+                          self.element_to_discretization[k]]), "o",
+                      markersize=markersize,
+                      color = current_color)
+                    
+                ax.plot(np.array(
+                    [self.mesh.v[0,self.mesh.element_to_vertex[k][0]],
+                     self.mesh.v[0,self.mesh.element_to_vertex[k][1]]]),
+                        np.zeros(2), "-s", markersize=markersize,
+                        color = current_color,
+                        markerfacecolor="black")          
+                   
+            plt.show()
+            
+            mesh_plot.savefig("../plots/" + self.name + 
+                            "_discretization.pdf")
+        elif self.d == 2:
+            
+            mesh_plot = plt.figure()
+            ax = plt.axes()
+            ax.set_xlim([self.mesh.xmin[0] 
+                         - 0.025 * self.mesh.extent[0],
+                          self.mesh.xmax[0] 
+                          + 0.025 * self.mesh.extent[0]])
+            
+            ax.set_ylim([self.mesh.xmin[1] 
+                         - 0.025 * self.mesh.extent[1],
+                          self.mesh.xmax[1] 
+                          + 0.025 * self.mesh.extent[1]]) 
+            ax.set_aspect('equal')
+            plt.xlabel("$x_1$")
+            plt.ylabel("$x_2$")
+                
+            # only works for triangles, otherwise need to do this 
+            # for each discretization type and put in loop over k
+            ref_edge_points = SpatialDiscretization.map_unit_to_facets(
+                np.linspace(-1.0,1.0,geometry_resolution))
+            V_edge_geo = [mp.vandermonde(
+                self.mesh.basis_geo, ref_edge_points[gamma])
+                          for gamma in range(0,3)]
+
+            # loop through all elements
+            for k in range(0, self.mesh.K):
+                current_color = next(self.color)
+                
+                if plot_nodes:
+                    
+                    ax.plot(self.x_omega[k][0,:], 
+                            self.x_omega[k][1,:], "o",
+                          markersize=markersize,
+                          color = current_color)
+                        
+                for gamma in range(0, self.mesh.Nf[k]):
+                    
+                    # plot facet edge curves
+                    edge_points = (V_edge_geo[gamma] 
+                                   @ self.mesh.xhat_geo[k]).T
+                    
+                    ax.plot(edge_points[0,:], 
+                                edge_points[1,:], 
+                                '-', 
+                                color="black")
+                        
+                    if plot_nodes:
+                       
+                        # plot facet nodes
+                        ax.plot(self.x_gamma[k][gamma][0,:], 
+                                self.x_gamma[k][gamma][1,:],
+                                "s", 
+                                markersize=0.75*markersize, 
+                                color="black")
+                   
+            mesh_plot.savefig("../plots/" + self.name + 
+                            "_discretization.pdf")
+            
+            plt.show()
+        else: 
+            raise NotImplementedError
+        
         
 class SimplexQuadratureDiscretization(SpatialDiscretization):
     
@@ -373,7 +482,7 @@ class TimeIntegrator:
     def __init__(self, residual, dt, discretization_type="rk44"):
         
         self.dt_target = dt
-        self.discretization_type = discretization_type
+        self.type = discretization_type
         self.R = residual
     
     @staticmethod
@@ -401,7 +510,7 @@ class TimeIntegrator:
 
     def time_step(self, u, t, dt):
         
-        if self.discretization_type == "rk44":
+        if self_type == "rk44":
         
             r_u = self.R(u)
 

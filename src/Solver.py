@@ -221,13 +221,6 @@ class Solver:
             [self.u_hv[k][e] for k in range(0,self.discretization.mesh.K)]) 
             for e in range(0, self.N_eq)]
         
-        # get colours for each element
-        self.color = iter(plt.cm.rainbow(
-            np.linspace(0, 1, self.discretization.mesh.K)))
-        
-        self.color_exact = iter(plt.cm.rainbow(
-            np.linspace(0, 1, self.discretization.mesh.K)))
-    
     
     def plot(self, 
              equation_index=0,
@@ -245,7 +238,7 @@ class Solver:
         
         if self.d == 1:
         
-            meshplt = plt.figure()
+            solution_plot = plt.figure()
             ax = plt.axes()
             plt.xlim([self.discretization.mesh.xmin[0] 
                       - 0.025 * self.discretization.mesh.extent[0], 
@@ -255,7 +248,7 @@ class Solver:
         
             # loop through all elemeents
             for k in range(0, self.discretization.mesh.K):
-                current_color = next(self.color)
+                current_color = next(self.discretization.color)
                 
                 # plot exact solution on visualization nodes
                 if plot_exact:
@@ -286,10 +279,11 @@ class Solver:
                                 self.u_h_gamma[k][1][equation_index][0],
                                     "s", 
                                     markersize=markersize, 
-                                    color="black")
-                  
+                                    color="black")                     
+                    
             # make legend labels
             if plot_numerical:
+                
                 if self.N_eq == 1:
                     numerical.set_label("$\mathcal{U}^h(x,t)$")
                 else:
@@ -297,6 +291,7 @@ class Solver:
                                                 + str(equation_index) 
                                                 +"^h(x,t)$")
             if plot_exact:
+                
                 if self.N_eq == 1:
                     exact.set_label("$\mathcal{U}(x,t)$")
                 else:
@@ -306,7 +301,7 @@ class Solver:
             ax.legend()
             plt.show()
             
-            meshplt.savefig("../plots/" + self.params["project_title"] + 
+            solution_plot.savefig("../plots/" + self.params["project_title"] + 
                             "_exact.pdf")
             
         elif self.d == 2:
@@ -360,6 +355,7 @@ class Solver:
 
             # loop through all elements
             for k in range(0, self.discretization.mesh.K):
+                current_color = next(self.discretization.color)
                 
                 if plot_nodes and plot_numerical:
                     
@@ -367,7 +363,7 @@ class Solver:
                             self.discretization.x_omega[k][1,:], "o",
                           markersize=markersize,
                           markeredgecolor='black',
-                          color = next(self.color))
+                          color = current_color)
                         
                 if plot_nodes and plot_exact:
                     
@@ -375,7 +371,7 @@ class Solver:
                              self.discretization.x_omega[k][1,:], "o",
                              markersize=markersize,
                              markeredgecolor='black',
-                             color = next(self.color_exact))
+                             color = current_color)
                     
                 for gamma in range(0, self.discretization.mesh.Nf[k]):
                     
@@ -397,7 +393,7 @@ class Solver:
                             ax.plot(self.discretization.x_gamma[k][gamma][0,:], 
                                     self.discretization.x_gamma[k][gamma][1,:],
                                     "s", 
-                                    markersize=0.5*markersize, 
+                                    markersize=0.75*markersize, 
                                     color="black")
                             
                     if plot_exact:
@@ -415,7 +411,7 @@ class Solver:
                                 self.discretization.x_gamma[k][gamma][0,:],
                                 self.discretization.x_gamma[k][gamma][1,:],
                                     "s", 
-                                    markersize=0.5*markersize, 
+                                    markersize=0.75*markersize, 
                                     color="black")
                         
             if plot_numerical:
