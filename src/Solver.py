@@ -11,10 +11,7 @@ import matplotlib.pyplot as plt
 class Solver:
     
     def __init__(self, params, mesh):
-        
-        # set spatial dimension since this is used everywhere
-        self.d = mesh.d
-        
+                  
         # physical problem
         if params["problem"] == "constant_advection":
             
@@ -24,6 +21,7 @@ class Solver:
                 params["upwind_parameter"])
             
             self.is_unsteady = True
+            self.wave_speed = params["wave_speed"]
             self.N_eq = 1
             
         elif params["problem"] == "projection":
@@ -32,25 +30,35 @@ class Solver:
         
         elif params["problem"] == "compressible_euler":
             self.is_unsteady = True
-            self.N_eq = self.d + 2
+            self.N_eq = self.discretization.mesh.d+ 2
         
         else:
             raise NotImplementedError
-        
+            
         # initial conditions
         if params["initial_condition"] == "sine":
+            
             if "wavelength" in params:
-                self.u_0 = [Solver.sine_wave(params["wavelength"])]
+                self.u_0 = [Solver.sine_wave(params["wavelength"]) 
+                            for e in range(0,self.N_eq)]
             else:
-                self.u_0 = [Solver.sine_wave(np.ones(self.d))]
-            
+                self.u_0 = [Solver.sine_wave(np.ones(self.d)) 
+                            for e in range(0,self.N_eq)]
+                
+        elif params["initial_condition"] == "constant":
+            self.u_0 = [lambda x: np.ones(x.shape[1]) for e in range(0,self.N_eq)]
         else:
-            raise NotImplementedError
-            
-        # exact solution
-        if params["problem"] == "projection":
-            self.u = self.u_0
-        
+            raise NotImplementedError    
+      
+        # boundary conditions
+        self.bcs = {} # initially set homogeneous
+        for bc_index in mesh.local_to_bc_index.values():
+            self.bcs[bc_index] = [lambda x,t: 0.0 for e in range(0,self.N_eq)]
+ 
+       
+        # exact solution (assume equal to initial for now)
+        self.u = self.u_0
+ 
         # spatial discretization
         if params["integration_type"] == "quadrature":
             
@@ -73,17 +81,27 @@ class Solver:
             
         else:
             raise NotImplementedError
+             
             
-        # time discretization
+        # temporal discretization
         if self.is_unsteady:
-             pass
-             # self.time_integrator = Discretization.TimeIntegrator(self.dt)
-      
-        # boundary conditions
-        self.bcs = {} # initially set homogeneous
-        for bc_index in self.discretization.mesh.local_to_bc_index.values():
-            self.bcs[bc_index] = lambda x,t: np.zeros(self.N_eq)
-         
+            self.R = self.discretization.build_global_residual(
+                self.f, self.f_star, self.bcs, self.N_eq)
+            if "time_integrator" in params:
+                self.time_marching_method = params["time_integrator"]
+            else:
+                self.time_marching_method = "rk44"
+                
+            if "time_step_scale" in params:
+                self.beta = params["time_step_scale"]
+            else:
+                self.beta = 0.1
+                
+            self.time_integrator = Discretization.TimeIntegrator(
+                self.R, Discretization.TimeIntegrator.calculate_time_step(
+                    self.discretization, self.wave_speed, self.beta),
+                self.time_marching_method)
+            self.T = params["final_time"]
         
         # save params
         self.params = params
@@ -105,10 +123,10 @@ class Solver:
     def project_function(self,g):
         # takes list of functions as input
         
-        return [[self.discretization.P[
+        return [np.array([self.discretization.P[
             self.discretization.element_to_discretization[k]] @
                 g[e](self.discretization.x_omega[k]) 
-                for e in range(0,self.N_eq)]
+                for e in range(0,self.N_eq)])
                 for k in range(0,self.discretization.mesh.K)]
             
             
@@ -124,7 +142,14 @@ class Solver:
         # run problem
         if self.params["problem"] == "projection":
             self.u_hat = self.project_function(self.u_0)
-        
+            
+        elif self.params["problem"] == "constant_advection":
+            
+            # evaluate initial condition by projection
+            self.u_hat = self.project_function(self.u_0)
+            self.u_hat = self.time_integrator.run(self.u_hat, self.T)
+            
+            
         else:
             raise NotImplementedError
         
@@ -163,9 +188,9 @@ class Solver:
             self.u_hvmin = self.u_hmin
             self.u_hmax = self.u_hmax
         else:
-            if self.d == 1:
+            if self.discretization.mesh.d== 1:
                 ref_volume_points =  np.array(mp.equidistant_nodes(
-                    self.d, solution_resolution))
+                    self.discretization.mesh.d, solution_resolution))
                 V_geo_to_plot = mp.vandermonde(self.discretization.mesh.basis_geo,
                                         ref_volume_points[0])
             else:
@@ -210,7 +235,6 @@ class Solver:
                            for k in range(0,self.discretization.mesh.K)]) 
                       for e in range(0,self.N_eq)] 
         
-      
         # global visualization (concatenated)
         self.x_v_global = np.concatenate(
             [self.x_v[k] for k in range(0,self.discretization.mesh.K)], axis=1)
@@ -232,11 +256,14 @@ class Solver:
              geometry_resolution=10,
              u_range = [-1.0,1.0]):
         
+        self.color = iter(plt.cm.rainbow(
+            np.linspace(0, 1, self.discretization.mesh.K)))
+        
         # asking for exact solution that doesn't exist
         if plot_exact and self.u is None:
             return ValueError
         
-        if self.d == 1:
+        if self.discretization.mesh.d== 1:
         
             solution_plot = plt.figure()
             ax = plt.axes()
@@ -248,7 +275,7 @@ class Solver:
         
             # loop through all elemeents
             for k in range(0, self.discretization.mesh.K):
-                current_color = next(self.discretization.color)
+                current_color = next(self.color)
                 
                 # plot exact solution on visualization nodes
                 if plot_exact:
@@ -304,7 +331,7 @@ class Solver:
             solution_plot.savefig("../plots/" + self.params["project_title"] + 
                             "_exact.pdf")
             
-        elif self.d == 2:
+        elif self.discretization.mesh.d== 2:
             
             # place contours
             contours = np.linspace(u_range[0], 
@@ -355,7 +382,7 @@ class Solver:
 
             # loop through all elements
             for k in range(0, self.discretization.mesh.K):
-                current_color = next(self.discretization.color)
+                current_color = next(self.color)
                 
                 if plot_nodes and plot_numerical:
                     
@@ -393,7 +420,7 @@ class Solver:
                             ax.plot(self.discretization.x_gamma[k][gamma][0,:], 
                                     self.discretization.x_gamma[k][gamma][1,:],
                                     "s", 
-                                    markersize=0.75*markersize, 
+                                    markersize=markersize, 
                                     color="black")
                             
                     if plot_exact:
@@ -411,7 +438,7 @@ class Solver:
                                 self.discretization.x_gamma[k][gamma][0,:],
                                 self.discretization.x_gamma[k][gamma][1,:],
                                     "s", 
-                                    markersize=0.75*markersize, 
+                                    markersize=markersize, 
                                     color="black")
                         
             if plot_numerical:

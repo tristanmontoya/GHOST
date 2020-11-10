@@ -35,7 +35,9 @@ class ConstantAdvectionPhysicalFlux(PhysicalFlux):
  
 class NumericalFlux(ABC):
     def __init__(self, d, N_e):
-        raise NotImplementedError
+        self.d = d
+        self.N_e = N_e
+        pass
     
     @abstractmethod
     def __call__(self, u_m, u_p, x, n):
