@@ -238,7 +238,7 @@ class SpatialDiscretization:
             
             # Unscaled normal vectors
             n_gamma_unscl = [np.array([
-                self.J_gamma[i][gamma][j]*self.x_prime_inv_gamma[k][gamma][j,:,:].T @ 
+                self.J_gamma[k][gamma][j]*self.x_prime_inv_gamma[k][gamma][j,:,:].T @ 
                 self.n_hat[i][gamma]
                 for j in range(0,self.N_gamma[i][gamma])])
                 for gamma in range(0,self.mesh.Nf[k])]
@@ -324,7 +324,8 @@ class SpatialDiscretization:
     def build_global_residual(self, f, f_star, bc, N_eq):
         
         
-        def global_residual(self, f, f_star, bc, N_eq, u_hat, t, print_output=False):
+        def global_residual(self, f, f_star, bc, N_eq, u_hat, t,
+                            print_output=False):
             
             f_trans_omega = []
             f_trans_gamma = []
@@ -336,6 +337,10 @@ class SpatialDiscretization:
                 f_trans_omega.append([sum(
                     [self.J_omega[k]*self.x_prime_inv_omega[k][:,m,n] * f_omega[n] 
                      for n in range(0,self.d)]) for m in range(0, self.d)])
+                if print_output:
+                    print("k: ", k)
+                    print("f_omega: ", f_omega)
+                    print("f_trans_omega: ", f_trans_omega[k])
                 
                 f_trans_gamma.append([])
                 for gamma in range(0, self.mesh.Nf[k]):  
@@ -354,9 +359,11 @@ class SpatialDiscretization:
                     
                     if self.form == "weak":
                         
-                        f_trans_gamma[k].append(self.Jf_gamma[k][gamma] * f_star(
+                        f_trans_gamma[k].append(
+                            self.Jf_gamma[k][gamma] * f_star(
                             (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
                             self.x_gamma[k][gamma], self.n_gamma[k][gamma]))
+                        
                         
                     elif self.form == "strong":
                
@@ -366,7 +373,24 @@ class SpatialDiscretization:
                             - (self.V_gamma[i][gamma] @ self.P[i] 
                                @ sum([f_trans_omega[k][m].T*self.n_hat[i][gamma][m] 
                                       for m in range(0,self.d)])).T)
-                        
+                    
+                    if print_output:
+                        print("f_extrap: ", (self.V_gamma[i][gamma] @ self.P[i]  @ sum([f_trans_omega[k][m].T*self.n_hat[i][gamma][m] 
+                                          for m in range(0,self.d)])).T)
+                        print("f_star: ", f_star((self.V_gamma[i][gamma] @ u_hat[k].T).T,
+                                                u_plus,self.x_gamma[k][gamma], 
+                                                self.n_gamma[k][gamma]))
+                
+                vol_res = sum([self.vol[k][m] @ f_trans_omega[k][m][0,:]  
+                               for m in range(0,self.d)])
+                
+                fac_res = [self.fac[k][gamma] @ f_trans_gamma[k][gamma][0,:]
+                           for gamma in range(0, self.mesh.Nf[k])]
+                
+                if print_output:
+                    print("vol_res: ", vol_res)
+                    print("fac_res:", fac_res)
+                    print("res: ", vol_res+sum(fac_res))
                     
             return [np.array([sum([self.vol[k][m] @ f_trans_omega[k][m][e,:] 
                                       for m in range(0,self.d)])
@@ -397,9 +421,14 @@ class SpatialDiscretization:
                         if print_output:
                             print("Watertightness violated at (k,gamma) = ",
                                   (k,gamma))
+                            print("T(n_k_gamma)", 
+                                  self.facet_permutation[k][gamma] 
+                                      @ self.n_gamma[k][gamma], "n_nu,rho: ", 
+                                      self.n_gamma[nu][rho])
             
             
-    def plot(self, plot_nodes=True, markersize=4, geometry_resolution=10):
+    def plot(self, plot_nodes=True, plot_geometry_nodes=False, 
+             markersize=4, geometry_resolution=10):
         
         if self.d == 1:
         
@@ -428,7 +457,13 @@ class SpatialDiscretization:
                      self.mesh.v[0,self.mesh.element_to_vertex[k][1]]]),
                         np.zeros(2), "-s", markersize=markersize,
                         color = current_color,
-                        markerfacecolor="black")          
+                        markerfacecolor="black")     
+                
+                if plot_geometry_nodes:
+                    [ax.plot(self.mesh.x_geo[k][0,:], 
+                      np.zeros(self.mesh.p_geo+1), "ok",
+                      markersize=markersize,
+                      markerfacecolor=None)]
                    
             plt.show()
             
@@ -528,7 +563,8 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             facet_nodes = SpatialDiscretization.map_unit_to_facets(
                 facet_quadrature.nodes,
                 element_type="triangle") 
-            W_gamma = [np.diag(facet_quadrature.weights), np.sqrt(2.0)*np.diag(facet_quadrature.weights),
+            W_gamma = [np.diag(facet_quadrature.weights),
+                       np.sqrt(2.0)*np.diag(facet_quadrature.weights),
                        np.diag(facet_quadrature.weights)]
             n_hat = [np.array([0.0,-1.0]), 
                      np.array([1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]),
@@ -557,6 +593,7 @@ class TimeIntegrator:
         self.type = discretization_type
         self.R = residual
     
+    
     @staticmethod
     def calculate_time_step(spatial_discretization, wave_speed, beta):
         
@@ -566,16 +603,20 @@ class TimeIntegrator:
                     1.0/spatial_discretization.d))
         return beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed
         
+    
     def run(self, u_0, T):
         N_t = ceil(T/self.dt_target) 
         dt = T/N_t
         u = np.copy(u_0)
         t = 0
         print("dt = ", dt)
+        
         for n in range(0,N_t):
             
             u = np.copy(self.time_step(u,t,dt))
             t = t + dt
+            #if n % 10 == 0:
+                #print("n: ", n, " t: ", t)
         
         return u
     
@@ -604,15 +645,16 @@ class TimeIntegrator:
                          
             r_u_bar_np1 = self.R(u_bar_np1, t + 1.0*dt)
 
-            return [np.array([u[k][e,:] + (1. / 6.) * dt * (r_u[k][e,:] + 2. * (r_u_hat_nphalf[k][e,:] + r_u_tilde_nphalf[k][e,:])
-                                               + r_u_bar_np1[k][e,:])
+            return [np.array([u[k][e,:] + (1. / 6.) * dt * (
+                r_u[k][e,:] + 2. * (r_u_hat_nphalf[k][e,:] + r_u_tilde_nphalf[k][e,:])
+                + r_u_bar_np1[k][e,:])
                         for e in range(0, u[k].shape[0])])
                         for k in range(0, len(u))]
             
         elif self.type == "explicit_euler":
+            
             r = self.R(u,t)
             return [np.array([u[k][e,:] + dt *r[k][e,:] for e in range(u[k].shape[0])]) for k in range(0, len(u))]
-        
         
         else:
             raise NotImplementedError

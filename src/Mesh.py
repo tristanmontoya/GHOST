@@ -41,8 +41,11 @@ class Mesh(ABC):
     
         if self.d == 1:
             
-            self.xi_geo =np.array([mp.LegendreGaussQuadrature(self.p_geo).nodes])
-            self.Vinv_geo =np.linalg.inv(mp.vandermonde(self.basis_geo, self.xi_geo[0]))
+            self.xi_geo =np.array(
+                [mp.quadrature.jacobi_gauss.legendre_gauss_lobatto_nodes(
+                    self.p_geo)])
+            self.Vinv_geo =np.linalg.inv(mp.vandermonde(
+                self.basis_geo, self.xi_geo[0]))
             
         else:
             
@@ -52,7 +55,12 @@ class Mesh(ABC):
         self.Np_geo = self.xi_geo.shape[1]
         self.x_geo = []
         self.xhat_geo = []
-        isMoved = np.zeros(self.Nv_global,dtype=int)
+       
+        # mover vertices
+        for v in range(0,self.Nv_global):
+            self.v[:,v] = f_map(self.v_affine[:,v])
+                    
+        # generate displacement field
         for k in range(0,self.K):
             
             # perturbed nodes
@@ -61,14 +69,7 @@ class Mesh(ABC):
             
             # modal coefficients in basis_geo for displacement field
             self.xhat_geo.append(self.Vinv_geo @ self.x_geo[k].T)
-        
-            # move each vertex (only once)
-            for i in range(0,self.Nv_local[k]):
-                if isMoved[self.element_to_vertex[k][i]] == 0:
-                    self.v[:,self.element_to_vertex[k][i]]= f_map(
-                        self.v_affine[:,self.element_to_vertex[k][i]])
-                    isMoved[self.element_to_vertex[k][i]] = 1
-                    
+            
         # get geometry info for mapped grid
         self.xmin = np.amin(self.v, axis=1)
         self.xmax = np.amax(self.v, axis=1)
@@ -223,10 +224,10 @@ class Mesh1D(Mesh):
     def compute_affine_mapping(self):
         
         # map from (-1, 1) to physical element
-        self.X_affine = [(lambda xi, k=k: self.v[0,
+        self.X_affine = [(lambda xi, k=k: self.v_affine[0,
             self.local_to_vertex[k][0][0]] + 0.5*(
-                self.v[0,self.local_to_vertex[k][1][0]] 
-                - self.v[0,self.local_to_vertex[k][0][0]])*(xi+1))
+                self.v_affine[0,self.local_to_vertex[k][1][0]] 
+                - self.v_affine[0,self.local_to_vertex[k][0][0]])*(xi+1))
                          for k in range(0,self.K)]
                 
     @staticmethod

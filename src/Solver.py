@@ -48,7 +48,8 @@ class Solver:
                             for e in range(0,self.N_eq)]
                 
         elif params["initial_condition"] == "constant":
-            self.u_0 = [lambda x: np.ones(x.shape[1]) for e in range(0,self.N_eq)]
+            self.u_0 = [lambda x: np.ones(x.shape[1]) for e in range(
+                0,self.N_eq)]
         else:
             raise NotImplementedError    
       
@@ -292,7 +293,7 @@ class Solver:
                     numerical, = ax.plot(self.x_v[k][0,:], 
                            self.u_hv[k][equation_index],
                             "-", color = current_color) 
-                    
+                    #print("x_omega: ",self.discretization.x_omega[k][0,:])
                     #plot node positions
                     if plot_nodes:
                         ax.plot(self.discretization.x_omega[k][0,:], 
