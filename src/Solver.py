@@ -11,17 +11,19 @@ import matplotlib.pyplot as plt
 class Solver:
     
     def __init__(self, params, mesh):
-                  
+        
         # physical problem
+        self.d = mesh.d
         if params["problem"] == "constant_advection":
             
             self.f = Problem.ConstantAdvectionPhysicalFlux(params["wave_speed"])
             self.f_star = Problem.ConstantAdvectionNumericalFlux(
                 params["wave_speed"], 
                 params["upwind_parameter"])
-            
             self.is_unsteady = True
-            self.wave_speed = params["wave_speed"]
+            self.wave_speed = params["wave_speed"] 
+            self.cfl_speed = np.linalg.norm(self.wave_speed)
+            
             self.N_eq = 1
             
         elif params["problem"] == "projection":
@@ -30,7 +32,7 @@ class Solver:
         
         elif params["problem"] == "compressible_euler":
             self.is_unsteady = True
-            self.N_eq = self.discretization.mesh.d+ 2
+            self.N_eq = self.d + 2
         
         else:
             raise NotImplementedError
@@ -62,6 +64,8 @@ class Solver:
         # spatial discretization
         if params["integration_type"] == "quadrature":
             
+            if "form" not in params:
+                params["form"] = "weak"
             if "volume_quadrature_degree" not in params:
                 params["volume_quadrature_degree"] = None
             if "facet_quadrature_degree" not in params:
@@ -71,7 +75,8 @@ class Solver:
                 mesh,
                 params["solution_degree"], 
                 params["volume_quadrature_degree"], 
-                params["facet_quadrature_degree"])
+                params["facet_quadrature_degree"],
+                form=params["form"])
                 
             if "facet_integration_rule" in params:
                 raise NotImplementedError
@@ -82,7 +87,6 @@ class Solver:
         else:
             raise NotImplementedError
              
-            
         # temporal discretization
         if self.is_unsteady:
             self.R = self.discretization.build_global_residual(
@@ -99,7 +103,7 @@ class Solver:
                 
             self.time_integrator = Discretization.TimeIntegrator(
                 self.R, Discretization.TimeIntegrator.calculate_time_step(
-                    self.discretization, self.wave_speed, self.beta),
+                    self.discretization, self.cfl_speed, self.beta),
                 self.time_marching_method)
             self.T = params["final_time"]
         
@@ -188,9 +192,9 @@ class Solver:
             self.u_hvmin = self.u_hmin
             self.u_hmax = self.u_hmax
         else:
-            if self.discretization.mesh.d== 1:
+            if self.d== 1:
                 ref_volume_points =  np.array(mp.equidistant_nodes(
-                    self.discretization.mesh.d, solution_resolution))
+                    self.d, solution_resolution))
                 V_geo_to_plot = mp.vandermonde(self.discretization.mesh.basis_geo,
                                         ref_volume_points[0])
             else:
@@ -263,7 +267,7 @@ class Solver:
         if plot_exact and self.u is None:
             return ValueError
         
-        if self.discretization.mesh.d== 1:
+        if self.d== 1:
         
             solution_plot = plt.figure()
             ax = plt.axes()
@@ -331,7 +335,7 @@ class Solver:
             solution_plot.savefig("../plots/" + self.params["project_title"] + 
                             "_exact.pdf")
             
-        elif self.discretization.mesh.d== 2:
+        elif self.d== 2:
             
             # place contours
             contours = np.linspace(u_range[0], 

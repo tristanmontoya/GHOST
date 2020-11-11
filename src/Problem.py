@@ -52,5 +52,5 @@ class ConstantAdvectionNumericalFlux(NumericalFlux):
         self.alpha = alpha
         
     def __call__(self, u_m, u_p, x, n):
-        a_dot_n = np.dot(self.a, n)
+        a_dot_n = n @ self.a
         return 0.5*a_dot_n*(u_m + u_p) - 0.5*self.alpha*np.abs(a_dot_n)*(u_p - u_m)

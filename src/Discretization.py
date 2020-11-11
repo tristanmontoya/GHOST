@@ -326,7 +326,7 @@ class SpatialDiscretization:
         
         if self.form == "weak":
             
-            self.vol = [[self.M_J_inv[k] @ self.Dhat[self.element_to_discretization[k]][m].T
+            self.vol = [[self.M_J_inv[k] @ (self.Dhat[self.element_to_discretization[k]][m]).T
                         @ self.V[self.element_to_discretization[k]].T 
                         @ self.W[self.element_to_discretization[k]]
                         for m in range(0,self.d)]
@@ -339,7 +339,18 @@ class SpatialDiscretization:
             
         elif self.form == "strong":
             
-            raise NotImplementedError
+            self.vol = [[-1.0*np.linalg.inv(self.P[self.element_to_discretization[k]] 
+                                            @ np.diag(self.J_omega[self.element_to_discretization[k]]) 
+                                            @ self.V[self.element_to_discretization[k]]) @ 
+                         self.Dhat[self.element_to_discretization[k]][m] @ self.P[self.element_to_discretization[k]]
+                        for m in range(0,self.d)]
+                        for k in range(0,self.mesh.K)]
+            
+            self.fac = [[-1.0*self.M_J_inv[k] @ self.V_gamma[self.element_to_discretization[k]][gamma].T
+                         @ self.W_gamma[self.element_to_discretization[k]][gamma]
+                         for gamma in range(0, self.mesh.Nf[k])]
+                         for k in range(0,self.mesh.K)]
+            
             
         else:
             
@@ -350,7 +361,8 @@ class SpatialDiscretization:
         
         self.build_local_operators()
         
-        def global_residual(self, f, f_star, bc, N_eq, u_hat, t):
+        def global_residual(self, f, f_star, bc, N_eq, u_hat, t, print_output=False):
+            
             f_trans_omega = []
             f_trans_gamma = []
             for k in range(0,self.mesh.K):
@@ -365,20 +377,50 @@ class SpatialDiscretization:
                 f_trans_gamma.append([])
                 for gamma in range(0, self.mesh.Nf[k]):  
                     
-                    if self.mesh.local_to_local[(k,gamma)] is not None:     
+                    if self.mesh.local_to_local[(k,gamma)] is not None:  
+                        
                         nu, rho = self.mesh.local_to_local[(k,gamma)]
                         u_plus = (self.facet_permutation[k][gamma].T @ self.V_gamma[
                             self.element_to_discretization[nu]][rho] @ u_hat[nu].T).T
+                        
+                        if print_output and k == 0 and gamma == 0:
+                            print("u_-: ", (self.V_gamma[i][gamma] @ u_hat[k].T).T, " u_+: ",
+                                  u_plus)
                     else:
+                        
                         u_plus = [bc[self.mesh.local_to_bc_index[(k,gamma)]][e](
                             self.x_gamma[k][gamma], t) 
                             for e in range(0, N_eq)]
-                
-                    f_trans_gamma[k].append(self.Jf_gamma[k][gamma] * f_star(
-                        (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
-                        self.x_gamma[k][gamma], self.n_gamma[k][gamma]))
                     
-
+                    if self.form == "weak":
+                        f_trans_gamma[k].append(self.Jf_gamma[k][gamma] * f_star(
+                            (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
+                            self.x_gamma[k][gamma], self.n_gamma[k][gamma]))
+                        
+                    elif self.form == "strong":
+               
+                        f_trans_gamma[k].append(self.Jf_gamma[k][gamma] * f_star(
+                            (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
+                            self.x_gamma[k][gamma], self.n_gamma[k][gamma])
+                            - (self.V_gamma[i][gamma] @ self.P[i] 
+                               @ sum([f_trans_omega[k][m].T*self.n_hat[i][gamma][m] for m in range(0,self.d)])).T)
+                        
+                    
+                if print_output and k == 0:
+                    
+                    print("n_hat: ", self.n_hat[i][gamma])
+                    
+                    print("f_trans_gamma[0][0]: ", f_trans_gamma[k][0])
+                    
+                    print("u_hat[0]: ", u_hat[k])
+                    
+                    print("vol[0]: ", sum([self.vol[k][m] @ f_trans_omega[k][m][0,:] 
+                                      for m in range(0,self.d)]))
+                    
+                    print("fac[0]: ", sum([self.fac[k][gamma] @ 
+                               f_trans_gamma[k][gamma][0,:]
+                               for gamma in range(0, self.mesh.Nf[k])]))
+                    
             return [np.array([sum([self.vol[k][m] @ f_trans_omega[k][m][e,:] 
                                       for m in range(0,self.d)])
                      + sum([self.fac[k][gamma] @ 
@@ -520,6 +562,7 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             mu = 2*p + 1
         
         if mesh.d == 1:
+            
             volume_quadrature = mp.LegendreGaussQuadrature(floor((tau-1)/2))
             volume_nodes = np.array([volume_quadrature.nodes])
             W = np.diag(volume_quadrature.weights)
