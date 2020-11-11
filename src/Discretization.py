@@ -66,9 +66,6 @@ class SpatialDiscretization:
     
         self.build_facet_permutation()
         self.build_interpolation()
-        self.build_projection()
-        self.build_lift()
-        self.build_differentiation()
         
         # evaluate grid nodes, normals and metric
         self.x_omega = []
@@ -82,9 +79,11 @@ class SpatialDiscretization:
         self.Jf_gamma = []
         self.n_gamma = [] 
         self.map_nodes()
-        self.build_physical_mass_matrix()
         
-        # init residual function
+        # build volume and facet operators
+        self.build_local_operators()
+        
+        # init residual function (set based on problem)
         self.residual = None
         
         # assign a colour to each element
@@ -145,6 +144,9 @@ class SpatialDiscretization:
         self.basis = [mp.simplex_onb(self.d,self.p[i]) 
                       for i in range(0,self.Nd)]
         
+        self.grad_basis = [mp.grad_simplex_onb(self.d,self.p[i])
+                           for i in range(0, self.Nd)]
+        
         if self.d == 1:  
             
             self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i][0,:]) 
@@ -165,73 +167,7 @@ class SpatialDiscretization:
                             for gamma in range(0,self.Nf[i])]
                             for i in range(0,self.Nd)]
         
-        
-    def build_local_mass(self):
-        
-        self.M = [self.V[i].T @ self.W[i] @ self.V[i] 
-                  for i in range(0,self.Nd)]
-       
-        
-    def invert_local_mass(self):
-        
-        if self.M is None:
-            
-            self.build_local_mass()
-            
-        self.Minv = [self.M[i] for i in range(0, self.Nd)]
-        
-    
-    def build_projection(self):
-        
-        if self.Minv is None:
-            
-            self.invert_local_mass()
-        
-        self.P = [self.Minv[i] @ self.V[i].T @ self.W[i] 
-                  for i in range(0,self.Nd)]
-        
-        
-    def build_lift(self):
-        
-        if self.Minv is None:
-            
-            self.invert_local_mass()
-        
-        self.L = [[self.Minv[i] @ self.V_gamma[i][gamma].T 
-                   @ self.W_gamma[i][gamma]
-                   for gamma in range(0,self.Nf[i])]
-                  for i in range(0,self.Nd)]
-        
-    
-    def build_differentiation(self):
-    
-        self.grad_basis = [mp.grad_simplex_onb(self.d,self.p[i])
-                           for i in range(0, self.Nd)]
-        
-        if self.d==1:
-            self.V_xi = [[mp.vandermonde(self.grad_basis[i], self.xi_omega[i])]
-                         for i in range(0,self.Nd)]
-        else:
-            self.V_xi =[list(mp.vandermonde(self.grad_basis[i], 
-                                            self.xi_omega[i]))
-                        for i in range(0,self.Nd)]
-            
-        if self.P is None:
-            self.build_projection()
-        
-        self.Dhat = [[self.P[i] @ self.V_xi[i][m] for m in range(0, self.d)]
-                     for i in range(0, self.Nd)]
-                              
-        
-    def build_physical_mass_matrix(self):
-        
-        self.M_J = [self.V[self.element_to_discretization[k]].T \
-            @ self.W[self.element_to_discretization[k]] @ np.diag(self.J_omega[k]) \
-                @ self.V[self.element_to_discretization[k]] for k in range(0,self.mesh.K)]
-        
-        self.M_J_inv = [np.linalg.inv(self.M_J[k]) for k in range(0, self.mesh.K)]
-    
-    
+              
     def map_nodes(self):
         
         # go through each element (note: this could be done in parallel)
@@ -324,6 +260,34 @@ class SpatialDiscretization:
      
     def build_local_operators(self):
         
+        self.M = [self.V[i].T @ self.W[i] @ self.V[i] 
+                  for i in range(0,self.Nd)]
+        self.Minv = [self.M[i] for i in range(0, self.Nd)]
+        
+        self.P = [self.Minv[i] @ self.V[i].T @ self.W[i] 
+                for i in range(0,self.Nd)]
+      
+        self.M_J = [self.V[self.element_to_discretization[k]].T \
+            @ self.W[self.element_to_discretization[k]] @ np.diag(self.J_omega[k]) \
+                @ self.V[self.element_to_discretization[k]] for k in range(0,self.mesh.K)]
+        
+        self.M_J_inv = [np.linalg.inv(self.M_J[k]) for k in range(0, self.mesh.K)]
+        
+        
+        if self.d==1:
+            self.V_xi = [[mp.vandermonde(self.grad_basis[i], self.xi_omega[i])]
+                         for i in range(0,self.Nd)]
+        else:
+            self.V_xi =[list(mp.vandermonde(self.grad_basis[i], 
+                                            self.xi_omega[i]))
+                        for i in range(0,self.Nd)]
+            
+        if self.P is None:
+            self.build_projection()
+        
+        self.Dhat = [[self.P[i] @ self.V_xi[i][m] for m in range(0, self.d)]
+                     for i in range(0, self.Nd)]
+        
         if self.form == "weak":
             
             self.vol = [[self.M_J_inv[k] @ (self.Dhat[self.element_to_discretization[k]][m]).T
@@ -359,7 +323,6 @@ class SpatialDiscretization:
         
     def build_global_residual(self, f, f_star, bc, N_eq):
         
-        self.build_local_operators()
         
         def global_residual(self, f, f_star, bc, N_eq, u_hat, t, print_output=False):
             
@@ -383,9 +346,6 @@ class SpatialDiscretization:
                         u_plus = (self.facet_permutation[k][gamma].T @ self.V_gamma[
                             self.element_to_discretization[nu]][rho] @ u_hat[nu].T).T
                         
-                        if print_output and k == 0 and gamma == 0:
-                            print("u_-: ", (self.V_gamma[i][gamma] @ u_hat[k].T).T, " u_+: ",
-                                  u_plus)
                     else:
                         
                         u_plus = [bc[self.mesh.local_to_bc_index[(k,gamma)]][e](
@@ -393,6 +353,7 @@ class SpatialDiscretization:
                             for e in range(0, N_eq)]
                     
                     if self.form == "weak":
+                        
                         f_trans_gamma[k].append(self.Jf_gamma[k][gamma] * f_star(
                             (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
                             self.x_gamma[k][gamma], self.n_gamma[k][gamma]))
@@ -403,23 +364,9 @@ class SpatialDiscretization:
                             (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
                             self.x_gamma[k][gamma], self.n_gamma[k][gamma])
                             - (self.V_gamma[i][gamma] @ self.P[i] 
-                               @ sum([f_trans_omega[k][m].T*self.n_hat[i][gamma][m] for m in range(0,self.d)])).T)
+                               @ sum([f_trans_omega[k][m].T*self.n_hat[i][gamma][m] 
+                                      for m in range(0,self.d)])).T)
                         
-                    
-                if print_output and k == 0:
-                    
-                    print("n_hat: ", self.n_hat[i][gamma])
-                    
-                    print("f_trans_gamma[0][0]: ", f_trans_gamma[k][0])
-                    
-                    print("u_hat[0]: ", u_hat[k])
-                    
-                    print("vol[0]: ", sum([self.vol[k][m] @ f_trans_omega[k][m][0,:] 
-                                      for m in range(0,self.d)]))
-                    
-                    print("fac[0]: ", sum([self.fac[k][gamma] @ 
-                               f_trans_gamma[k][gamma][0,:]
-                               for gamma in range(0, self.mesh.Nf[k])]))
                     
             return [np.array([sum([self.vol[k][m] @ f_trans_omega[k][m][e,:] 
                                       for m in range(0,self.d)])
@@ -581,7 +528,8 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             facet_nodes = SpatialDiscretization.map_unit_to_facets(
                 facet_quadrature.nodes,
                 element_type="triangle") 
-            W_gamma = [np.diag(facet_quadrature.weights) for gamma in range(0,3)]
+            W_gamma = [np.diag(facet_quadrature.weights), np.sqrt(2.0)*np.diag(facet_quadrature.weights),
+                       np.diag(facet_quadrature.weights)]
             n_hat = [np.array([0.0,-1.0]), 
                      np.array([1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]),
                      np.array([-1.0, 0.0])]

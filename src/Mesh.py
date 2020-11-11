@@ -228,6 +228,11 @@ class Mesh1D(Mesh):
                 self.v[0,self.local_to_vertex[k][1][0]] 
                 - self.v[0,self.local_to_vertex[k][0][0]])*(xi+1))
                          for k in range(0,self.K)]
+                
+    @staticmethod
+    def grid_transformation(warp_factor=0.2):
+        
+        return lambda xi: np.array([xi[0] + warp_factor*np.sin(np.pi*xi[0])])
 
 class Mesh2D(Mesh):
     
