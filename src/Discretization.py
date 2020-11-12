@@ -302,19 +302,17 @@ class SpatialDiscretization:
                          for k in range(0,self.mesh.K)]
             
         elif self.form == "strong":
-            
+                   
             self.vol = [[-1.0*np.linalg.inv(self.P[self.element_to_discretization[k]] 
-                                            @ np.diag(self.J_omega[self.element_to_discretization[k]]) 
+                                            @ np.diag(self.J_omega[k]) 
                                             @ self.V[self.element_to_discretization[k]]) @ 
-                         self.Dhat[self.element_to_discretization[k]][m] @ self.P[self.element_to_discretization[k]]
-                        for m in range(0,self.d)]
-                        for k in range(0,self.mesh.K)]
+                          self.Dhat[self.element_to_discretization[k]][m] @ self.P[self.element_to_discretization[k]]
+                        for m in range(0,self.d)] for k in range(0,self.mesh.K)]
             
             self.fac = [[-1.0*self.M_J_inv[k] @ self.V_gamma[self.element_to_discretization[k]][gamma].T
                          @ self.W_gamma[self.element_to_discretization[k]][gamma]
                          for gamma in range(0, self.mesh.Nf[k])]
                          for k in range(0,self.mesh.K)]
-            
             
         else:
             
@@ -375,22 +373,42 @@ class SpatialDiscretization:
                                       for m in range(0,self.d)])).T)
                     
                     if print_output:
-                        print("f_extrap: ", (self.V_gamma[i][gamma] @ self.P[i]  @ sum([f_trans_omega[k][m].T*self.n_hat[i][gamma][m] 
+                        print("f_extrap: ", (self.V_gamma[i][gamma] @ self.P[i] @ sum(
+                            [f_trans_omega[k][m].T*self.n_hat[i][gamma][m] 
                                           for m in range(0,self.d)])).T)
                         print("f_star: ", f_star((self.V_gamma[i][gamma] @ u_hat[k].T).T,
                                                 u_plus,self.x_gamma[k][gamma], 
                                                 self.n_gamma[k][gamma]))
                 
-                vol_res = sum([self.vol[k][m] @ f_trans_omega[k][m][0,:]  
-                               for m in range(0,self.d)])
                 
-                fac_res = [self.fac[k][gamma] @ f_trans_gamma[k][gamma][0,:]
-                           for gamma in range(0, self.mesh.Nf[k])]
                 
                 if print_output:
+                    vol_res = sum([self.vol[k][m] @ f_trans_omega[k][m][0,:]  
+                               for m in range(0,self.d)])
+                
+                    fac_res = [self.fac[k][gamma] @ f_trans_gamma[k][gamma][0,:]
+                               for gamma in range(0, self.mesh.Nf[k])]
+                    
+                    vol_res_weak = sum(
+                        [self.M_J_inv[k]  @ (self.Dhat[self.element_to_discretization[k]][m]).T
+                         @ self.V[self.element_to_discretization[k]].T 
+                         @ self.W[self.element_to_discretization[k]] 
+                         @ f_trans_omega[k][m][0,:] 
+                         for m in range(0,self.d)])
+                    
+                    sbp_error = -vol_res + vol_res_weak - sum(
+                        [self.M_J_inv[k] @ self.V_gamma[i][gamma].T 
+                         @ self.W_gamma[i][gamma] 
+                         @ self.V_gamma[i][gamma] @ self.P[i] 
+                         @ sum([f_trans_omega[k][m][0,:]*self.n_hat[i][gamma][m] 
+                           for m in range(0,self.d)]) 
+                         for gamma in range(0,self.mesh.Nf[k])])
+                    
                     print("vol_res: ", vol_res)
-                    print("fac_res:", fac_res)
+                    print("fac_res: ", fac_res)
+                    print("sbp_error: ", sbp_error)
                     print("res: ", vol_res+sum(fac_res))
+                    
                     
             return [np.array([sum([self.vol[k][m] @ f_trans_omega[k][m][e,:] 
                                       for m in range(0,self.d)])
@@ -469,6 +487,7 @@ class SpatialDiscretization:
             
             mesh_plot.savefig("../plots/" + self.name + 
                             "_discretization.pdf")
+            
         elif self.d == 2:
             
             mesh_plot = plt.figure()
@@ -573,9 +592,8 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
         else: 
             raise NotImplementedError
     
-        super().__init__(mesh, [0]*mesh.K, [p],
-                 [volume_nodes], [facet_nodes], [W], [W_gamma], 
-                 [n_hat], form=form)
+        super().__init__(mesh, [0]*mesh.K, [p], [volume_nodes],
+                         [facet_nodes], [W], [W_gamma], [n_hat], form=form)
     
     
 class SimplexCollocationDiscretization(SpatialDiscretization):
