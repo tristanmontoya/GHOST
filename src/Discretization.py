@@ -464,6 +464,7 @@ class SpatialDiscretization:
                 
                 
                 if print_output:
+                    
                     vol_res = sum([self.vol[k][m] @ f_trans_omega[k][m][0,:]  
                                for m in range(0,self.d)])
                 
@@ -471,7 +472,8 @@ class SpatialDiscretization:
                                for gamma in range(0, self.mesh.Nf[k])]
                     
                     vol_res_weak = sum(
-                        [self.M_J_inv[k]  @ (self.Dhat[self.element_to_discretization[k]][m]).T
+                        [self.M_J_inv[k] 
+                         @ (self.Dhat[self.element_to_discretization[k]][m]).T
                          @ self.V[self.element_to_discretization[k]].T 
                          @ self.W[self.element_to_discretization[k]] 
                          @ f_trans_omega[k][m][0,:] 
@@ -509,14 +511,18 @@ class SpatialDiscretization:
         self.normals_good = []
         
         for k in range(0,self.mesh.K):
+            
             self.normals_good.append([True]*self.mesh.Nf[k])
             for gamma in range(0,self.mesh.Nf[k]):
+                
                 if self.mesh.local_to_local[(k,gamma)] is not None:
+                    
                     nu, rho = self.mesh.local_to_local[(k,gamma)]
                     if np.amax(np.abs(self.n_gamma[nu][rho] 
                                       + self.facet_permutation[k][gamma] 
                                       @ self.n_gamma[k][gamma])) > NORMAL_TOL:
                         self.normals_good[k][gamma] = False
+                        
                         if print_output:
                             print("Watertightness violated at (k,gamma) = ",
                                   (k,gamma))
@@ -532,7 +538,6 @@ class SpatialDiscretization:
         # assign a colour to each element
         self.color = iter(plt.cm.rainbow(
             np.linspace(0, 1, self.mesh.K)))
-        
         
         if self.d == 1:
         
@@ -699,53 +704,56 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
     
 class SimplexCollocationDiscretization(SpatialDiscretization):
     
-    def __init__(self, mesh, p, p_omega=None, p_gamma=None):
+    def __init__(self, mesh, p, p_omega=None, p_gamma=None,
+                 form="weak", solution_representation="modal"):
             
         if p_omega is None:
             p_omega = p
         
         if p_gamma is None:
             p_gamma = p
+            
+        # modal basis to construct nodal mass matrices
+        volume_basis = mp.simplex_onb(mesh.d, p_omega)    
         
-        # if mesh.d == 1:
+        if mesh.d == 1:
             
-        #     if volume_rule == None or volume_rule == "lg":
-        #         volume_quadrature = mp.LegendreGaussQuadrature(ceil((tau-1)/2))
-        #         volume_nodes = np.array([volume_quadrature.nodes])
-        #         W = np.diag(volume_quadrature.weights)
-        #     elif volume_rule == "lgl":
-        #        raise NotImplementedError
+            volume_nodes = np.array(
+                [mp.quadrature.jacobi_gauss.legendre_gauss_lobatto_nodes(p_omega)]) 
             
+            V_p_omega = mp.vandermonde(volume_basis, volume_nodes[0,:]) 
+            W = np.linalg.inv(V_p_omega @ V_p_omega.T)
+            facet_nodes = [np.array([[-1.0]]),np.array([[1.0]])]
+            W_gamma = [np.array([[1.0]]),np.array([[1.0]])]
+            n_hat = [np.array([-1.0]), np.array([1.0])]
             
-        #     facet_nodes = [np.array([[-1.0]]),np.array([[1.0]])]
-        #     W_gamma = [np.array([[1.0]]),np.array([[1.0]])]
-        #     n_hat = [np.array([-1.0]), np.array([1.0])]
-        
-        # elif mesh.d == 2:
+        elif mesh.d == 2:
             
-        #     volume_quadrature = mp.XiaoGimbutasSimplexQuadrature(tau,2)
-        #     volume_nodes = volume_quadrature.nodes
-        #     W = np.diag(volume_quadrature.weights)
+            facet_basis = mp.simplex_onb(mesh.d-1, p_gamma)
             
-        #     facet_quadrature = mp.LegendreGaussQuadrature(ceil((mu-1)/2))
-        #     facet_nodes = SpatialDiscretization.map_unit_to_facets(
-        #         facet_quadrature.nodes,
-        #         element_type="triangle") 
-        #     W_gamma = [np.diag(facet_quadrature.weights),
-        #                np.sqrt(2.0)*np.diag(facet_quadrature.weights),
-        #                np.diag(facet_quadrature.weights)]
-        #     n_hat = [np.array([0.0,-1.0]), 
-        #              np.array([1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]),
-        #              np.array([-1.0, 0.0])]
+            volume_nodes = mp.warp_and_blend_nodes(2, p_omega)
+          
+            V_p_omega = mp.vandermonde(volume_basis, volume_nodes) 
+            W = np.linalg.inv(V_p_omega @ V_p_omega.T)
             
-        # else: 
-        #     raise NotImplementedError
-    
-        # super().__init__(mesh, [0]*mesh.K, [p], [volume_nodes],
-        #                  [facet_nodes], [W], [W_gamma], [n_hat], form=form)
-    
+            facet_nodes_1D =  mp.quadrature.jacobi_gauss.legendre_gauss_lobatto_nodes(p_omega)
+            V_p_gamma_1D = mp.vandermonde(facet_basis,facet_nodes_1D) 
+            W_gamma_1D =  np.linalg.inv(V_p_gamma_1D @ V_p_gamma_1D.T)
             
+            facet_nodes = SpatialDiscretization.map_unit_to_facets(
+                facet_nodes_1D, element_type="triangle")
+             
+            n_hat = [np.array([0.0,-1.0]), 
+                     np.array([1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]),
+                     np.array([-1.0, 0.0])]
+            
+            W_gamma = [W_gamma_1D, np.sqrt(2.0)*W_gamma_1D, W_gamma_1D]
 
+        super().__init__(mesh, [0]*mesh.K, [p], [volume_nodes],
+                         [facet_nodes], [W], [W_gamma], [n_hat], form=form,
+                         solution_representation=solution_representation)
+    
+            
 class TimeIntegrator:
     
     def __init__(self, residual, dt, discretization_type="rk44"):

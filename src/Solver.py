@@ -89,7 +89,19 @@ class Solver:
                 raise NotImplementedError
         
         elif params["integration_type"] == "collocation":
-            raise NotImplementedError
+                
+            if "volume_collocation_degree" not in params:
+                params["volume_collocation_degree"] = None
+            if "facet_collocation_degree" not in params:
+                params["facet_collocation_degree"] = None
+                
+            self.discretization = Discretization.SimplexCollocationDiscretization(
+                mesh,
+                params["solution_degree"], 
+                params["volume_collocation_degree"], 
+                params["facet_collocation_degree"],
+                form=params["form"],
+                solution_representation=params["solution_representation"])
             
         else:
             raise NotImplementedError
