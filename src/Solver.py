@@ -63,10 +63,15 @@ class Solver:
         self.u = self.u_0
  
         # spatial discretization
+    
+        if "form" not in params:
+            params["form"] = "weak"
+            
+        if "solution_representation" not in params:
+            params["solution_representation"] = "modal"
+        
         if params["integration_type"] == "quadrature":
             
-            if "form" not in params:
-                params["form"] = "weak"
             if "volume_quadrature_degree" not in params:
                 params["volume_quadrature_degree"] = None
             if "facet_quadrature_degree" not in params:
@@ -77,7 +82,8 @@ class Solver:
                 params["solution_degree"], 
                 params["volume_quadrature_degree"], 
                 params["facet_quadrature_degree"],
-                form=params["form"])
+                form=params["form"],
+                solution_representation=params["solution_representation"])
                 
             if "facet_integration_rule" in params:
                 raise NotImplementedError
@@ -157,8 +163,8 @@ class Solver:
             
         else:
             raise NotImplementedError
-        
    
+    
     def post_process(self, solution_resolution=10):
         
         # reconstruct nodal values at integration points
@@ -169,7 +175,8 @@ class Solver:
             self.u_h_gamma.append([]) 
             for e in range(0, self.N_eq):
                 self.u_h[k].append(self.discretization.V[
-                 self.discretization.element_to_discretization[k]] @ self.u_hat[k][e])
+                 self.discretization.element_to_discretization[k]] 
+                    @ self.u_hat[k][e])
              
             for gamma in range(0, self.discretization.mesh.Nf[k]):
                 self.u_h_gamma[k].append([])
@@ -213,9 +220,21 @@ class Solver:
                                  @ self.discretization.mesh.xhat_geo[k]).T)
                     
                 self.u_hv.append([])
-                V_plot = mp.vandermonde(self.discretization.basis[
-                            self.discretization.element_to_discretization[k]],
-                            ref_volume_points)
+                
+                if self.discretization.solution_representation == "modal":
+                    
+                    V_plot = mp.vandermonde(self.discretization.basis[
+                                self.discretization.element_to_discretization[k]],
+                                ref_volume_points)
+                elif self.discretization.solution_representation == "nodal":
+                    
+                    V_plot = mp.vandermonde(self.discretization.basis[
+                                self.discretization.element_to_discretization[k]],
+                                ref_volume_points) @ self.discretization.Vp_inv[
+                                self.discretization.element_to_discretization[k]]
+                else:
+                    raise NotImplementedError
+                
                 for e in range(0, self.N_eq):
                      self.u_hv[k].append(V_plot @ self.u_hat[k][e])
                      

@@ -2,7 +2,7 @@
 
 import numpy as np
 from scipy import special
-from math import floor, ceil
+from math import ceil
 import modepy as mp
 import matplotlib.pyplot as plt
 
@@ -12,7 +12,8 @@ class SpatialDiscretization:
     
     def __init__(self, mesh, element_to_discretization, p,
                  xi_omega, xi_gamma, W, W_gamma,
-                 n_hat, form = "weak", name=None):
+                 n_hat, solution_representation ="modal",
+                 form = "weak", name=None):
         
         # mesh
         self.mesh = mesh
@@ -23,6 +24,7 @@ class SpatialDiscretization:
             self.name=name
         
         self.form=form
+        self.solution_representation = solution_representation
         
         # spatial dimension
         self.d = mesh.d  
@@ -86,10 +88,6 @@ class SpatialDiscretization:
         # init residual function (set based on problem)
         self.residual = None
         
-        # assign a colour to each element
-        self.color = iter(plt.cm.rainbow(
-            np.linspace(0, 1, self.mesh.K)))
-        
         
     @staticmethod
     def map_unit_to_facets(xi_ref, element_type="triangle"):
@@ -141,6 +139,7 @@ class SpatialDiscretization:
     def build_interpolation(self):
         
         # currently only simplex total-degree space
+        # this is the modal orthogonal basis
         self.basis = [mp.simplex_onb(self.d,self.p[i]) 
                       for i in range(0,self.Nd)]
         
@@ -149,23 +148,68 @@ class SpatialDiscretization:
         
         if self.d == 1:  
             
-            self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i][0,:]) 
-                      for i in range(0,self.Nd)]
-              
-            self.V_gamma = [[mp.vandermonde(self.basis[i],
-                                            self.xi_gamma[i][gamma][0,:]) 
-                        for gamma in range(0,self.Nf[i])] 
-                            for i in range(0,self.Nd)]
-        
+            if self.solution_representation == "modal":
+                
+                self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i][0,:]) 
+                          for i in range(0,self.Nd)]
+                  
+                self.V_gamma = [[mp.vandermonde(self.basis[i],
+                                                self.xi_gamma[i][gamma][0,:]) 
+                            for gamma in range(0,self.Nf[i])] 
+                                for i in range(0,self.Nd)]
+            
+            elif self.solution_representation == "nodal":
+                
+                self.xi_p = [np.array(
+                    [mp.quadrature.jacobi_gauss.legendre_gauss_lobatto_nodes(
+                        self.p[i])]) 
+                             for i in range(0,self.Nd)]
+                
+                self.Vp_inv = [np.linalg.inv(mp.vandermonde(self.basis[i],
+                                                            self.xi_p[i][0,:])) 
+                                for i in range(0,self.Nd)]
+                
+                self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i][0,:]) @
+                          self.Vp_inv[i] for i in range(0,self.Nd)]
+                
+                self.V_gamma = [[mp.vandermonde(self.basis[i],
+                                                self.xi_gamma[i][gamma][0,:]) @
+                                 self.Vp_inv[i] for gamma in range(0,self.Nf[i])] 
+                                for i in range(0,self.Nd)]
+                    
+            else: 
+                raise NotImplementedError
+                
         else:
             
-            self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i]) 
-                      for i in range(0,self.Nd)]
-        
-            self.V_gamma = [[mp.vandermonde(self.basis[i],
-                                            self.xi_gamma[i][gamma]) 
-                            for gamma in range(0,self.Nf[i])]
-                            for i in range(0,self.Nd)]
+            if self.solution_representation == "modal":
+                
+                self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i]) 
+                          for i in range(0,self.Nd)]
+            
+                self.V_gamma = [[mp.vandermonde(self.basis[i],
+                                                self.xi_gamma[i][gamma]) 
+                                for gamma in range(0,self.Nf[i])]
+                                for i in range(0,self.Nd)]
+                
+            elif self.solution_representation == "nodal":
+                
+                self.xi_p = [mp.warp_and_blend_nodes(self.d, self.p[i]) 
+                             for i in range(0,self.Nd)]
+                
+                self.Vp_inv = [np.linalg.inv(mp.vandermonde(self.basis[i], self.xi_p[i])) 
+                                for i in range(0,self.Nd)]
+                
+                self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i]) @ 
+                          self.Vp_inv[i] for i in range(0,self.Nd)]
+            
+                self.V_gamma = [[mp.vandermonde(self.basis[i],
+                                                self.xi_gamma[i][gamma]) @
+                                 self.Vp_inv[i] for gamma in range(0,self.Nf[i])]
+                                for i in range(0,self.Nd)]
+                
+            else: 
+                raise NotImplementedError
         
               
     def map_nodes(self):
@@ -260,43 +304,78 @@ class SpatialDiscretization:
      
     def build_local_operators(self):
         
+        # mass matrix and inverse
         self.M = [self.V[i].T @ self.W[i] @ self.V[i] 
                   for i in range(0,self.Nd)]
-        self.Minv = [self.M[i] for i in range(0, self.Nd)]
+        self.Minv = [np.linalg.inv(self.M[i]) for i in range(0, self.Nd)]
+    
+        self.M_J = [self.V[self.element_to_discretization[k]].T 
+            @ self.W[self.element_to_discretization[k]] 
+            @ np.diag(self.J_omega[k]) 
+            @ self.V[self.element_to_discretization[k]] 
+            for k in range(0,self.mesh.K)]
         
+        self.M_J_inv = [np.linalg.inv(self.M_J[k]) 
+                        for k in range(0, self.mesh.K)]
+        
+        
+        # discrete orthogonal projection matrix
         self.P = [self.Minv[i] @ self.V[i].T @ self.W[i] 
                 for i in range(0,self.Nd)]
-      
-        self.M_J = [self.V[self.element_to_discretization[k]].T \
-            @ self.W[self.element_to_discretization[k]] @ np.diag(self.J_omega[k]) \
-                @ self.V[self.element_to_discretization[k]] for k in range(0,self.mesh.K)]
-        
-        self.M_J_inv = [np.linalg.inv(self.M_J[k]) for k in range(0, self.mesh.K)]
         
         
-        if self.d==1:
-            self.V_xi = [[mp.vandermonde(self.grad_basis[i], self.xi_omega[i])]
-                         for i in range(0,self.Nd)]
-        else:
-            self.V_xi =[list(mp.vandermonde(self.grad_basis[i], 
-                                            self.xi_omega[i]))
-                        for i in range(0,self.Nd)]
+        # derivative operator
+        if self.solution_representation == "modal":
             
-        if self.P is None:
-            self.build_projection()
+            if self.d==1:
+                
+                self.V_xi = [[mp.vandermonde(self.grad_basis[i],
+                                             self.xi_omega[i])]
+                             for i in range(0,self.Nd)]
+            else:
+                
+                self.V_xi =[list(mp.vandermonde(self.grad_basis[i], 
+                                                self.xi_omega[i]))
+                            for i in range(0,self.Nd)]
+                
+            self.Dhat = [[self.P[i] @ self.V_xi[i][m] 
+                          for m in range(0, self.d)]
+                         for i in range(0, self.Nd)]
+            
+        elif self.solution_representation == "nodal":
+            
+            if self.d==1:
+                
+                self.Vp_xi = [[mp.vandermonde(self.grad_basis[i],
+                                             self.xi_p[i])]
+                             for i in range(0,self.Nd)]
+            else:
+                
+                self.Vp_xi = [list(mp.vandermonde(self.grad_basis[i],
+                                             self.xi_p[i]))
+                             for i in range(0,self.Nd)]
+                
+            self.Dhat = [[self.Vp_xi[i][m] @ self.Vp_inv[i] 
+                          for m in range(0,self.d)]
+                         for i in range(0, self.Nd)]
+            
+        else:
+            
+            raise NotImplementedError
         
-        self.Dhat = [[self.P[i] @ self.V_xi[i][m] for m in range(0, self.d)]
-                     for i in range(0, self.Nd)]
         
+        # pre-compute full volume and facet operators
         if self.form == "weak":
             
-            self.vol = [[self.M_J_inv[k] @ (self.Dhat[self.element_to_discretization[k]][m]).T
-                        @ self.V[self.element_to_discretization[k]].T 
-                        @ self.W[self.element_to_discretization[k]]
+            self.vol = [[self.M_J_inv[k] 
+                         @ (self.Dhat[self.element_to_discretization[k]][m]).T
+                         @ self.V[self.element_to_discretization[k]].T 
+                         @ self.W[self.element_to_discretization[k]]
                         for m in range(0,self.d)]
                         for k in range(0,self.mesh.K)]
             
-            self.fac = [[-1.0*self.M_J_inv[k] @ self.V_gamma[self.element_to_discretization[k]][gamma].T
+            self.fac = [[-1.0*self.M_J_inv[k] 
+                         @ self.V_gamma[self.element_to_discretization[k]][gamma].T
                          @ self.W_gamma[self.element_to_discretization[k]][gamma]
                          for gamma in range(0, self.mesh.Nf[k])]
                          for k in range(0,self.mesh.K)]
@@ -306,10 +385,12 @@ class SpatialDiscretization:
             self.vol = [[-1.0*np.linalg.inv(self.P[self.element_to_discretization[k]] 
                                             @ np.diag(self.J_omega[k]) 
                                             @ self.V[self.element_to_discretization[k]]) @ 
-                          self.Dhat[self.element_to_discretization[k]][m] @ self.P[self.element_to_discretization[k]]
+                          self.Dhat[self.element_to_discretization[k]][m] @
+                          self.P[self.element_to_discretization[k]]
                         for m in range(0,self.d)] for k in range(0,self.mesh.K)]
             
-            self.fac = [[-1.0*self.M_J_inv[k] @ self.V_gamma[self.element_to_discretization[k]][gamma].T
+            self.fac = [[-1.0*self.M_J_inv[k] 
+                         @ self.V_gamma[self.element_to_discretization[k]][gamma].T
                          @ self.W_gamma[self.element_to_discretization[k]][gamma]
                          for gamma in range(0, self.mesh.Nf[k])]
                          for k in range(0,self.mesh.K)]
@@ -409,7 +490,7 @@ class SpatialDiscretization:
                     print("sbp_error: ", sbp_error)
                     print("res: ", vol_res+sum(fac_res))
                     
-                    
+
             return [np.array([sum([self.vol[k][m] @ f_trans_omega[k][m][e,:] 
                                       for m in range(0,self.d)])
                      + sum([self.fac[k][gamma] @ 
@@ -447,6 +528,11 @@ class SpatialDiscretization:
             
     def plot(self, plot_nodes=True, plot_geometry_nodes=False, 
              markersize=4, geometry_resolution=10):
+    
+        # assign a colour to each element
+        self.color = iter(plt.cm.rainbow(
+            np.linspace(0, 1, self.mesh.K)))
+        
         
         if self.d == 1:
         
@@ -523,6 +609,13 @@ class SpatialDiscretization:
                             self.x_omega[k][1,:], "o",
                           markersize=markersize,
                           color = current_color)
+                    
+                if plot_geometry_nodes:
+                    #print('x_geo, k= ', k, ": ", self.mesh.x_geo[k])
+                    ax.plot(self.mesh.x_geo[k][0,:], 
+                            self.mesh.x_geo[k][1,:], "ok",
+                          fillstyle='none',
+                          markersize=markersize)
                         
                 for gamma in range(0, self.mesh.Nf[k]):
                     
@@ -542,7 +635,8 @@ class SpatialDiscretization:
                                 self.x_gamma[k][gamma][1,:],
                                 "s", 
                                 markersize=markersize, 
-                                color="black")
+                                color="black",
+                                fillstyle='none')
                    
             mesh_plot.savefig("../plots/" + self.name + 
                             "_discretization.pdf")
@@ -554,7 +648,9 @@ class SpatialDiscretization:
         
 class SimplexQuadratureDiscretization(SpatialDiscretization):
     
-    def __init__(self, mesh, p, tau=None, mu=None, form="weak"):
+    def __init__(self, mesh, p, tau=None, mu=None,
+                 volume_rule=None, facet_rule=None, 
+                 form="weak", solution_representation="modal"):
         
         if tau is None:
             tau = 2*p
@@ -564,9 +660,13 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
         
         if mesh.d == 1:
             
-            volume_quadrature = mp.LegendreGaussQuadrature(floor((tau-1)/2))
-            volume_nodes = np.array([volume_quadrature.nodes])
-            W = np.diag(volume_quadrature.weights)
+            if volume_rule == None or volume_rule == "lg":
+                volume_quadrature = mp.LegendreGaussQuadrature(ceil((tau-1)/2))
+                volume_nodes = np.array([volume_quadrature.nodes])
+                W = np.diag(volume_quadrature.weights)
+            elif volume_rule == "lgl":
+               raise NotImplementedError
+            
             
             facet_nodes = [np.array([[-1.0]]),np.array([[1.0]])]
             W_gamma = [np.array([[1.0]]),np.array([[1.0]])]
@@ -578,7 +678,7 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             volume_nodes = volume_quadrature.nodes
             W = np.diag(volume_quadrature.weights)
             
-            facet_quadrature = mp.LegendreGaussQuadrature(floor((mu-1)/2))
+            facet_quadrature = mp.LegendreGaussQuadrature(ceil((mu-1)/2))
             facet_nodes = SpatialDiscretization.map_unit_to_facets(
                 facet_quadrature.nodes,
                 element_type="triangle") 
@@ -593,15 +693,58 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             raise NotImplementedError
     
         super().__init__(mesh, [0]*mesh.K, [p], [volume_nodes],
-                         [facet_nodes], [W], [W_gamma], [n_hat], form=form)
+                         [facet_nodes], [W], [W_gamma], [n_hat], form=form,
+                         solution_representation=solution_representation)
     
     
 class SimplexCollocationDiscretization(SpatialDiscretization):
     
-    def __init__(self, mesh, p, q=None, r=None):
+    def __init__(self, mesh, p, p_omega=None, p_gamma=None):
+            
+        if p_omega is None:
+            p_omega = p
         
-        raise NotImplementedError
-
+        if p_gamma is None:
+            p_gamma = p
+        
+        # if mesh.d == 1:
+            
+        #     if volume_rule == None or volume_rule == "lg":
+        #         volume_quadrature = mp.LegendreGaussQuadrature(ceil((tau-1)/2))
+        #         volume_nodes = np.array([volume_quadrature.nodes])
+        #         W = np.diag(volume_quadrature.weights)
+        #     elif volume_rule == "lgl":
+        #        raise NotImplementedError
+            
+            
+        #     facet_nodes = [np.array([[-1.0]]),np.array([[1.0]])]
+        #     W_gamma = [np.array([[1.0]]),np.array([[1.0]])]
+        #     n_hat = [np.array([-1.0]), np.array([1.0])]
+        
+        # elif mesh.d == 2:
+            
+        #     volume_quadrature = mp.XiaoGimbutasSimplexQuadrature(tau,2)
+        #     volume_nodes = volume_quadrature.nodes
+        #     W = np.diag(volume_quadrature.weights)
+            
+        #     facet_quadrature = mp.LegendreGaussQuadrature(ceil((mu-1)/2))
+        #     facet_nodes = SpatialDiscretization.map_unit_to_facets(
+        #         facet_quadrature.nodes,
+        #         element_type="triangle") 
+        #     W_gamma = [np.diag(facet_quadrature.weights),
+        #                np.sqrt(2.0)*np.diag(facet_quadrature.weights),
+        #                np.diag(facet_quadrature.weights)]
+        #     n_hat = [np.array([0.0,-1.0]), 
+        #              np.array([1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]),
+        #              np.array([-1.0, 0.0])]
+            
+        # else: 
+        #     raise NotImplementedError
+    
+        # super().__init__(mesh, [0]*mesh.K, [p], [volume_nodes],
+        #                  [facet_nodes], [W], [W_gamma], [n_hat], form=form)
+    
+            
 
 class TimeIntegrator:
     
@@ -633,9 +776,6 @@ class TimeIntegrator:
             
             u = np.copy(self.time_step(u,t,dt))
             t = t + dt
-            #if n % 10 == 0:
-                #print("n: ", n, " t: ", t)
-        
         return u
     
 
@@ -672,7 +812,9 @@ class TimeIntegrator:
         elif self.type == "explicit_euler":
             
             r = self.R(u,t)
-            return [np.array([u[k][e,:] + dt *r[k][e,:] for e in range(u[k].shape[0])]) for k in range(0, len(u))]
+            return [np.array([u[k][e,:] + dt *r[k][e,:] 
+                              for e in range(u[k].shape[0])])
+                    for k in range(0, len(u))]
         
         else:
             raise NotImplementedError
