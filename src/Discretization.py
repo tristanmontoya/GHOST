@@ -2,9 +2,12 @@
 
 import numpy as np
 from scipy import special
-from math import ceil
+from math import floor, ceil
 import modepy as mp
 import matplotlib.pyplot as plt
+
+import os
+import pickle
 
 NORMAL_TOL = 1.0e-8
 
@@ -197,7 +200,8 @@ class SpatialDiscretization:
                 self.xi_p = [mp.warp_and_blend_nodes(self.d, self.p[i]) 
                              for i in range(0,self.Nd)]
                 
-                self.Vp_inv = [np.linalg.inv(mp.vandermonde(self.basis[i], self.xi_p[i])) 
+                self.Vp_inv = [np.linalg.inv(mp.vandermonde(self.basis[i],
+                                                            self.xi_p[i])) 
                                 for i in range(0,self.Nd)]
                 
                 self.V = [mp.vandermonde(self.basis[i], self.xi_omega[i]) @ 
@@ -205,7 +209,8 @@ class SpatialDiscretization:
             
                 self.V_gamma = [[mp.vandermonde(self.basis[i],
                                                 self.xi_gamma[i][gamma]) @
-                                 self.Vp_inv[i] for gamma in range(0,self.Nf[i])]
+                                 self.Vp_inv[i] 
+                                 for gamma in range(0,self.Nf[i])]
                                 for i in range(0,self.Nd)]
                 
             else: 
@@ -416,6 +421,7 @@ class SpatialDiscretization:
                 f_trans_omega.append([sum(
                     [self.J_omega[k]*self.x_prime_inv_omega[k][:,m,n] * f_omega[n] 
                      for n in range(0,self.d)]) for m in range(0, self.d)])
+                
                 if print_output:
                     print("k: ", k)
                     print("f_omega: ", f_omega)
@@ -533,7 +539,7 @@ class SpatialDiscretization:
             
             
     def plot(self, plot_nodes=True, plot_geometry_nodes=False, 
-             markersize=4, geometry_resolution=10):
+             markersize=4, geometry_resolution=10, filename=None):
     
         # assign a colour to each element
         self.color = iter(plt.cm.rainbow(
@@ -573,11 +579,16 @@ class SpatialDiscretization:
                       np.zeros(self.mesh.p_geo+1), "ok",
                       markersize=markersize,
                       markerfacecolor=None)]
-                   
+            
+            plt.tight_layout()
             plt.show()
             
-            mesh_plot.savefig("../plots/" + self.name + 
-                            "_discretization.pdf")
+            if filename is None:
+                mesh_plot.savefig("../plots/" + self.name + 
+                                "_discretization.pdf", bbox_inches='tight')
+            else:
+                mesh_plot.savefig(filename, bbox_inches='tight')
+                
             
         elif self.d == 2:
             
@@ -616,7 +627,6 @@ class SpatialDiscretization:
                           color = current_color)
                     
                 if plot_geometry_nodes:
-                    #print('x_geo, k= ', k, ": ", self.mesh.x_geo[k])
                     ax.plot(self.mesh.x_geo[k][0,:], 
                             self.mesh.x_geo[k][1,:], "ok",
                           fillstyle='none',
@@ -642,11 +652,15 @@ class SpatialDiscretization:
                                 markersize=markersize, 
                                 color="black",
                                 fillstyle='none')
-                   
-            mesh_plot.savefig("../plots/" + self.name + 
-                            "_discretization.pdf")
             
             plt.show()
+            
+            if filename is None:
+                mesh_plot.savefig("../plots/" + self.name + 
+                                "_discretization.pdf", bbox_inches='tight')
+            else:
+                mesh_plot.savefig(filename, bbox_inches='tight')
+            
         else: 
             raise NotImplementedError
         
@@ -773,17 +787,38 @@ class TimeIntegrator:
         return beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed
         
     
-    def run(self, u_0, T):
+    def run(self, u_0, T, results_path, 
+            write_interval):
+        
+        # calculate number of steps to take and actual time step
         N_t = ceil(T/self.dt_target) 
         dt = T/N_t
+        
+        # interval between writes to file
+        if write_interval is None:
+            N_write = N_t
+        else:
+            N_write = floor(write_interval/dt)
+            
         u = np.copy(u_0)
         t = 0
+        times = [[0,t]]
         print("dt = ", dt)
+        print("writing every ", N_write, " time steps, total ", N_t)
         
         for n in range(0,N_t):
-            
             u = np.copy(self.time_step(u,t,dt))
             t = t + dt
+            
+            if ((n+1) % N_write == 0) or (n+1 == N_t):
+                    times.append([n+1,t])
+                    pickle.dump(u, open(
+                    results_path+"res_" +
+                    str(n+1) + ".dat", "wb" ))
+        
+        pickle.dump(times, open(
+                   results_path+"times.dat", "wb" ))
+        
         return u
     
 
@@ -799,7 +834,8 @@ class TimeIntegrator:
             
             r_u_hat_nphalf = self.R(u_hat_nphalf, t + 0.5*dt)
 
-            u_tilde_nphalf = [np.array([u[k][e,:] + 0.5 * dt * r_u_hat_nphalf[k][e,:]
+            u_tilde_nphalf = [np.array([u[k][e,:] 
+                                        + 0.5 * dt * r_u_hat_nphalf[k][e,:]
                             for e in range(0, u[k].shape[0])])
                             for k in range(0, len(u))]
                     
@@ -812,7 +848,8 @@ class TimeIntegrator:
             r_u_bar_np1 = self.R(u_bar_np1, t + 1.0*dt)
 
             return [np.array([u[k][e,:] + (1. / 6.) * dt * (
-                r_u[k][e,:] + 2. * (r_u_hat_nphalf[k][e,:] + r_u_tilde_nphalf[k][e,:])
+                r_u[k][e,:] + 2. * (r_u_hat_nphalf[k][e,:] 
+                                    + r_u_tilde_nphalf[k][e,:]) 
                 + r_u_bar_np1[k][e,:])
                         for e in range(0, u[k].shape[0])])
                         for k in range(0, len(u))]

@@ -7,16 +7,22 @@ import numpy as np
 import modepy as mp
 import matplotlib.pyplot as plt
 
+import os
+import pickle
 
 class Solver:
     
     def __init__(self, params, mesh):
         
+        self.project_title = params["project_title"]
+        
         # physical problem
         self.d = mesh.d
+        
         if params["problem"] == "constant_advection":
             
-            self.f = Problem.ConstantAdvectionPhysicalFlux(params["wave_speed"])
+            self.f = Problem.ConstantAdvectionPhysicalFlux(
+                params["wave_speed"])
             self.f_star = Problem.ConstantAdvectionNumericalFlux(
                 params["wave_speed"], 
                 params["upwind_parameter"])
@@ -58,7 +64,6 @@ class Solver:
         for bc_index in mesh.local_to_bc_index.values():
             self.bcs[bc_index] = [lambda x,t: 0.0 for e in range(0,self.N_eq)]
  
-       
         # exact solution (assume equal to initial for now)
         self.u = self.u_0
  
@@ -156,33 +161,47 @@ class Solver:
         raise NotImplementedError
         
         
-    def get_time_step(self, CFL, L):
-        pass
+    def run(self, results_path=None, write_interval=None,
+            clear_write_dir=True):
         
-    
-    def run(self):
+        if results_path is None:
+            results_path = "../results/" + self.project_title + "/"
+            
+        if not os.path.exists(results_path):
+            os.mkdir(results_path)
+        elif clear_write_dir:
+            os.system("rm -rf "+results_path+"*")
+            
         
         # run problem
         if self.params["problem"] == "projection":
             self.u_hat = self.project_function(self.u_0)
+            pickle.dump(self.u_hat, open(results_path+"res_" 
+                                         + str(0) + ".dat", "wb" ))
             
         elif self.params["problem"] == "constant_advection":
             
             # evaluate initial condition by projection
             self.u_hat = self.project_function(self.u_0)
-            self.u_hat = self.time_integrator.run(self.u_hat, self.T)
+            pickle.dump(self.u_hat, open(results_path+"res_" 
+                                         + str(0) + ".dat", "wb" ))
             
+            self.u_hat = self.time_integrator.run(self.u_hat, self.T,
+                                                  results_path,
+                                                  write_interval)
             
         else:
             raise NotImplementedError
    
     
-    def post_process(self, solution_resolution=10):
+    def post_process(self, solution_resolution=10, 
+                     process_exact_solution=True):
         
         # reconstruct nodal values at integration points
         self.u_h = []
         self.u_h_gamma = []
         for k in range(0, self.discretization.mesh.K):
+            
             self.u_h.append([])
             self.u_h_gamma.append([]) 
             for e in range(0, self.N_eq):
@@ -207,10 +226,12 @@ class Solver:
 
         # reconstruct nodal values at visualization points
         if self.discretization.basis is None:
+            
             self.x_v = self.discretization.x_omega
             self.u_hv = self.u_h
             self.u_hvmin = self.u_hmin
             self.u_hmax = self.u_hmax
+            
         else:
             if self.d== 1:
                 ref_volume_points =  np.array(mp.equidistant_nodes(
@@ -258,7 +279,15 @@ class Solver:
                            for k in range(0,self.discretization.mesh.K)]) 
                       for e in range(0,self.N_eq)] 
         
-        if self.u is not None:
+        # global visualization (concatenated)
+        self.x_v_global = np.concatenate(
+            [self.x_v[k] for k in range(0,self.discretization.mesh.K)], axis=1)
+        
+        self.u_hv_global = [np.concatenate(
+            [self.u_hv[k][e] for k in range(0,self.discretization.mesh.K)]) 
+            for e in range(0, self.N_eq)]
+        
+        if process_exact_solution and self.u is not None:
             
             # evaluate exact solution at visualization points
             self.u_v = [[self.u[e](self.x_v[k]) 
@@ -270,19 +299,15 @@ class Solver:
             self.u_vmax = [max([np.amax(self.u_v[k][e]) 
                            for k in range(0,self.discretization.mesh.K)]) 
                       for e in range(0,self.N_eq)] 
-        
-        # global visualization (concatenated)
-        self.x_v_global = np.concatenate(
-            [self.x_v[k] for k in range(0,self.discretization.mesh.K)], axis=1)
-        self.u_v_global = [np.concatenate(
+            
+            self.u_v_global = [np.concatenate(
             [self.u_v[k][e] for k in range(0,self.discretization.mesh.K)]) 
-            for e in range(0, self.N_eq)]
-        self.u_hv_global = [np.concatenate(
-            [self.u_hv[k][e] for k in range(0,self.discretization.mesh.K)]) 
             for e in range(0, self.N_eq)]
         
     
-    def plot(self, 
+    def plot(self,
+             filename=None,
+             title=None,
              equation_index=0,
              plot_exact=True, 
              plot_numerical=True, 
@@ -290,7 +315,8 @@ class Solver:
              plot_nodes=False,
              markersize=4, 
              geometry_resolution=10,
-             u_range = [-1.0,1.0]):
+             u_range = [-1.0,1.0],
+             show_fig=True):
         
         self.color = iter(plt.cm.rainbow(
             np.linspace(0, 1, self.discretization.mesh.K)))
@@ -324,7 +350,7 @@ class Solver:
                     numerical, = ax.plot(self.x_v[k][0,:], 
                            self.u_hv[k][equation_index],
                             "-", color = current_color) 
-                    #print("x_omega: ",self.discretization.x_omega[k][0,:])
+                    
                     #plot node positions
                     if plot_nodes:
                         ax.plot(self.discretization.x_omega[k][0,:], 
@@ -342,8 +368,12 @@ class Solver:
                                 self.u_h_gamma[k][1][equation_index][0],
                                     "s", 
                                     markersize=markersize, 
-                                    color="black")                     
-                    
+                                    color="black")               
+            
+            # make title
+            if title is not None:
+                plt.title(title)
+                        
             # make legend labels
             if plot_numerical:
                 
@@ -362,13 +392,21 @@ class Solver:
                                                 + str(equation_index) 
                                                 +"(x,t)$")
             ax.legend()
-            plt.show()
             
-            solution_plot.savefig("../plots/" + self.params["project_title"] + 
-                            "_exact.pdf")
+            if show_fig:
+                plt.show()
+            plt.close()
             
-        elif self.d== 2:
-            
+            if filename is None:
+                solution_plot.savefig("../plots/" + self.params["project_title"] + 
+                                "_solution.pdf", facecolor="white", 
+                                transparent=False)
+            else:
+                solution_plot.savefig(filename, facecolor="white", transparent=False, dpi=300)
+                
+                
+        elif self.d == 2:
+ 
             # place contours
             contours = np.linspace(u_range[0], 
                                    u_range[1],100)
@@ -478,6 +516,7 @@ class Solver:
                                     color="black")
                         
             if plot_numerical:
+                
                 contour_numerical = ax.tricontourf(
                         self.x_v_global[0,:], self.x_v_global[1,:],
                         self.u_hv_global[equation_index],
@@ -491,17 +530,30 @@ class Solver:
                                        + str(equation_index) 
                                        +"}^h(\mathbf{x},t)$")
                 cbar.set_ticks(np.linspace(u_range[0],u_range[1],10))
-                numerical.savefig(
-                    "../plots/" + self.params["project_title"]
-                    + "_numerical.pdf", bbox_inches="tight", pad_inches=0)
+                
+                # make title
+                if title is not None:
+                    plt.title(title)
+                
+                if filename is None:
+                    numerical.savefig(
+                        "../plots/" + self.params["project_title"]
+                        + "_numerical.pdf", facecolor="white", transparent=False,
+                        bbox_inches="tight", pad_inches=0)
+                else:
+                    numerical.savefig(filename, facecolor="white", 
+                                      transparent=False, dpi=300)
+               
             
             if plot_exact:
+                
                 contour_exact = ax2.tricontourf(
                         self.x_v_global[0,:], self.x_v_global[1,:],
                         self.u_v_global[equation_index],
                                    levels=contours,
                                    cmap="jet")
                 cbar_ex = exact.colorbar(contour_exact)
+                
                 if self.N_eq == 1:
                     cbar_ex.ax.set_ylabel("$\mathcal{U}(\mathbf{x},t)$")
                 else:
@@ -512,8 +564,64 @@ class Solver:
                 exact.savefig(
                     "../plots/" + self.params["project_title"]
                     + "_exact.pdf", bbox_inches="tight", pad_inches=0)
-            
-            plt.show()
+                
+            if show_fig:
+                plt.show()
+            plt.close() 
             
         else:
             raise NotImplementedError
+        
+            
+    def load_solution(self, results_path=None, time_step=0):
+        
+        if results_path is None:
+              results_path = "../results/" + self.project_title + "/"
+        
+        self.u_hat = pickle.load(open(results_path 
+                                      + "res_" 
+                                      + str(time_step) + ".dat", "rb"))
+        
+        
+    def plot_time_steps(self, results_path=None, 
+                        plots_path=None,
+                        u_range = [-2.0,2.0], 
+                        clear_write_dir=True,
+                        make_video=True,
+                        framerate=2):
+        
+        if results_path is None:
+              results_path = "../results/" + self.project_title + "/"
+              
+        if plots_path is None:
+              plots_path = "../plots/" + self.project_title + "/"
+        
+        if not os.path.exists(plots_path):
+            os.mkdir(plots_path)
+        elif clear_write_dir:
+            os.system("rm -rf "+plots_path+"*")
+        
+        times = pickle.load(open(results_path + "times.dat", "rb"))
+        
+        for i in range(0,len(times)):
+            self.load_solution(results_path=results_path,
+                               time_step=times[i][0])
+            self.post_process(solution_resolution=20,
+                              process_exact_solution=False)
+            
+            for e in range(0,self.N_eq):
+                self.plot(filename=plots_path+"frame_"+str(i)+".png",
+                          title="$t = $" + str(times[i][1]),
+                          equation_index=e, plot_numerical=True,
+                          plot_exact=False, u_range=u_range, show_fig=False)
+            
+        if make_video:
+            ff_call = "ffmpeg -framerate "+ str(framerate)+" -i "+plots_path+"frame_%d.png " +plots_path+"video.mp4"
+            print(ff_call)
+            os.system(ff_call)
+                               
+            
+        
+        
+        
+        
