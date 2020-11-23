@@ -21,24 +21,35 @@ class Solver:
         
         if params["problem"] == "constant_advection":
             
-            self.f = Problem.ConstantAdvectionPhysicalFlux(
-                params["wave_speed"])
-            self.f_star = Problem.ConstantAdvectionNumericalFlux(
-                params["wave_speed"], 
+            if "wave_speed" not in params:
+                params["wave_speed"] = np.ones(self.d)
+                
+            self.pde = Problem.ConstantAdvection(params["wave_speed"],
                 params["upwind_parameter"])
+            self.f = self.pde.build_physical_flux()
+            self.f_star = self.pde.build_numerical_flux()
             self.is_unsteady = True
-            self.wave_speed = params["wave_speed"] 
-            self.cfl_speed = np.linalg.norm(self.wave_speed)
-            
-            self.N_eq = 1
+            self.cfl_speed = np.linalg.norm(self.pde.a)
+            self.N_eq = self.pde.N_eq
             
         elif params["problem"] == "projection":
+            
             self.is_unsteady = False
             self.N_eq = 1
         
         elif params["problem"] == "compressible_euler":
+            
+            if "specific_heat_ratio" not in params:
+                params["specific_heat_ratio"] = 1.4
+            if "numerical_flux" not in params:
+                params["numerical_flux"] = "roe"
+            self.pde = Problem.Euler(self.d,
+                                     gamma=params["specific_heat_ratio"],
+                                     numerical_flux=params["numerical_flux"])
+            self.f = self.pde.build_physical_flux()
+            self.f_star = self.pde.build_numerical_flux()
             self.is_unsteady = True
-            self.N_eq = self.d + 2
+            self.N_eq = self.pde.N_eq
         
         else:
             raise NotImplementedError
@@ -46,25 +57,55 @@ class Solver:
         # initial conditions
         if params["initial_condition"] == "sine":
             
-            if "wavelength" in params:
-                self.u_0 = [Solver.sine_wave(params["wavelength"]) 
-                            for e in range(0,self.N_eq)]
-            else:
-                self.u_0 = [Solver.sine_wave(np.ones(self.d)) 
-                            for e in range(0,self.N_eq)]
+            if self.N_eq != 1:
+                raise ValueError(
+                    "Sine initial condition implemented only for scalar problems")
+            
+            if "wavelength" not in params:
+                params["wavelength"] = np.ones(self.d)
+          
+            self.u_0 = Solver.sine_wave(np.ones(self.d))
                 
         elif params["initial_condition"] == "constant":
-            self.u_0 = [lambda x: np.ones(x.shape[1]) for e in range(
-                0,self.N_eq)]
+            
+            self.u_0 = lambda x: np.array([np.ones(x.shape[1]) for e in range(
+                0,self.N_eq)])
+            
+        elif params["initial_condition"] == "isentropic_vortex":
+            
+            if params["problem"] != "compressible_euler":
+                raise ValueError(
+                    "Isentropic vortex only applicable to Euler equations")
+            if self.d != 2:
+                raise NotImplementedError
+                
+            if "initial_vortex_centre" not in params:
+                params["vortex_centre"] =  np.array([5.0,5.0])
+            if "background_velocity" not in params:
+                params["background_velocity"] =  np.array([1.0,0.0])
+            if "background_temperature" not in params:
+                params["background_temperature"] = 1
+            if "vortex_strength" not in params:
+                params["vortex_strength"] = 5.0
+            
+            self.u_0 = Solver.isentropic_vortex(eps=params["vortex_strength"], 
+                                                gamma=params["specific_heat_ratio"],
+                                                x_0=params["initial_vortex_centre"],
+                                                T_infty=params["background_temperature"],
+                                                v_infty=params["background_velocity"])
+            
+            self.cfl_speed = np.linalg.norm(params["background_velocity"])
+            
         else:
             raise NotImplementedError    
       
         # boundary conditions
         self.bcs = {} # initially set homogeneous
         for bc_index in mesh.local_to_bc_index.values():
-            self.bcs[bc_index] = [lambda x,t: 0.0 for e in range(0,self.N_eq)]
+            self.bcs[bc_index] = [lambda x,t: 0.0 
+                                  for e in range(0,self.N_eq)]
  
-        # exact solution (assume equal to initial for now)
+        # exact solution (assume equal to initial for now, this isn't always the case)
         self.u = self.u_0
  
         # spatial discretization
@@ -113,6 +154,7 @@ class Solver:
              
         # temporal discretization
         if self.is_unsteady:
+            
             self.R = self.discretization.build_global_residual(
                 self.f, self.f_star, self.bcs, self.N_eq)
             if "time_integrator" in params:
@@ -139,21 +181,38 @@ class Solver:
     def sine_wave(wavelength):
         # numpy array of length d wavelengths
         def g(x):
-            return np.apply_along_axis(
+            return np.array([np.apply_along_axis(
                 lambda xi: 
                     np.prod(
                         np.sin(2.0*np.pi*xi/wavelength)),
-                    0,x)
+                    0,x)])
         
         return g
-        
     
+    @staticmethod
+    def isentropic_vortex(eps, gamma,  x_0, T_infty, v_infty):
+        
+        def g(x):
+            delta_x = x - x_0
+            delta_T = (-(gamma-1.0)/(8*gamma*np.pi)*eps**2)*np.exp(
+                1-np.linalg.norm(delta_x)**2)
+            delta_v = eps/(2*np.pi)*np.exp(1-np.linalg.norm(x-x_0)**2)*np.array(
+                [-delta_x[1], delta_x[0]])
+            rho = (T_infty + delta_T)**(1.0/(gamma-1.0))
+            v = v_infty + delta_v
+        
+            return np.concatenate(
+                ([rho],rho*v, 
+                 [rho**gamma/(gamma-1) + 0.5*rho*np.linalg.norm(v)**2]))
+        
+        return lambda x: np.apply_along_axis(g, 0, x)
+        
     def project_function(self,g):
         # takes list of functions as input
         
         return [np.array([self.discretization.P[
             self.discretization.element_to_discretization[k]] @
-                g[e](self.discretization.x_omega[k]) 
+                g(self.discretization.x_omega[k])[e] 
                 for e in range(0,self.N_eq)])
                 for k in range(0,self.discretization.mesh.K)]
             
@@ -172,7 +231,6 @@ class Solver:
         elif clear_write_dir:
             os.system("rm -rf "+results_path+"*")
             
-        
         # run problem
         if self.params["problem"] == "projection":
             self.u_hat = self.project_function(self.u_0)
@@ -189,7 +247,14 @@ class Solver:
             self.u_hat = self.time_integrator.run(self.u_hat, self.T,
                                                   results_path,
                                                   write_interval)
+        
+        
+        elif self.params["problem"] == "compressible_euler":
             
+            # evaluate initial condition by projection
+            self.u_hat = self.project_function(self.u_0)
+            pickle.dump(self.u_hat, open(results_path+"res_" 
+                                         + str(0) + ".dat", "wb" ))
         else:
             raise NotImplementedError
    
@@ -290,7 +355,7 @@ class Solver:
         if process_exact_solution and self.u is not None:
             
             # evaluate exact solution at visualization points
-            self.u_v = [[self.u[e](self.x_v[k]) 
+            self.u_v = [[self.u(self.x_v[k])[e] 
                                for e in range(0, self.N_eq)] 
                               for k in range(0,self.discretization.mesh.K)]
             self.u_vmin = [min([np.amin(self.u_v[k][e]) 

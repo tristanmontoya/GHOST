@@ -5,8 +5,6 @@ from scipy import special
 from math import floor, ceil
 import modepy as mp
 import matplotlib.pyplot as plt
-
-import os
 import pickle
 
 NORMAL_TOL = 1.0e-8
@@ -389,8 +387,8 @@ class SpatialDiscretization:
                    
             self.vol = [[-1.0*np.linalg.inv(self.P[self.element_to_discretization[k]] 
                                             @ np.diag(self.J_omega[k]) 
-                                            @ self.V[self.element_to_discretization[k]]) @ 
-                          self.Dhat[self.element_to_discretization[k]][m] @
+                                            @ self.V[self.element_to_discretization[k]]) 
+                         @ self.Dhat[self.element_to_discretization[k]][m] @
                           self.P[self.element_to_discretization[k]]
                         for m in range(0,self.d)] for k in range(0,self.mesh.K)]
             
@@ -467,8 +465,6 @@ class SpatialDiscretization:
                                                 u_plus,self.x_gamma[k][gamma], 
                                                 self.n_gamma[k][gamma]))
                 
-                
-                
                 if print_output:
                     
                     vol_res = sum([self.vol[k][m] @ f_trans_omega[k][m][0,:]  
@@ -507,7 +503,6 @@ class SpatialDiscretization:
                     for e in range(0, N_eq)])
                     for k in range(0, self.mesh.K)]
                 
-            
         return lambda u_hat, t: global_residual(self, f, f_star,
                                                 bc, N_eq, u_hat, t)
         

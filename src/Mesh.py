@@ -50,7 +50,8 @@ class Mesh(ABC):
         else:
             
             self.xi_geo = mp.warp_and_blend_nodes(self.d, self.p_geo)
-            self.Vinv_geo =np.linalg.inv(mp.vandermonde(self.basis_geo, self.xi_geo))
+            self.Vinv_geo =np.linalg.inv(mp.vandermonde(self.basis_geo,
+                                                        self.xi_geo))
         
         self.Np_geo = self.xi_geo.shape[1]
         self.x_geo = []
@@ -64,8 +65,9 @@ class Mesh(ABC):
         for k in range(0,self.K):
             
             # perturbed nodes
-            self.x_geo.append(np.array([f_map(self.X_affine[k](self.xi_geo[:,i])) 
-                                 for i in range(0,self.Np_geo)]).T)
+            self.x_geo.append(np.array([f_map(self.X_affine[k](
+                self.xi_geo[:,i])) 
+                for i in range(0,self.Np_geo)]).T)
             
             # modal coefficients in basis_geo for displacement field
             self.xhat_geo.append(self.Vinv_geo @ self.x_geo[k].T)
@@ -233,7 +235,9 @@ class Mesh1D(Mesh):
     @staticmethod
     def grid_transformation(warp_factor=0.2):
         
-        return lambda xi: np.array([xi[0] + warp_factor*np.sin(np.pi*xi[0])])
+        return lambda xi: np.array([xi[0] +
+                                    warp_factor*np.sin(np.pi*xi[0])])
+
 
 class Mesh2D(Mesh):
     
@@ -308,11 +312,11 @@ class Mesh2D(Mesh):
         
             
     @staticmethod
-    def grid_transformation(warp_factor=0.2):
+    def grid_transformation(warp_factor=0.2, L=1.0):
         
-        return lambda xi: np.array([xi[0] + warp_factor*np.sin(
-                np.pi*xi[0])*np.sin(np.pi*xi[1]),
-                xi[1] + warp_factor*np.exp(1-xi[1])*np.sin(
-                np.pi*xi[0])*np.sin(np.pi*xi[1])])
+        return lambda xi: np.array([xi[0] + warp_factor*L*np.sin(
+                np.pi*xi[0]/L)*np.sin(np.pi*xi[1]/L),
+                xi[1] + warp_factor*L*np.exp(1-xi[1]/L)*np.sin(
+                np.pi*xi[0]/L)*np.sin(np.pi*xi[1]/L)])
         
     
