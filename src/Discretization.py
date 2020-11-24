@@ -89,6 +89,10 @@ class SpatialDiscretization:
         # init residual function (set based on problem)
         self.residual = None
         
+        # LaTeX plotting preamble
+        plt.rc('text', usetex=True)
+        plt.rcParams['text.latex.preamble']=r"\usepackage{amsmath}\usepackage{bm}"
+        
         
     @staticmethod
     def map_unit_to_facets(xi_ref, element_type="triangle"):
