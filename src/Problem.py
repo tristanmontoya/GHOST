@@ -71,7 +71,21 @@ class Euler(ConservationLaw):
                                 [(self.gamma-1)*(u[self.N_eq-1] 
                                     - 0.5*u[0]*np.linalg.norm(v)**2)]))
        
+    def conservative_to_parameter_vector(self,u):
         
+          v = u[1:self.N_eq-1]/u[0]
+          return np.sqrt(u[0])*np.concatenate(([1], v, 
+                                [(u[self.N_eq-1] + (self.gamma-1)*(u[self.N_eq-1] 
+                                    - 0.5*u[0]*np.linalg.norm(v)**2))/u[0]]))
+      
+    def parameter_vector_to_conservative(self, z):
+        
+        # z = sqrt(rho)*[1, v_1, ... v_d, (e+p)/rho]
+        return np.concatenate(([z[0]**2], z[0]*z[1:self.N_eq-1],
+                               [(1.0/self.gamma)*(z[self.N_eq-1]*z[0] +\
+                             0.5*(self.gamma-1.0)*np.linalg.norm(z[1:self.N_eq-1])**2)]))
+        
+    
     def build_physical_flux(self):
         
         def f(self, u,x):
@@ -94,3 +108,9 @@ class Euler(ConservationLaw):
             return None
             
         return lambda u_m, u_p, x, n: f_star(self, u_m, u_p, x, n)
+
+pde = Euler(1)
+u = np.array([1.5,2.5,3.5])
+z = pde.conservative_to_parameter_vector(u)
+#print(z)
+print(pde.parameter_vector_to_conservative(z))
