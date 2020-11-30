@@ -418,15 +418,20 @@ class SpatialDiscretization:
             for k in range(0,self.mesh.K):
                 
                 i = self.element_to_discretization[k]
+               
                 f_omega = f((self.V[i] @ u_hat[k].T).T, self.x_omega[k])
                 
+                if print_output:
+                    print("k: ", k)    
+                    print("geom_terms: ", self.J_omega[k]*self.x_prime_inv_omega[k][:,0,0])
+                    print("u_omega: ", (self.V[i] @ u_hat[k].T).T)
+                    print("f_omega: ", f_omega)
+                
                 f_trans_omega.append([sum(
-                    [self.J_omega[k]*self.x_prime_inv_omega[k][:,m,n] * f_omega[n] 
+                    [self.J_omega[k]*self.x_prime_inv_omega[k][:,m,n]* f_omega[n] 
                      for n in range(0,self.d)]) for m in range(0, self.d)])
                 
                 if print_output:
-                    print("k: ", k)
-                    print("f_omega: ", f_omega)
                     print("f_trans_omega: ", f_trans_omega[k])
                 
                 f_trans_gamma.append([])
@@ -451,7 +456,6 @@ class SpatialDiscretization:
                             (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
                             self.x_gamma[k][gamma], self.n_gamma[k][gamma]))
                         
-                        
                     elif self.form == "strong":
                
                         f_trans_gamma[k].append(self.Jf_gamma[k][gamma] * f_star(
@@ -462,6 +466,9 @@ class SpatialDiscretization:
                                       for m in range(0,self.d)])).T)
                     
                     if print_output:
+                        print("f_n: ",sum([f_trans_omega[k][m]*self.n_hat[i][gamma][m] 
+                                          for m in range(0,self.d)]))
+                        
                         print("f_extrap: ", (self.V_gamma[i][gamma] @ self.P[i] @ sum(
                             [f_trans_omega[k][m].T*self.n_hat[i][gamma][m] 
                                           for m in range(0,self.d)])).T)
@@ -584,9 +591,11 @@ class SpatialDiscretization:
             
             if filename is None:
                 mesh_plot.savefig("../plots/" + self.name + 
-                                "_discretization.pdf", bbox_inches='tight')
+                                "_discretization.pdf",
+                                bbox_inches='tight')
             else:
-                mesh_plot.savefig(filename, bbox_inches='tight')
+                mesh_plot.savefig(filename, 
+                                  bbox_inches='tight')
                 
             
         elif self.d == 2:

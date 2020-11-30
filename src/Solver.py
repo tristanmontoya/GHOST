@@ -6,7 +6,6 @@ import Discretization
 import numpy as np
 import modepy as mp
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
 
 import os
 import pickle
@@ -97,6 +96,17 @@ class Solver:
             
             self.cfl_speed = np.linalg.norm(params["background_velocity"])
             
+        elif params["initial_condition"] == "entropy_wave":
+            if params["problem"] != "compressible_euler":
+                raise ValueError(
+                    "Entropy wave only applicable to Euler equations")
+            if self.d != 1:
+                raise NotImplementedError
+                
+            self.u_0 = Solver.entropy_wave_1d(params["specific_heat_ratio"])
+            
+            self.cfl_speed = 1.0
+            
         else:
             raise NotImplementedError    
       
@@ -180,6 +190,7 @@ class Solver:
         plt.rc('text', usetex=True)
         plt.rcParams['text.latex.preamble']=r"\usepackage{amsmath}\usepackage{bm}"
         
+        
     @staticmethod
     def sine_wave(wavelength):
         # numpy array of length d wavelengths
@@ -209,6 +220,18 @@ class Solver:
                  [rho**gamma/(gamma-1) + 0.5*rho*np.linalg.norm(v)**2]))
         
         return lambda x: np.apply_along_axis(g, 0, x)
+    
+    @staticmethod
+    def entropy_wave_1d(gamma):
+        
+        def g(x):
+            rho = 2.0 + np.sin(2*np.pi*x)
+            u = 1.0
+            p = 1.0
+            return np.array([rho, rho*u,  
+                             p/(gamma-1) + 0.5*rho*u**2])
+        
+        return lambda x: np.apply_along_axis(g, 0, x[0])
         
     def project_function(self,g):
         # takes list of functions as input
@@ -258,6 +281,10 @@ class Solver:
             self.u_hat = self.project_function(self.u_0)
             pickle.dump(self.u_hat, open(results_path+"res_" 
                                          + str(0) + ".dat", "wb" ))
+            
+            self.u_hat = self.time_integrator.run(self.u_hat, self.T,
+                                                  results_path,
+                                                  write_interval)
         else:
             raise NotImplementedError
    
@@ -449,16 +476,16 @@ class Solver:
                     numerical.set_label("$\mathcal{U}^h(x,t)$")
                 else:
                     numerical.set_label("$\mathcal{U}_{" 
-                                                + str(equation_index) 
-                                                +"^h(x,t)$")
+                                                + str(equation_index+1) 
+                                                +"}^h(x,t)$")
             if plot_exact:
                 
                 if self.N_eq == 1:
                     exact.set_label("$\mathcal{U}(x,t)$")
                 else:
                     exact.set_label("$\mathcal{U}_{" 
-                                                + str(equation_index) 
-                                                +"(x,t)$")
+                                                + str(equation_index+1) 
+                                                +"}(x,t)$")
             ax.legend()
             
             if show_fig:
@@ -595,7 +622,7 @@ class Solver:
                     cbar.ax.set_ylabel("$\mathcal{U}^h(\\bm{x},t)$")  
                 else:
                     cbar.ax.set_ylabel("$\mathcal{U}_{" 
-                                       + str(equation_index) 
+                                       + str(equation_index+1) 
                                        +"}^h(\\bm{x},t)$")
                 cbar.set_ticks(np.linspace(u_range[0],u_range[1],10))
                 
@@ -626,7 +653,7 @@ class Solver:
                     cbar_ex.ax.set_ylabel("$\mathcal{U}(\\bm{x},t)$")
                 else:
                     cbar_ex.ax.set_ylabel("$\mathcal{U}_{" 
-                                          + str(equation_index) 
+                                          + str(equation_index+1) 
                                           +"}(\\bm{x},t)$")
                 cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],10))
                 exact.savefig(
