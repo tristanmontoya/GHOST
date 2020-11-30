@@ -68,8 +68,14 @@ class Solver:
                 
         elif params["initial_condition"] == "constant":
             
-            self.u_0 = lambda x: np.array([np.ones(x.shape[1]) for e in range(
-                0,self.N_eq)])
+            if params["problem"] == "compressible_euler":
+                self.u_0 = Solver.euler_freestream(self.d, params["specific_heat_ratio"])
+                self.cfl_speed = 1.0
+                
+            else:
+                self.u_0 = lambda x: np.array([np.ones(x.shape[1]) for e in range(
+                    0,self.N_eq)])
+                self.cfl_speed = 1.0
             
         elif params["initial_condition"] == "isentropic_vortex":
             
@@ -208,7 +214,7 @@ class Solver:
         
         def g(x):
             delta_x = x - x_0
-            delta_T = (-(gamma-1.0)/(8*gamma*np.pi)*eps**2)*np.exp(
+            delta_T = (-(gamma-1.0)/(8*gamma*np.pi**2)*eps**2)*np.exp(
                 1-np.linalg.norm(delta_x)**2)
             delta_v = eps/(2*np.pi)*np.exp(1-np.linalg.norm(x-x_0)**2)*np.array(
                 [-delta_x[1], delta_x[0]])
@@ -218,6 +224,15 @@ class Solver:
             return np.concatenate(
                 ([rho],rho*v, 
                  [rho**gamma/(gamma-1) + 0.5*rho*np.linalg.norm(v)**2]))
+        
+        return lambda x: np.apply_along_axis(g, 0, x)
+    
+    @staticmethod
+    def euler_freestream(d,gamma):
+        def g(x):
+            q = np.ones([d+2])
+            return np.concatenate((q[0:d+1], [q[d+1]/(gamma-1)+ 
+                              0.5*q[0]*(np.linalg.norm(q[1:d-1]))**2]))
         
         return lambda x: np.apply_along_axis(g, 0, x)
     
@@ -624,7 +639,7 @@ class Solver:
                     cbar.ax.set_ylabel("$\mathcal{U}_{" 
                                        + str(equation_index+1) 
                                        +"}^h(\\bm{x},t)$")
-                cbar.set_ticks(np.linspace(u_range[0],u_range[1],10))
+                cbar.set_ticks(np.linspace(u_range[0],u_range[1],12))
                 
                 # make title
                 if title is not None:
@@ -655,7 +670,7 @@ class Solver:
                     cbar_ex.ax.set_ylabel("$\mathcal{U}_{" 
                                           + str(equation_index+1) 
                                           +"}(\\bm{x},t)$")
-                cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],10))
+                cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],12))
                 exact.savefig(
                     "../plots/" + self.params["project_title"]
                     + "_exact.pdf", bbox_inches="tight", pad_inches=0)
@@ -861,12 +876,16 @@ class Solver:
                                time_step=times[i][0])
             self.post_process(solution_resolution=20,
                               process_exact_solution=False)
+            self.plot(filename=plots_path+"frame_"+str(i)+".png",
+                           title="$t = $" + str(times[i][1]),
+                           equation_index=0, plot_numerical=True,
+                           plot_exact=False, u_range=u_range, show_fig=False)
             
-            for e in range(0,self.N_eq):
-                self.plot(filename=plots_path+"frame_"+str(i)+".png",
-                          title="$t = $" + str(times[i][1]),
-                          equation_index=e, plot_numerical=True,
-                          plot_exact=False, u_range=u_range, show_fig=False)
+            # for e in range(0,self.N_eq):
+            #     self.plot(filename=plots_path+"frame_"+str(i)+".png",
+            #               title="$t = $" + str(times[i][1]),
+            #               equation_index=e, plot_numerical=True,
+            #               plot_exact=False, u_range=u_range, show_fig=False)
             
         if make_video:
             ff_call = "ffmpeg -framerate "+ str(framerate)+ \

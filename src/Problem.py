@@ -39,8 +39,9 @@ class ConstantAdvection(ConservationLaw):
     def build_numerical_flux(self):
         
         def f_star(self, u_m, u_p, x, n):
-              a_dot_n = n @ self.a
-              return 0.5*a_dot_n*(u_m + u_p) - 0.5*self.alpha*np.abs(a_dot_n)*(u_p - u_m)
+              a_dot_n = n.T @ self.a
+              return 0.5*a_dot_n*(u_m + u_p) \
+                  - 0.5*self.alpha*np.abs(a_dot_n)*(u_p - u_m)
   
         return lambda u_m, u_p, x, n: f_star(self, u_m, u_p, x, n)
 
@@ -103,6 +104,10 @@ class Euler(ConservationLaw):
                                             - 0.5*u_p[0]*Vs_p))
                                         /u_p[0]])
         
+        #pressure
+        p_m = (self.gamma-1)*(u_m[3] - 0.5*u_m[0]*Vs_m)
+        p_p = (self.gamma-1)*(u_p[3] - 0.5*u_p[0]*Vs_p)
+        
         # compute roe average
         avg = (z_m + z_p)/(z_m[0] + z_p[0])
         v = avg[1:3]
@@ -127,21 +132,16 @@ class Euler(ConservationLaw):
                           alpha_2,
                           du[2] - v[1]*du[0],
                           du[0] - (alpha_1 + alpha_2)])
-                    
-        #pressure
-        p_m = (self.gamma-1)*(u_m[3] - 0.5*u_m[0]*Vs_m)
-        p_p = (self.gamma-1)*(u_p[3] - 0.5*u_p[0]*Vs_p)
-        
         
         # fluxes
         f_m = np.array([u_m[1], 
                         u_m[0]*v_m[0]**2 + p_m, 
-                        u_m[0]*v_m[0]**v_m[1],
+                        u_m[0]*v_m[0]*v_m[1],
                         v_m[0]*(u_m[3]+ p_m)])
      
         f_p = np.array([u_p[1], 
                         u_p[0]*v_p[0]**2 + p_p, 
-                        u_p[0]*v_p[0]**v_p[1],
+                        u_p[0]*v_p[0]*v_p[1],
                         v_p[0]*(u_p[3]+ p_p)])
         
         return 0.5*(f_m + f_p) - 0.5*X @ (np.abs(eigval)*alpha)
@@ -155,7 +155,8 @@ class Euler(ConservationLaw):
         q = self.conservative_to_primitive(u) 
         
         return np.vstack(([[u[1:self.N_eq-1]], 
-                         q[0]*np.outer(q[1:self.N_eq-1], q[1:self.N_eq-1]) + q[self.N_eq-1]*np.eye(self.d),
+                         q[0]*np.outer(q[1:self.N_eq-1], q[1:self.N_eq-1]) 
+                         + q[self.N_eq-1]*np.eye(self.d),
                          [q[1:self.N_eq-1]*(u[self.N_eq-1] + q[self.N_eq - 1])]]))
     
     
@@ -190,14 +191,35 @@ class Euler(ConservationLaw):
                 
                 def f_star(self, u_m, u_p, n):
                     
-                    u_nm = np.array([u_m[0], u_m[1]*n[0], 0.0, u_m[2]])
-                    
-                    u_np = np.array([u_p[0], u_p[1]*n[0], 0.0, u_p[2]])
-                    
-                    fn_2d = self.roe_flux(u_nm, u_np)
+                    fn_2d = self.roe_flux(np.array([u_m[0],
+                                                    u_m[1]*n[0], 
+                                                    0.0, 
+                                                    u_m[2]]), 
+                                          np.array([u_p[0],
+                                                    u_p[1]*n[0], 
+                                                    0.0, 
+                                                    u_p[2]]))
                     
                     return np.array([fn_2d[0], fn_2d[1]*n[0], fn_2d[3]])
                 
+            elif self.d == 2:      
+                
+                def f_star(self, u_m, u_p, n):
+                    
+                    fn_2d = self.roe_flux(np.array([u_m[0], 
+                                                    u_m[1]*n[0] + u_m[2]*n[1], 
+                                                    -u_m[1]*n[1] + u_m[2]*n[0],
+                                                    u_m[3]]),
+                                          np.array([u_p[0],
+                                                    u_p[1]*n[0] + u_p[2]*n[1], 
+                                                    -u_p[1]*n[1] + u_p[2]*n[0],
+                                                    u_p[3]]))
+                    
+                    return np.array([fn_2d[0], 
+                                     fn_2d[1]*n[0] - fn_2d[2]*n[1],
+                                     fn_2d[1]*n[1] + fn_2d[2]*n[0], 
+                                     fn_2d[3]])
+                    
             else: 
                 raise NotImplementedError
                 

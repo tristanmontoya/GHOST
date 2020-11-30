@@ -303,7 +303,7 @@ class SpatialDiscretization:
             # unit normal vectors
             self.n_gamma.append([np.array(
                 [n_gamma_unscl[gamma][j,:]/self.Jf_gamma[k][gamma][j]
-                for j in range(0,self.N_gamma[i][gamma])])
+                for j in range(0,self.N_gamma[i][gamma])]).T
                 for gamma in range(0,self.mesh.Nf[k])])
             
         self.test_normals()
@@ -449,12 +449,30 @@ class SpatialDiscretization:
                             self.x_gamma[k][gamma], t) 
                             for e in range(0, N_eq)]
                     
+                    if f_star(
+                           (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
+                           self.x_gamma[k][gamma], self.n_gamma[k][gamma])[0,0] < -100000.0:
+                           print(f_star(
+                           (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
+                           self.x_gamma[k][gamma], self.n_gamma[k][gamma]))
+                           print("k: ", k)
+                           print("t: ", t)
+                           print("gamma: ", gamma)
+                           print("u_omega: ", (self.V[i] @ u_hat[k].T).T)
+                           print("u_m: ", 
+                                    (self.V_gamma[i][gamma] @ u_hat[k].T).T)
+                           print("u_p: ", u_plus)
+                           print("n: ", self.n_gamma[k][gamma])
+                           raise ValueError
+                           
                     if self.form == "weak":
+                        
                         
                         f_trans_gamma[k].append(
                             self.Jf_gamma[k][gamma] * f_star(
                             (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
                             self.x_gamma[k][gamma], self.n_gamma[k][gamma]))
+                        
                         
                     elif self.form == "strong":
                
@@ -530,9 +548,9 @@ class SpatialDiscretization:
                 if self.mesh.local_to_local[(k,gamma)] is not None:
                     
                     nu, rho = self.mesh.local_to_local[(k,gamma)]
-                    if np.amax(np.abs(self.n_gamma[nu][rho] 
+                    if np.amax(np.abs(self.n_gamma[nu][rho].T 
                                       + self.facet_permutation[k][gamma] 
-                                      @ self.n_gamma[k][gamma])) > NORMAL_TOL:
+                                      @ self.n_gamma[k][gamma].T)) > NORMAL_TOL:
                         self.normals_good[k][gamma] = False
                         
                         if print_output:
@@ -817,7 +835,8 @@ class TimeIntegrator:
         for n in range(0,N_t):
             u = np.copy(self.time_step(u,t,dt))
             t = t + dt
-            
+            if ((n+1) % 10 == 0):
+                print("n = ", n+1, ", t = ", t)
             if ((n+1) % N_write == 0) or (n+1 == N_t):
                     times.append([n+1,t])
                     pickle.dump(u, open(

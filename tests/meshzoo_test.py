@@ -23,5 +23,5 @@ def make_square_mesh_uniform(nx, ny, save_mesh=False):
     return points[:, 0:2], elements
 
 
-make_square_mesh_uniform(5, 5, save_mesh=True)
+make_square_mesh_uniform(11, 11, save_mesh=True)
 
