@@ -216,7 +216,7 @@ class Solver:
             delta_x = x - x_0
             delta_T = (-(gamma-1.0)/(8*gamma*np.pi**2)*eps**2)*np.exp(
                 1-np.linalg.norm(delta_x)**2)
-            delta_v = eps/(2*np.pi)*np.exp(1-np.linalg.norm(x-x_0)**2)*np.array(
+            delta_v = eps/(2*np.pi)*np.exp((1-np.linalg.norm(x-x_0)**2)/2.0)*np.array(
                 [-delta_x[1], delta_x[0]])
             rho = (T_infty + delta_T)**(1.0/(gamma-1.0))
             v = v_infty + delta_v
@@ -428,6 +428,7 @@ class Solver:
              u_range = [-1.0,1.0],
              show_fig=True):
         
+        u_diff = u_range[1] - u_range[0]
         self.color = iter(plt.cm.rainbow(
             np.linspace(0, 1, self.discretization.mesh.K)))
         
@@ -518,8 +519,8 @@ class Solver:
         elif self.d == 2:
  
             # place contours
-            contours = np.linspace(u_range[0], 
-                                   u_range[1],100)
+            contours = np.linspace(u_range[0]-0.1*u_diff, 
+                                   u_range[1]+0.1*u_diff,13)
             
             # set up plots
             if plot_numerical:
@@ -637,9 +638,11 @@ class Solver:
                     cbar.ax.set_ylabel("$\mathcal{U}^h(\\bm{x},t)$")  
                 else:
                     cbar.ax.set_ylabel("$\mathcal{U}_{" 
-                                       + str(equation_index+1) 
-                                       +"}^h(\\bm{x},t)$")
-                cbar.set_ticks(np.linspace(u_range[0],u_range[1],12))
+                                        + str(equation_index+1) 
+                                        +"}^h(\\bm{x},t)$")
+                    
+                    #cbar.ax.set_ylabel("$\\rho u_1$")  
+                cbar.set_ticks(np.linspace(u_range[0],u_range[1],11))
                 
                 # make title
                 if title is not None:
@@ -647,7 +650,6 @@ class Solver:
                 
                 if filename is None:
                     numerical.savefig(
-                        "../plots/" + self.params["project_title"]
                         + "_numerical.pdf", facecolor="white", transparent=False,
                         bbox_inches="tight", pad_inches=0)
                 else:
@@ -670,7 +672,7 @@ class Solver:
                     cbar_ex.ax.set_ylabel("$\mathcal{U}_{" 
                                           + str(equation_index+1) 
                                           +"}(\\bm{x},t)$")
-                cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],12))
+                cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],11))
                 exact.savefig(
                     "../plots/" + self.params["project_title"]
                     + "_exact.pdf", bbox_inches="tight", pad_inches=0)
@@ -774,7 +776,6 @@ class Solver:
                                     '-', 
                                     color="black")
                     
-                    
         if plot_numerical:
             
             contour_numerical = ax.tricontourf(
@@ -783,7 +784,6 @@ class Solver:
                             +self.u_hv_global[equation_index[1]]**2),
                                levels=contours,
                                cmap="jet")
-            
             
             if plot_arrows:
                     
@@ -853,7 +853,8 @@ class Solver:
         
     def plot_time_steps(self, results_path=None, 
                         plots_path=None,
-                        u_range = [-2.0,2.0], 
+                        u_range = [0.0,1.0], 
+                        equation_index=0,
                         clear_write_dir=True,
                         make_video=True,
                         framerate=2):
@@ -877,15 +878,9 @@ class Solver:
             self.post_process(solution_resolution=20,
                               process_exact_solution=False)
             self.plot(filename=plots_path+"frame_"+str(i)+".png",
-                           title="$t = $" + str(times[i][1]),
-                           equation_index=0, plot_numerical=True,
+                           title="$t = " + str(np.round(times[i][1], decimals=2)) + "$",
+                           equation_index=equation_index, plot_numerical=True,
                            plot_exact=False, u_range=u_range, show_fig=False)
-            
-            # for e in range(0,self.N_eq):
-            #     self.plot(filename=plots_path+"frame_"+str(i)+".png",
-            #               title="$t = $" + str(times[i][1]),
-            #               equation_index=e, plot_numerical=True,
-            #               plot_exact=False, u_range=u_range, show_fig=False)
             
         if make_video:
             ff_call = "ffmpeg -framerate "+ str(framerate)+ \

@@ -817,7 +817,7 @@ class TimeIntegrator:
             write_interval):
         
         # calculate number of steps to take and actual time step
-        N_t = ceil(T/self.dt_target) 
+        N_t = floor(T/self.dt_target) 
         dt = T/N_t
         
         # interval between writes to file
@@ -835,13 +835,12 @@ class TimeIntegrator:
         for n in range(0,N_t):
             u = np.copy(self.time_step(u,t,dt))
             t = t + dt
-            if ((n+1) % 10 == 0):
-                print("n = ", n+1, ", t = ", t)
             if ((n+1) % N_write == 0) or (n+1 == N_t):
-                    times.append([n+1,t])
-                    pickle.dump(u, open(
-                    results_path+"res_" +
-                    str(n+1) + ".dat", "wb" ))
+                print("writing time step ", n+1, ": t = ", t)
+                times.append([n+1,t])
+                pickle.dump(u, open(
+                results_path+"res_" +
+                str(n+1) + ".dat", "wb" ))
         
         pickle.dump(times, open(
                    results_path+"times.dat", "wb" ))
