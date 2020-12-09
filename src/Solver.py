@@ -6,6 +6,7 @@ import Discretization
 import numpy as np
 import modepy as mp
 import matplotlib.pyplot as plt
+from math import ceil
 
 import os
 import pickle
@@ -23,6 +24,15 @@ class Solver:
             
             if "wave_speed" not in params:
                 params["wave_speed"] = np.ones(self.d)
+            
+            if "upwind_parameter" not in params:
+                if params["numerical_flux"] == "upwind":
+                    params["upwind_parameter"] = 1.0
+                elif (params["numerical_flux"] == "central" 
+                      or params["numerical_flux"] == "symmetric"):
+                    params["upwind_parameter"] = 0.0
+                else:
+                    raise NotImplementedError
                 
             self.pde = Problem.ConstantAdvection(params["wave_speed"],
                 params["upwind_parameter"])
@@ -131,6 +141,9 @@ class Solver:
             
         if "solution_representation" not in params:
             params["solution_representation"] = "modal"
+            
+        if "correction" not in params:
+            params["correction"] = "c_dg"
         
         if params["integration_type"] == "quadrature":
             
@@ -145,7 +158,8 @@ class Solver:
                 params["volume_quadrature_degree"], 
                 params["facet_quadrature_degree"],
                 form=params["form"],
-                solution_representation=params["solution_representation"])
+                solution_representation=params["solution_representation"],
+                correction=params["correction"])
                 
             if "facet_integration_rule" in params:
                 raise NotImplementedError
@@ -199,6 +213,7 @@ class Solver:
         
     @staticmethod
     def sine_wave(wavelength):
+        
         # numpy array of length d wavelengths
         def g(x):
             return np.array([np.apply_along_axis(
@@ -206,7 +221,6 @@ class Solver:
                     np.prod(
                         np.sin(2.0*np.pi*xi/wavelength)),
                     0,x)])
-        
         return g
     
     @staticmethod
@@ -268,7 +282,7 @@ class Solver:
             results_path = "../results/" + self.project_title + "/"
             
         if not os.path.exists(results_path):
-            os.mkdir(results_path)
+            os.makedirs(results_path)
         elif clear_write_dir:
             os.system("rm -rf "+results_path+"*")
             
@@ -304,117 +318,212 @@ class Solver:
             raise NotImplementedError
    
     
-    def post_process(self, solution_resolution=10, 
+    def post_process(self, visualization_resolution=10, 
+                     error_quadrature_degree=10,
+                     process_visualization=True,
                      process_exact_solution=True):
         
-        # reconstruct nodal values at integration points
-        self.u_h = []
-        self.u_h_gamma = []
-        for k in range(0, self.discretization.mesh.K):
+        if process_visualization:
             
-            self.u_h.append([])
-            self.u_h_gamma.append([]) 
-            for e in range(0, self.N_eq):
-                self.u_h[k].append(self.discretization.V[
-                 self.discretization.element_to_discretization[k]] 
-                    @ self.u_hat[k][e])
-             
-            for gamma in range(0, self.discretization.mesh.Nf[k]):
-                self.u_h_gamma[k].append([])
-                for e in range(0, self.N_eq):
-                    self.u_h_gamma[k][gamma].append((self.discretization.V_gamma[
-                 self.discretization.element_to_discretization[k]][gamma] 
-                        @ self.u_hat[k][e]))
-             
-        # max and min values at integration points
-        self.u_hmin = [min([np.amin(self.u_h[k][e]) 
-                           for k in range(0,self.discretization.mesh.K)]) 
-                      for e in range(0,self.N_eq)] 
-        self.u_hmax = [max([np.amax(self.u_h[k][e]) 
-                           for k in range(0,self.discretization.mesh.K)]) 
-                      for e in range(0,self.N_eq)] 
-
-        # reconstruct nodal values at visualization points
-        if self.discretization.basis is None:
-            
-            self.x_v = self.discretization.x_omega
-            self.u_hv = self.u_h
-            self.u_hvmin = self.u_hmin
-            self.u_hmax = self.u_hmax
-            
-        else:
-            if self.d== 1:
-                ref_volume_points =  np.array(mp.equidistant_nodes(
-                    self.d, solution_resolution))
-                V_geo_to_plot = mp.vandermonde(self.discretization.mesh.basis_geo,
-                                        ref_volume_points[0])
-            else:
-                ref_volume_points =  mp.XiaoGimbutasSimplexQuadrature(
-                    solution_resolution, self.d).nodes 
-                V_geo_to_plot = mp.vandermonde(self.discretization.mesh.basis_geo,
-                                        ref_volume_points)
-        
-            self.u_hv = []
-            self.x_v = []
+            # reconstruct nodal values at integration points
+            self.u_h = []
+            self.u_h_gamma = []
             for k in range(0, self.discretization.mesh.K):
                 
-                # get x at visualization points
-                self.x_v.append((V_geo_to_plot 
-                                 @ self.discretization.mesh.xhat_geo[k]).T)
-                    
-                self.u_hv.append([])
-                
-                if self.discretization.solution_representation == "modal":
-                    
-                    V_plot = mp.vandermonde(self.discretization.basis[
-                                self.discretization.element_to_discretization[k]],
-                                ref_volume_points)
-                elif self.discretization.solution_representation == "nodal":
-                    
-                    V_plot = mp.vandermonde(self.discretization.basis[
-                                self.discretization.element_to_discretization[k]],
-                                ref_volume_points) @ self.discretization.Vp_inv[
-                                self.discretization.element_to_discretization[k]]
-                else:
-                    raise NotImplementedError
-                
+                self.u_h.append([])
+                self.u_h_gamma.append([]) 
                 for e in range(0, self.N_eq):
-                     self.u_hv[k].append(V_plot @ self.u_hat[k][e])
-                     
-        # max and min values at visualization points
-        self.u_hvmin = [min([np.amin(self.u_hv[k][e]) 
-                           for k in range(0,self.discretization.mesh.K)]) 
-                      for e in range(0,self.N_eq)] 
-        self.u_hvmax = [max([np.amax(self.u_hv[k][e]) 
-                           for k in range(0,self.discretization.mesh.K)]) 
-                      for e in range(0,self.N_eq)] 
+                    self.u_h[k].append(self.discretization.V[
+                     self.discretization.element_to_discretization[k]]
+                        @ self.u_hat[k][e])
+                 
+                for gamma in range(0, self.discretization.mesh.Nf[k]):
+                    self.u_h_gamma[k].append([])
+                    for e in range(0, self.N_eq):
+                        self.u_h_gamma[k][gamma].append((
+                            self.discretization.V_gamma[
+                     self.discretization.element_to_discretization[k]][gamma] 
+                            @ self.u_hat[k][e]))
+                 
+            # max and min values at integration points
+            self.u_hmin = [min([np.amin(self.u_h[k][e]) 
+                               for k in range(0,self.discretization.mesh.K)]) 
+                          for e in range(0,self.N_eq)] 
+            self.u_hmax = [max([np.amax(self.u_h[k][e]) 
+                               for k in range(0,self.discretization.mesh.K)]) 
+                          for e in range(0,self.N_eq)]
+            
+            # reconstruct nodal values at visualization points
+            if self.discretization.basis is None:
+                
+                self.x_v = self.discretization.x_omega
+                self.u_hv = self.u_h
+                self.u_hvmin = self.u_hmin
+                self.u_hmax = self.u_hmax
+                
+            else:
+                
+                if self.d== 1:
+                    
+                    ref_volume_points =  np.array(mp.equidistant_nodes(
+                        self.d, visualization_resolution))
+                    V_geo_to_plot = mp.vandermonde(self.discretization.mesh.basis_geo,
+                                            ref_volume_points[0])
+                else:
+                    
+                    ref_volume_points =  mp.XiaoGimbutasSimplexQuadrature(
+                        visualization_resolution, self.d).nodes 
+                    V_geo_to_plot = mp.vandermonde(self.discretization.mesh.basis_geo,
+                                            ref_volume_points)
+            
+                self.u_hv = []
+                self.x_v = []
+                for k in range(0, self.discretization.mesh.K):
+                    
+                    # get x at visualization points
+                    self.x_v.append((V_geo_to_plot 
+                                     @ self.discretization.mesh.xhat_geo[k]).T)
+                        
+                    self.u_hv.append([])
+                    
+                    if self.discretization.solution_representation == "modal":
+                        
+                        V_plot = mp.vandermonde(self.discretization.basis[
+                                    self.discretization.element_to_discretization[k]],
+                                    ref_volume_points)
+                    elif self.discretization.solution_representation == "nodal":
+                        
+                        V_plot = mp.vandermonde(self.discretization.basis[
+                                    self.discretization.element_to_discretization[k]],
+                                    ref_volume_points) @ self.discretization.Vp_inv[
+                                    self.discretization.element_to_discretization[k]]
+                                        
+                    else:
+                        
+                        raise NotImplementedError
+                    
+                    for e in range(0, self.N_eq):
+                         self.u_hv[k].append(V_plot @ self.u_hat[k][e])
+                         
+            # max and min values at visualization points
+            self.u_hvmin = [min([np.amin(self.u_hv[k][e]) 
+                               for k in range(0,self.discretization.mesh.K)]) 
+                          for e in range(0,self.N_eq)] 
+            self.u_hvmax = [max([np.amax(self.u_hv[k][e]) 
+                               for k in range(0,self.discretization.mesh.K)]) 
+                          for e in range(0,self.N_eq)] 
+            
+            self.x_v_global = np.concatenate([self.x_v[k] 
+                                              for k in range(0,self.discretization.mesh.K)],
+                                             axis=1)
+            
+            self.u_hv_global = [np.concatenate([self.u_hv[k][e]
+                                                for k in range(0,self.discretization.mesh.K)]) 
+                                for e in range(0,self.N_eq)]
+            
         
-        # global visualization (concatenated)
-        self.x_v_global = np.concatenate(
-            [self.x_v[k] for k in range(0,self.discretization.mesh.K)], axis=1)
-        
-        self.u_hv_global = [np.concatenate(
-            [self.u_hv[k][e] for k in range(0,self.discretization.mesh.K)]) 
-            for e in range(0, self.N_eq)]
-        
+        # evaluate numerical solution on error evaluation points, also
+        # evaluate exact solution at error evaluation and visualization points
         if process_exact_solution and self.u is not None:
-            
-            # evaluate exact solution at visualization points
-            self.u_v = [[self.u(self.x_v[k])[e] 
-                               for e in range(0, self.N_eq)] 
-                              for k in range(0,self.discretization.mesh.K)]
-            self.u_vmin = [min([np.amin(self.u_v[k][e]) 
-                           for k in range(0,self.discretization.mesh.K)]) 
-                      for e in range(0,self.N_eq)] 
-            self.u_vmax = [max([np.amax(self.u_v[k][e]) 
-                           for k in range(0,self.discretization.mesh.K)]) 
-                      for e in range(0,self.N_eq)] 
-            
-            self.u_v_global = [np.concatenate(
-            [self.u_v[k][e] for k in range(0,self.discretization.mesh.K)]) 
-            for e in range(0, self.N_eq)]
-        
     
+            # reconstruct nodal values at error evaluation points
+            if self.discretization.basis is None:
+                
+                self.x_e = self.discretization.x_omega
+                self.u_he = self.u_h
+                self.J_e = self.discretization.J_omega
+                
+            else:
+                
+                if self.d==1:
+                    
+                    self.ref_error_quadrature = mp.LegendreGaussQuadrature(
+                        ceil((error_quadrature_degree-1)/2))
+                    self.N_error_pts = self.ref_error_quadrature.nodes.shape[0]
+                    
+                    V_geo_xi_error = [mp.vandermonde(
+                        self.discretization.mesh.grad_basis_geo,
+                        self.ref_error_quadrature.nodes)]
+                    
+                else:
+                    
+                    self.ref_error_quadrature = mp.XiaoGimbutasSimplexQuadrature(
+                        error_quadrature_degree, self.d)
+                    self.N_error_pts = self.ref_error_quadrature.nodes.shape[1]
+                    
+                    V_geo_xi_error = list(mp.vandermonde(
+                        self.discretization.mesh.grad_basis_geo,
+                        self.ref_error_quadrature.nodes))
+                    
+                V_geo_to_error = mp.vandermonde(self.discretization.mesh.basis_geo,
+                                        self.ref_error_quadrature.nodes)
+                
+                self.u_he = []
+                self.x_e = []
+                self.J_e = []
+                for k in range(0, self.discretization.mesh.K):
+                    
+                    self.x_e.append((V_geo_to_error
+                                     @ self.discretization.mesh.xhat_geo[k]).T)
+                    
+                    self.u_he.append([])
+                    
+                    if self.discretization.solution_representation == "modal":
+                        
+                        V_error = mp.vandermonde(self.discretization.basis[
+                                    self.discretization.element_to_discretization[k]],
+                                    self.ref_error_quadrature.nodes)
+                        
+                    elif self.discretization.solution_representation == "nodal":
+                        
+                        V_error = mp.vandermonde(self.discretization.basis[
+                                    self.discretization.element_to_discretization[k]],
+                                    self.ref_error_quadrature.nodes) @ self.discretization.Vp_inv[
+                                    self.discretization.element_to_discretization[k]]
+                                        
+                    else:
+                        
+                        raise NotImplementedError
+                    
+                    for e in range(0, self.N_eq):
+                        
+                         self.u_he[k].append(V_error @ self.u_hat[k][e])
+                        
+                         
+                    x_prime_error = np.zeros([self.N_error_pts,
+                                            self.d, self.d])
+                    
+                    for m in range(0, self.d):
+                        x_prime_error[:,:,m] = V_geo_xi_error[m] @ self.discretization.mesh.xhat_geo[k]
+                        
+                    self.J_e.append(
+                        np.array([np.linalg.det(x_prime_error[j,:,:]) 
+                                  for j in range(0,self.N_error_pts)]))
+            
+            # evaluate exact solution at error evaluation points
+            self.u_e = [[self.u(self.x_e[k])[e]
+                         for e in range(0, self.N_eq)]
+                        for k in range(0,self.discretization.mesh.K)]
+                   
+            
+            if process_visualization:
+                
+                # evaluate exact solution at visualization points
+                self.u_v = [[self.u(self.x_v[k])[e] 
+                                   for e in range(0, self.N_eq)] 
+                                  for k in range(0,self.discretization.mesh.K)]
+                self.u_vmin = [min([np.amin(self.u_v[k][e]) 
+                               for k in range(0,self.discretization.mesh.K)]) 
+                          for e in range(0,self.N_eq)] 
+                self.u_vmax = [max([np.amax(self.u_v[k][e]) 
+                               for k in range(0,self.discretization.mesh.K)]) 
+                          for e in range(0,self.N_eq)] 
+                
+                self.u_v_global = [np.concatenate(
+                [self.u_v[k][e] for k in range(0,self.discretization.mesh.K)]) 
+                    for e in range(0, self.N_eq)]
+            
+            
     def plot(self,
              filename=None,
              title=None,
@@ -509,13 +618,16 @@ class Solver:
             plt.close()
             
             if filename is None:
+                
                 solution_plot.savefig("../plots/" + self.params["project_title"] + 
                                 "_solution.pdf", facecolor="white", 
                                 transparent=False)
+                
             else:
-                solution_plot.savefig(filename, facecolor="white", transparent=False, dpi=300)
                 
-                
+                solution_plot.savefig(filename, facecolor="white", 
+                                      transparent=False, dpi=300)
+                 
         elif self.d == 2:
  
             # place contours
@@ -641,7 +753,7 @@ class Solver:
                                         + str(equation_index+1) 
                                         +"}^h(\\bm{x},t)$")
                     
-                    #cbar.ax.set_ylabel("$\\rho u_1$")  
+                #cbar.ax.set_ylabel("$\\rho u_1$")  
                 cbar.set_ticks(np.linspace(u_range[0],u_range[1],11))
                 
                 # make title
@@ -649,7 +761,7 @@ class Solver:
                     plt.title(title)
                 
                 if filename is None:
-                    numerical.savefig(
+                    numerical.savefig("../plots/" + self.params["project_title"]
                         + "_numerical.pdf", facecolor="white", transparent=False,
                         bbox_inches="tight", pad_inches=0)
                 else:
@@ -683,7 +795,19 @@ class Solver:
             
         else:
             raise NotImplementedError
+            
+    def calculate_error(self, norm="L2"):
         
+        if norm == "L2":
+            
+            return np.array([np.sqrt(sum([np.dot((self.u_e[k][e] - self.u_he[k][e])**2,
+                                        self.J_e[k]*self.ref_error_quadrature.weights)
+                                for k in range(0,self.discretization.mesh.K)]))
+                                for e in range(0,self.N_eq)])
+        
+        else:
+            raise NotImplementedError
+            
         
     def plot_velocity_field(self,
              filename=None,
@@ -699,11 +823,9 @@ class Solver:
              show_fig=True):
         
         # vector plot of velocity
-        
         if self.d != 2:
             raise NotImplementedError
         
- 
         # place contours
         contours = np.linspace(u_range[0], 
                                u_range[1],100)
@@ -866,7 +988,7 @@ class Solver:
               plots_path = "../plots/" + self.project_title + "/"
         
         if not os.path.exists(plots_path):
-            os.mkdir(plots_path)
+            os.makedirs(plots_path)
         elif clear_write_dir:
             os.system("rm -rf "+plots_path+"*")
         
@@ -875,7 +997,7 @@ class Solver:
         for i in range(0,len(times)):
             self.load_solution(results_path=results_path,
                                time_step=times[i][0])
-            self.post_process(solution_resolution=20,
+            self.post_process(visualization_resolution=20,
                               process_exact_solution=False)
             self.plot(filename=plots_path+"frame_"+str(i)+".png",
                            title="$t = " + str(np.round(times[i][1], decimals=2)) + "$",

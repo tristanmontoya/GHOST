@@ -14,7 +14,7 @@ class SpatialDiscretization:
     def __init__(self, mesh, element_to_discretization, p,
                  xi_omega, xi_gamma, W, W_gamma,
                  n_hat, solution_representation ="modal",
-                 form = "weak", name=None):
+                 form = "weak", correction="c_dg", name=None):
         
         # mesh
         self.mesh = mesh
@@ -82,6 +82,9 @@ class SpatialDiscretization:
         self.Jf_gamma = []
         self.n_gamma = [] 
         self.map_nodes()
+        
+        # VCJH parameter
+        self.correction=correction
         
         # build volume and facet operators
         self.build_local_operators()
@@ -259,6 +262,7 @@ class SpatialDiscretization:
                     for gamma in range(0,self.mesh.Nf[k])]
                 
             for m in range(0, self.d):
+                
                 # jacobian at volume nodes
                 self.x_prime_omega[k][:,:,m] = V_geo_xi[m] @ self.mesh.xhat_geo[k]
                 
@@ -316,14 +320,6 @@ class SpatialDiscretization:
                   for i in range(0,self.Nd)]
         self.Minv = [np.linalg.inv(self.M[i]) for i in range(0, self.Nd)]
     
-        self.M_J = [self.V[self.element_to_discretization[k]].T 
-            @ self.W[self.element_to_discretization[k]] 
-            @ np.diag(self.J_omega[k]) 
-            @ self.V[self.element_to_discretization[k]] 
-            for k in range(0,self.mesh.K)]
-        
-        self.M_J_inv = [np.linalg.inv(self.M_J[k]) 
-                        for k in range(0, self.mesh.K)]
         
         
         # discrete orthogonal projection matrix
@@ -370,6 +366,70 @@ class SpatialDiscretization:
             
             raise NotImplementedError
         
+        if self.correction == "c_dg":
+    
+            self.M_J = [self.V[self.element_to_discretization[k]].T 
+                @ self.W[self.element_to_discretization[k]] 
+                @ np.diag(self.J_omega[k]) 
+                @ self.V[self.element_to_discretization[k]] 
+                for k in range(0,self.mesh.K)]
+            
+            self.L = [[self.Minv[i] @ self.V_gamma[i][gamma].T
+                       @ self.W_gamma[i][gamma] for gamma in range(0, self.Nf[i])]
+                       for i in range(0,self.Nd)]
+                    
+        elif self.correction == "c_+":
+            
+            abs_omega = 2.0**self.d/(2.0*self.d)
+            
+            # get coeffs
+            if self.d == 1:
+                
+                c_plus = {2: 0.183,
+                          3: 3.6e-3,
+                          4: 4.67e-3,
+                          5: 4.28e-7}
+                
+                D_alpha = [np.linalg.matrix_power(self.Dhat[i][0],self.p[i]) 
+                           for i in range(0,self.Nd)]
+                
+                self.K = [1.0/abs_omega*c_plus[self.p[i]]*D_alpha[i].T @ self.M[i] @ D_alpha[i] for i in range(0,self.Nd)] 
+                
+            
+            elif self.d == 2:
+                
+                c_plus = {2: 4.0e-2,
+                          3: 5.9e-4,
+                          4: 6.4e-6}
+                
+                alpha = [np.array([[q,self.p[i] - q] for q in range(0,self.p[i])]) 
+                         for i in range(0,self.Nd)]
+            
+                c_alpha = [c_plus[self.p[i]]*np.array([special.comb(self.p[i], q, 
+                                exact=True) for q in range(0,self.p[i])]) 
+                           for i in range(0,self.Nd)]
+                D_alpha = [[np.linalg.matrix_power(self.Dhat[i][0], alpha[i][q][0]) 
+                           @ np.linalg.matrix_power(self.Dhat[i][1], alpha[i][q][1])
+                           for q in range(0,self.p[i])]
+                           for i in range(0,self.Nd)]
+                    
+                self.K = [1.0/abs_omega*sum([c_alpha[i][q]*D_alpha[i][q].T @ self.M[i] @ D_alpha[i][q]
+                               for q in range(0,self.p[i])])
+                    for i in range(0,self.Nd)]
+        
+            self.M_J = [(self.V[self.element_to_discretization[k]].T 
+                @ self.W[self.element_to_discretization[k]] 
+                @ self.V[self.element_to_discretization[k]] + self.K[self.element_to_discretization[k]]) @ 
+                self.P[self.element_to_discretization[k]] @ np.diag(self.J_omega[k]) 
+                @ self.V[self.element_to_discretization[k]]
+                for k in range(0,self.mesh.K)]
+            
+            self.L = [[np.linalg.inv(self.M[i] + self.K[i]) @ self.V_gamma[i][gamma].T
+                       @ self.W_gamma[i][gamma] for gamma in range(0, self.Nf[i])]
+                       for i in range(0,self.Nd)]
+                
+        self.M_J_inv = [np.linalg.inv(self.M_J[k]) 
+                        for k in range(0, self.mesh.K)]
         
         # pre-compute full volume and facet operators
         if self.form == "weak":
@@ -396,9 +456,10 @@ class SpatialDiscretization:
                           self.P[self.element_to_discretization[k]]
                         for m in range(0,self.d)] for k in range(0,self.mesh.K)]
             
-            self.fac = [[-1.0*self.M_J_inv[k] 
-                         @ self.V_gamma[self.element_to_discretization[k]][gamma].T
-                         @ self.W_gamma[self.element_to_discretization[k]][gamma]
+            self.fac = [[-1.0*np.linalg.inv(self.P[self.element_to_discretization[k]] 
+                                            @ np.diag(self.J_omega[k]) 
+                                            @ self.V[self.element_to_discretization[k]])
+                         @ self.L[self.element_to_discretization[k]][gamma]
                          for gamma in range(0, self.mesh.Nf[k])]
                          for k in range(0,self.mesh.K)]
             
@@ -449,22 +510,6 @@ class SpatialDiscretization:
                             self.x_gamma[k][gamma], t) 
                             for e in range(0, N_eq)]
                     
-                    if f_star(
-                           (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
-                           self.x_gamma[k][gamma], self.n_gamma[k][gamma])[0,0] < -100000.0:
-                           print(f_star(
-                           (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
-                           self.x_gamma[k][gamma], self.n_gamma[k][gamma]))
-                           print("k: ", k)
-                           print("t: ", t)
-                           print("gamma: ", gamma)
-                           print("u_omega: ", (self.V[i] @ u_hat[k].T).T)
-                           print("u_m: ", 
-                                    (self.V_gamma[i][gamma] @ u_hat[k].T).T)
-                           print("u_p: ", u_plus)
-                           print("n: ", self.n_gamma[k][gamma])
-                           raise ValueError
-                           
                     if self.form == "weak":
                         
                         
@@ -695,7 +740,8 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
     
     def __init__(self, mesh, p, tau=None, mu=None,
                  volume_rule=None, facet_rule=None, 
-                 form="weak", solution_representation="modal"):
+                 form="weak", solution_representation="modal",
+                 correction="c_dg"):
         
         if tau is None:
             tau = 2*p
@@ -706,10 +752,12 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
         if mesh.d == 1:
             
             if volume_rule == None or volume_rule == "lg":
+                
                 volume_quadrature = mp.LegendreGaussQuadrature(ceil((tau-1)/2))
                 volume_nodes = np.array([volume_quadrature.nodes])
                 W = np.diag(volume_quadrature.weights)
             elif volume_rule == "lgl":
+                
                raise NotImplementedError
             
             
@@ -739,13 +787,15 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
     
         super().__init__(mesh, [0]*mesh.K, [p], [volume_nodes],
                          [facet_nodes], [W], [W_gamma], [n_hat], form=form,
-                         solution_representation=solution_representation)
+                         solution_representation=solution_representation,
+                         correction=correction)
     
     
 class SimplexCollocationDiscretization(SpatialDiscretization):
     
     def __init__(self, mesh, p, p_omega=None, p_gamma=None,
-                 form="weak", solution_representation="modal"):
+                 form="weak", solution_representation="modal",
+                 correction="c_dg"):
             
         if p_omega is None:
             p_omega = p
@@ -791,7 +841,8 @@ class SimplexCollocationDiscretization(SpatialDiscretization):
 
         super().__init__(mesh, [0]*mesh.K, [p], [volume_nodes],
                          [facet_nodes], [W], [W_gamma], [n_hat], form=form,
-                         solution_representation=solution_representation)
+                         solution_representation=solution_representation,
+                         correction=correction)
     
             
 class TimeIntegrator:
