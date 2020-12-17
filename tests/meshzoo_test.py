@@ -8,8 +8,8 @@ def make_square_mesh_uniform(nx, ny,
             save_mesh=False):
 
     points, elements = meshzoo.rectangle(
-            xmin=0.0, xmax=10.0,
-            ymin=0.0, ymax=10.0,
+            xmin=0.0, xmax=xmax,
+            ymin=0.0, ymax=ymax,
             nx=nx, ny=ny
             )
 
@@ -27,22 +27,7 @@ def make_square_mesh_uniform(nx, ny,
 
 
 L = 1.0
-make_square_mesh_uniform(5, 5, 
-            xmin=0.0, xmax=L,
-            ymin=0.0, ymax=L,
-            save_mesh=True)
-
-make_square_mesh_uniform(11, 11, 
-            xmin=0.0, xmax=L,
-            ymin=0.0, ymax=L,
-            save_mesh=True)
-
-make_square_mesh_uniform(21, 21, 
-            xmin=0.0, xmax=L,
-            ymin=0.0, ymax=L,
-            save_mesh=True)
-
-make_square_mesh_uniform(41, 41, 
+make_square_mesh_uniform(6, 6, 
             xmin=0.0, xmax=L,
             ymin=0.0, ymax=L,
             save_mesh=True)

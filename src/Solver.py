@@ -170,6 +170,8 @@ class Solver:
                 params["volume_collocation_degree"] = None
             if "facet_collocation_degree" not in params:
                 params["facet_collocation_degree"] = None
+            if "use_lumping" not in params:
+                params["use_lumping"] = False
                 
             self.discretization = Discretization.SimplexCollocationDiscretization(
                 mesh,
@@ -177,7 +179,8 @@ class Solver:
                 params["volume_collocation_degree"], 
                 params["facet_collocation_degree"],
                 form=params["form"],
-                solution_representation=params["solution_representation"])
+                solution_representation=params["solution_representation"],
+                use_lumping=params["use_lumping"])
             
         else:
             raise NotImplementedError
@@ -216,6 +219,7 @@ class Solver:
         
         # numpy array of length d wavelengths
         def g(x):
+            
             return np.array([np.apply_along_axis(
                 lambda xi: 
                     np.prod(
@@ -227,6 +231,7 @@ class Solver:
     def isentropic_vortex(eps, gamma,  x_0, T_infty, v_infty):
         
         def g(x):
+            
             delta_x = x - x_0
             delta_T = (-(gamma-1.0)/(8*gamma*np.pi**2)*eps**2)*np.exp(
                 1-np.linalg.norm(delta_x)**2)
@@ -243,7 +248,9 @@ class Solver:
     
     @staticmethod
     def euler_freestream(d,gamma):
+        
         def g(x):
+            
             q = np.ones([d+2])
             return np.concatenate((q[0:d+1], [q[d+1]/(gamma-1)+ 
                               0.5*q[0]*(np.linalg.norm(q[1:d-1]))**2]))
@@ -254,16 +261,17 @@ class Solver:
     def entropy_wave_1d(gamma):
         
         def g(x):
+            
             rho = 2.0 + np.sin(2*np.pi*x)
             u = 1.0
             p = 1.0
+            
             return np.array([rho, rho*u,  
                              p/(gamma-1) + 0.5*rho*u**2])
         
         return lambda x: np.apply_along_axis(g, 0, x[0])
         
     def project_function(self,g):
-        # takes list of functions as input
         
         return [np.array([self.discretization.P[
             self.discretization.element_to_discretization[k]] @
@@ -296,24 +304,38 @@ class Solver:
             
             # evaluate initial condition by projection
             self.u_hat = self.project_function(self.u_0)
+            
             pickle.dump(self.u_hat, open(results_path+"res_" 
                                          + str(0) + ".dat", "wb" ))
+            
+            self.I_0 = self.calculate_conserved_integral() 
+            self.E_0 = self.calculate_energy()
             
             self.u_hat = self.time_integrator.run(self.u_hat, self.T,
                                                   results_path,
                                                   write_interval)
-        
+            
+            self.I_f = self.calculate_conserved_integral()
+            self.E_f = self.calculate_energy()
         
         elif self.params["problem"] == "compressible_euler":
             
             # evaluate initial condition by projection
             self.u_hat = self.project_function(self.u_0)
+            
             pickle.dump(self.u_hat, open(results_path+"res_" 
                                          + str(0) + ".dat", "wb" ))
+            
+            self.I_0 = self.calculate_conserved_integral() 
+            self.E_0 = self.calculate_energy()
             
             self.u_hat = self.time_integrator.run(self.u_hat, self.T,
                                                   results_path,
                                                   write_interval)
+            
+            self.I_f = self.calculate_conserved_integral() 
+            self.E_f = self.calculate_energy()
+            
         else:
             raise NotImplementedError
    
@@ -522,7 +544,52 @@ class Solver:
                 self.u_v_global = [np.concatenate(
                 [self.u_v[k][e] for k in range(0,self.discretization.mesh.K)]) 
                     for e in range(0, self.N_eq)]
+               
+    def calculate_error(self, norm="L2"):
+        
+        if norm == "L2":
             
+            return np.array([np.sqrt(sum([np.dot((self.u_e[k][e] - self.u_he[k][e])**2,
+                                        self.J_e[k]*self.ref_error_quadrature.weights)
+                                for k in range(0,self.discretization.mesh.K)]))
+                                for e in range(0,self.N_eq)])
+        
+        else:
+            raise NotImplementedError
+            
+    def calculate_difference(self, other_solver, norm="L2"):
+        
+        if norm == "L2":
+            
+             # must have the same quadrature points for u_he
+             return np.array([np.sqrt(sum([np.dot((self.u_he[k][e] - other_solver.u_he[k][e])**2,
+                                            self.J_e[k]*self.ref_error_quadrature.weights)
+                                    for k in range(0,self.discretization.mesh.K)]))
+                                    for e in range(0,self.N_eq)])
+        
+        
+    def calculate_energy(self):
+            
+            return np.array([sum([self.u_hat[k][e].T 
+                                          @ self.discretization.M_J[k]
+                                          @ self.u_hat[k][e]
+                                    for k in range(0,self.discretization.mesh.K)])
+                                    for e in range(0,self.N_eq)])
+        
+        
+    def calculate_conserved_integral(self):
+        
+            # must have the same quadrature points for u_he
+            return np.array([sum([np.ones(self.discretization.N_omega[
+                self.discretization.element_to_discretization[k]]).T @
+                                      self.discretization.W[
+                                          self.discretization.element_to_discretization[k]] 
+                                      @ np.diag(self.discretization.J_omega[k]) @ 
+                                      self.discretization.V[
+                                          self.discretization.element_to_discretization[k]] 
+                                      @ self.u_hat[k][e]
+                                    for k in range(0,self.discretization.mesh.K)])
+                                    for e in range(0,self.N_eq)])        
             
     def plot(self,
              filename=None,
@@ -795,19 +862,7 @@ class Solver:
             
         else:
             raise NotImplementedError
-            
-    def calculate_error(self, norm="L2"):
-        
-        if norm == "L2":
-            
-            return np.array([np.sqrt(sum([np.dot((self.u_e[k][e] - self.u_he[k][e])**2,
-                                        self.J_e[k]*self.ref_error_quadrature.weights)
-                                for k in range(0,self.discretization.mesh.K)]))
-                                for e in range(0,self.N_eq)])
-        
-        else:
-            raise NotImplementedError
-            
+
         
     def plot_velocity_field(self,
              filename=None,

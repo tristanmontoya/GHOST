@@ -17,7 +17,7 @@ def grid_refine(project_title="advection_grid_refine_test",
                 solution_representation="modal",
                 numerical_flux="upwind",
                 map_type="isoparametric",
-                form="weak",
+                form="both",
                 correction="dg",
                 results_path=None):
     
@@ -29,7 +29,6 @@ def grid_refine(project_title="advection_grid_refine_test",
     params["integration_type"] = integration_type
     params["solution_representation"] = solution_representation
     params["solution_degree"] = p
-    params["form"] = form
     params["correction"] = correction
     params["time_integrator"] = "rk44"
     params["time_step_scale"] = 0.1
@@ -43,14 +42,16 @@ def grid_refine(project_title="advection_grid_refine_test",
         p_geo = p
         
     if d == 1:
-        return grid_refine_1d(params,n_refine,p_geo, 21, results_path)
+        return grid_refine_1d(params, form,n_refine,p_geo, 
+                              4*p+1, results_path)
     elif d == 2:
-        return grid_refine_2d(params,n_refine,p_geo, 21, results_path)
+        return grid_refine_2d(params, form,n_refine,p_geo, 
+                              4*p, results_path)
     else:
         raise NotImplementedError
 
 
-def grid_refine_1d(params, n_refine, p_geo, error_quad_degree, results_path):
+def grid_refine_1d(params, form, n_refine, p_geo, error_quadrature_degree, results_path):
 
     #start with 4 elements 
     M = 5
@@ -82,9 +83,26 @@ def grid_refine_1d(params, n_refine, p_geo, error_quad_degree, results_path):
     else:
         raise NotImplementedError
         
+    if form == "strong" or form == "both":
+        params_strong = params.copy()
+        params_strong["form"] = "strong"
+        dI_strong = np.zeros((N_eq,n_refine))
+        dE_strong = np.zeros((N_eq,n_refine))
+        error_strong = np.zeros((N_eq,n_refine))
+        rates_strong = np.zeros((N_eq,n_refine))
+
+    if form == "weak" or form == "both":
+        params_weak = params.copy()
+        params_weak["form"] = "strong"
+        dI_weak = np.zeros((N_eq,n_refine))
+        dE_weak = np.zeros((N_eq,n_refine))
+        error_weak = np.zeros((N_eq,n_refine))
+        rates_weak = np.zeros((N_eq,n_refine))
+        
+    if form == "both":
+        diff_strong_weak = np.zeros((N_eq,n_refine))
+        
     M_list = np.zeros(n_refine)
-    error = np.zeros((N_eq,n_refine))
-    rates = np.zeros((N_eq,n_refine))
     
     for n in range(0, n_refine):
         
@@ -97,34 +115,100 @@ def grid_refine_1d(params, n_refine, p_geo, error_quad_degree, results_path):
         
         mesh.map_mesh(f_map=Mesh1D.grid_transformation(
             warp_factor=0.2), p_geo=p_geo)
-        
-        solver = Solver(params, mesh)
-        solver.run(results_path + "M" + str(M) + "/")
-        solver.post_process()
-        
-        # update results array
+       
         M_list[n] = M
-        error[:,n] = solver.calculate_error(norm="L2")
         
-        if n == 0:
-            rates[:,n] = np.zeros(N_eq)
-        else:
-            rates[:,n] = np.array([np.polyfit(np.log(1.0/M_list[n-1:n+1]),
-                                            np.log(error[e,n-1:n+1]), 1)[0] 
-                                   for e in range(0,N_eq)])
+        if form == "strong" or form == "both":
+            solver_strong = Solver(params_strong, mesh)
+            solver_strong.run(results_path + "/strong/M" + str(M) + "/")
+            solver_strong.post_process(process_visualization=False, 
+                                       error_quadrature_degree=error_quadrature_degree)
             
-        print("M: ", M, " errors: ", error[:,n], " rates: ", rates[:,n])
+            dI_strong[:,n] = solver_strong.I_f - solver_strong.I_0
+            dE_strong[:,n] = solver_strong.E_f - solver_strong.E_0
+            error_strong[:,n] = solver_strong.calculate_error(norm="L2")
+            
+            if n == 0:
+                rates_strong[:,n] = np.zeros(N_eq)
+            else:
+                 rates_strong[:,n] = np.array(
+                            [(np.log(error_strong[e,n]) - np.log(error_strong[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
+                            for e in range(0,N_eq)])
+            
+            print("M: ", M, ", strong form")
+            print("cons. error: ", dI_strong[:,n])
+            print("energy diff: ", dE_strong[:,n])
+            print("L2 error: ", error_strong[:,n], 
+                  " rate: ", rates_strong[:,n])
+        
+            
+        if form == "weak" or form == "both":
+            
+            solver_weak = Solver(params_weak, mesh)
+            solver_weak.run(results_path + "/weak/M" + str(M) + "/")
+            solver_weak.post_process(process_visualization=False,
+                                     error_quadrature_degree=error_quadrature_degree)
+            
+            dI_weak[:,n] = solver_weak.I_f - solver_weak.I_0
+            dE_weak[:,n] = solver_weak.E_f - solver_weak.E_0
+            error_weak[:,n] = solver_weak.calculate_error(norm="L2")
+            
+            if n == 0:
+                rates_weak[:,n] = np.zeros(N_eq)
+            else:
+                 rates_weak[:,n] = np.array(
+                            [(np.log(error_weak[e,n]) - np.log(error_weak[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
+                            for e in range(0,N_eq)])
+            
+            print("M: ", M, ", weak form")
+            print("cons. error: ", dI_weak[:,n])
+            print("energy diff: ", dE_weak[:,n])
+            print("L2 error: ", error_weak[:,n], 
+                  " rate: ", rates_weak[:,n])
+        
+        if form == "both":
+            diff_strong_weak[:,n] = solver_strong.calculate_difference(solver_weak)
+            print("L2 difference (strong vs. weak): ", diff_strong_weak[:,n])
         
         M = M*2
  
-    np.save(results_path + "M_list", M_list)
-    np.save(results_path + "error", error)
-    np.save(results_path + "rates", rates)
-       
-    return M_list, error, rates
+    # save results
+    np.save(results_path + "/M_list", M_list)
+    if form == "strong":
+        
+        np.save(results_path + "/strong/dI", dI_strong)
+        np.save(results_path + "/strong/dE", dE_strong)
+        np.save(results_path + "/strong/error", error_strong)
+        np.save(results_path + "/strong/rates", rates_strong)
+        
+        return M_list, dI_strong, dE_strong, error_strong, rates_strong
+        
+    if form == "weak":
+         
+        np.save(results_path + "/weak/dI", dI_weak)
+        np.save(results_path + "/weak/dE", dE_weak)
+        np.save(results_path + "/weak/error", error_weak)
+        np.save(results_path + "/weak/rates", rates_weak)
+        
+        return M_list, dI_weak, dE_weak, error_weak, rates_weak
+        
+    if form == "both":
+        
+        np.save(results_path + "/strong/dI", dI_strong)
+        np.save(results_path + "/strong/dE", dE_strong)
+        np.save(results_path + "/strong/error", error_strong)
+        np.save(results_path + "/strong/rates", rates_strong)
+        np.save(results_path + "/weak/dI", dI_weak)
+        np.save(results_path + "/weak/dE", dE_weak)
+        np.save(results_path + "/weak/error", error_weak)
+        np.save(results_path + "/weak/rates", rates_weak)
+        np.save(results_path + "/diff_strong_weak", diff_strong_weak)
+    
+        return M_list, diff_strong_weak, dI_strong, dI_weak, dE_strong, dE_weak,\
+            error_strong, rates_strong, error_weak, rates_weak
     
 
-def grid_refine_2d(params, n_refine, p_geo, error_quad_degree, results_path):
+def grid_refine_2d(params, form, n_refine, p_geo, error_quadrature_degree, results_path):
 
     #start with 4 elements 
     M = 5
@@ -166,10 +250,26 @@ def grid_refine_2d(params, n_refine, p_geo, error_quad_degree, results_path):
     else:
         raise NotImplementedError
         
-    M_list = np.zeros(n_refine)
-    error = np.zeros((N_eq,n_refine))
-    rates = np.zeros((N_eq,n_refine))
+    if form == "strong" or form == "both":
+           params_strong = params.copy()
+           params_strong["form"] = "strong"
+           dI_strong = np.zeros((N_eq,n_refine))
+           dE_strong = np.zeros((N_eq,n_refine))
+           error_strong = np.zeros((N_eq,n_refine))
+           rates_strong = np.zeros((N_eq,n_refine))
+       
+    if form == "weak" or form == "both":
+        params_weak = params.copy()
+        params_weak["form"] = "strong"
+        dI_weak = np.zeros((N_eq,n_refine))
+        dE_weak = np.zeros((N_eq,n_refine))
+        error_weak = np.zeros((N_eq,n_refine))
+        rates_weak = np.zeros((N_eq,n_refine))
+
+    if form == "both":
+        diff_strong_weak = np.zeros((N_eq,n_refine))
     
+    M_list = np.zeros(n_refine)
     for n in range(0, n_refine):
         
        # read in mesh in GMSH format (here fastest to just generate)
@@ -193,6 +293,7 @@ def grid_refine_2d(params, n_refine, p_geo, error_quad_degree, results_path):
         right = np.array([1.0,0.0,L])
         bottom = np.array([0.0,1.0,0.0])
         top = np.array([0.0,1.0,L])
+        
         mesh.add_bc_on_hyperplanes([left,right,bottom,top],[1,2,3,4])
         mesh.make_periodic((1,2),[1]) # left-right periodic (bcs parallel to axis 1)
         mesh.make_periodic((3,4),[0]) # top-bottom periodic (axis 0)
@@ -201,26 +302,95 @@ def grid_refine_2d(params, n_refine, p_geo, error_quad_degree, results_path):
         mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=L),
                       p_geo=p_geo)
         
-        solver = Solver(params, mesh)
-        solver.run(results_path + "M" + str(M) + "/")
-        solver.post_process()
-        
-        # update results array
         M_list[n] = M
-        error[:,n] = solver.calculate_error(norm="L2")
         
-        if n == 0:
-            rates[:,n] = np.zeros(N_eq)
-        else:
-            rates[:,n] = np.array([np.polyfit(np.log(1.0/M_list[n-1:n+1]),
-                                            np.log(error[e,n-1:n+1]), 1)[0] 
-                                   for e in range(0,N_eq)])
+        if form == "strong" or form == "both":
+            solver_strong = Solver(params_strong, mesh)
+            solver_strong.run(results_path + "/strong/M" + str(M) + "/")
+            solver_strong.post_process(process_visualization=False, 
+                                       error_quadrature_degree=error_quadrature_degree)
             
-        print("M: ", M, " errors: ", error[:,n], " rates: ", rates[:,n])
+            dI_strong[:,n] = solver_strong.I_f - solver_strong.I_0
+            dE_strong[:,n] = solver_strong.E_f - solver_strong.E_0
+            error_strong[:,n] = solver_strong.calculate_error(norm="L2")
+            
+            if n == 0:
+                rates_strong[:,n] = np.zeros(N_eq)
+            else:
+                 rates_strong[:,n] = np.array(
+                            [(np.log(error_strong[e,n]) - np.log(error_strong[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
+                            for e in range(0,N_eq)])
+                 
+            print("M: ", M, ", strong form")
+            print("cons. error: ", dI_strong[:,n])
+            print("energy diff: ", dE_strong[:,n])
+            
+            print("L2 error: ", error_strong[:,n], 
+                  " rate: ", rates_strong[:,n])
+            
+        if form == "weak" or form == "both":
+            
+            solver_weak = Solver(params_weak, mesh)
+            solver_weak.run(results_path + "/weak/M" + str(M) + "/")
+            solver_weak.post_process(process_visualization=False,
+                                     error_quadrature_degree=error_quadrature_degree)
+            
+            dI_weak[:,n] = solver_weak.I_f - solver_weak.I_0
+            dE_weak[:,n] = solver_weak.E_f - solver_weak.E_0
+            error_weak[:,n] = solver_weak.calculate_error(norm="L2")
+            
+            if n == 0:
+                rates_weak[:,n] = np.zeros(N_eq)
+            else:
+                rates_weak[:,n] = np.array(
+                    [(np.log(error_weak[e,n]) - np.log(error_weak[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
+                    for e in range(0,N_eq)])
+            
+            print("M: ", M, ", weak form")
+            print("cons. error: ", dI_weak[:,n])
+            print("energy diff: ", dE_weak[:,n])
+            print("L2 error: ", error_weak[:,n], 
+                  " rate: ", rates_weak[:,n])
+        
+        if form == "both":
+            diff_strong_weak[:,n] = solver_strong.calculate_difference(solver_weak)
+            print("L2 difference (strong vs. weak): ", diff_strong_weak[:,n])
+            
         M = M*2
  
-    np.save(results_path + "M_list", M_list)
-    np.save(results_path + "error", error)
-    np.save(results_path + "rates", rates)
-       
-    return M_list, error, rates
+    # save results
+    np.save(results_path + "/M_list", M_list)
+    if form == "strong":
+        
+        np.save(results_path + "/strong/dI", dI_strong)
+        np.save(results_path + "/strong/dE", dE_strong)
+        np.save(results_path + "/strong/error", error_strong)
+        np.save(results_path + "/strong/rates", rates_strong)
+        
+        return M_list, dI_strong, dE_strong, error_strong, rates_strong
+        
+    if form == "weak":
+         
+        np.save(results_path + "/weak/dI", dI_weak)
+        np.save(results_path + "/weak/dE", dE_weak)
+        np.save(results_path + "/weak/error", error_weak)
+        np.save(results_path + "/weak/rates", rates_weak)
+        
+        return M_list, dI_weak, dE_weak, error_weak, rates_weak
+        
+    if form == "both":
+        
+        np.save(results_path + "/strong/dI", dI_strong)
+        np.save(results_path + "/strong/dE", dE_strong)
+        np.save(results_path + "/strong/error", error_strong)
+        np.save(results_path + "/strong/rates", rates_strong)
+        np.save(results_path + "/weak/dI", dI_weak)
+        np.save(results_path + "/weak/dE", dE_weak)
+        np.save(results_path + "/weak/error", error_weak)
+        np.save(results_path + "/weak/rates", rates_weak)
+        np.save(results_path + "/diff_strong_weak", diff_strong_weak)
+    
+        return M_list, diff_strong_weak, dI_strong, dI_weak, dE_strong, dE_weak,\
+            error_strong, rates_strong, error_weak, rates_weak
+             
+
