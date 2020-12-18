@@ -4,6 +4,7 @@ import numpy as np
 from scipy import special
 from math import floor, ceil, factorial
 import modepy as mp
+import quadpy as qp
 import matplotlib.pyplot as plt
 import pickle
 
@@ -662,7 +663,6 @@ class SpatialDiscretization:
                 mesh_plot.savefig(filename, 
                                   bbox_inches='tight')
                 
-            
         elif self.d == 2:
             
             mesh_plot = plt.figure()
@@ -684,6 +684,7 @@ class SpatialDiscretization:
             # for each discretization type and put in loop over k
             ref_edge_points = SpatialDiscretization.map_unit_to_facets(
                 np.linspace(-1.0,1.0,geometry_resolution))
+            
             V_edge_geo = [mp.vandermonde(
                 self.mesh.basis_geo, ref_edge_points[gamma])
                           for gamma in range(0,3)]
@@ -714,15 +715,17 @@ class SpatialDiscretization:
                     ax.plot(edge_points[0,:], 
                                 edge_points[1,:], 
                                 '-', 
+                                linewidth=markersize*0.25,
                                 color="black")
-                        
+                         
                     if plot_nodes:
-                       
+                         
                         # plot facet nodes
                         ax.plot(self.x_gamma[k][gamma][0,:], 
                                 self.x_gamma[k][gamma][1,:],
                                 "s", 
                                 markersize=markersize, 
+                                markeredgewidth=markersize*0.25,
                                 color="black",
                                 fillstyle='none')
             
@@ -731,6 +734,7 @@ class SpatialDiscretization:
             if filename is None:
                 mesh_plot.savefig("../plots/" + self.name + 
                                 "_discretization.pdf", bbox_inches='tight')
+                
             else:
                 mesh_plot.savefig(filename, bbox_inches='tight')
             
@@ -741,7 +745,7 @@ class SpatialDiscretization:
 class SimplexQuadratureDiscretization(SpatialDiscretization):
     
     def __init__(self, mesh, p, tau=None, mu=None,
-                 volume_rule=None, facet_rule=None, 
+                 volume_rule=None, facet_rule="lg", 
                  form="weak", solution_representation="modal",
                  correction="c_dg"):
         
@@ -772,16 +776,28 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
             volume_quadrature = mp.XiaoGimbutasSimplexQuadrature(tau,2)
             volume_nodes = volume_quadrature.nodes
             W = np.diag(volume_quadrature.weights)
-            facet_quadrature = mp.LegendreGaussQuadrature(ceil((mu-1)/2))
-            facet_nodes = SpatialDiscretization.map_unit_to_facets(
-                facet_quadrature.nodes,
-                element_type="triangle") 
-            W_gamma = [np.diag(facet_quadrature.weights),
-                       np.sqrt(2.0)*np.diag(facet_quadrature.weights),
-                       np.diag(facet_quadrature.weights)]
+            
+            if facet_rule == "lg":
+                
+                facet_quadrature = mp.LegendreGaussQuadrature(ceil((mu-1)/2))
+                facet_nodes = SpatialDiscretization.map_unit_to_facets(
+                    facet_quadrature.nodes,
+                    element_type="triangle") 
+                
+            elif facet_rule == "lgl":
+                
+                facet_quadrature = qp.line_segment.gauss_lobatto(ceil((mu+3)/2))
+                facet_nodes = SpatialDiscretization.map_unit_to_facets(
+                    facet_quadrature.points,
+                    element_type="triangle") 
+                
             n_hat = [np.array([0.0,-1.0]), 
                      np.array([1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]),
                      np.array([-1.0, 0.0])]
+            
+            W_gamma = [np.diag(facet_quadrature.weights),
+                       np.sqrt(2.0)*np.diag(facet_quadrature.weights),
+                       np.diag(facet_quadrature.weights)]
             
         else: 
             raise NotImplementedError
@@ -835,6 +851,7 @@ class SimplexCollocationDiscretization(SpatialDiscretization):
                 facet_nodes_1D, element_type="triangle")
             
             if use_lumping:
+                
                 W = np.diag(np.sum(W,axis=1))
                 W_gamma_1D = np.diag(np.sum(W_gamma_1D,axis=1))
              
@@ -849,7 +866,7 @@ class SimplexCollocationDiscretization(SpatialDiscretization):
                          [facet_nodes], [W], [W_gamma], [n_hat], form=form,
                          solution_representation=solution_representation,
                          correction=correction)
-    
+     
     
 class TimeIntegrator:
     
@@ -858,6 +875,7 @@ class TimeIntegrator:
         self.dt_target = dt
         self.type = discretization_type
         self.R = residual
+    
     
     @staticmethod
     def calculate_time_step(spatial_discretization, wave_speed, beta):

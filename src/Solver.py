@@ -151,12 +151,15 @@ class Solver:
                 params["volume_quadrature_degree"] = None
             if "facet_quadrature_degree" not in params:
                 params["facet_quadrature_degree"] = None
+            if "facet_rule" not in params:
+                params["facet_rule"] = "lg"
                 
             self.discretization = Discretization.SimplexQuadratureDiscretization(
                 mesh,
                 params["solution_degree"], 
                 params["volume_quadrature_degree"], 
                 params["facet_quadrature_degree"],
+                facet_rule=params["facet_rule"],
                 form=params["form"],
                 solution_representation=params["solution_representation"],
                 correction=params["correction"])
@@ -180,7 +183,8 @@ class Solver:
                 params["facet_collocation_degree"],
                 form=params["form"],
                 solution_representation=params["solution_representation"],
-                use_lumping=params["use_lumping"])
+                use_lumping=params["use_lumping"],
+                correction=params["correction"])
             
         else:
             raise NotImplementedError
