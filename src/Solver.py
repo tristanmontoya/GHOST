@@ -283,7 +283,6 @@ class Solver:
                 for e in range(0,self.N_eq)])
                 for k in range(0,self.discretization.mesh.K)]
             
-            
         raise NotImplementedError
         
         
@@ -295,6 +294,7 @@ class Solver:
             
         if not os.path.exists(results_path):
             os.makedirs(results_path)
+            
         elif clear_write_dir:
             os.system("rm -rf "+results_path+"*")
             

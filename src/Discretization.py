@@ -485,19 +485,10 @@ class SpatialDiscretization:
                
                 f_omega = f((self.V[i] @ u_hat[k].T).T, self.x_omega[k])
                 
-                if print_output:
-                    print("k: ", k)    
-                    print("geom_terms: ", self.J_omega[k]*self.x_prime_inv_omega[k][:,0,0])
-                    print("u_omega: ", (self.V[i] @ u_hat[k].T).T)
-                    print("f_omega: ", f_omega)
-                
                 f_trans_omega.append([sum(
                     [self.J_omega[k]*self.x_prime_inv_omega[k][:,m,n]* f_omega[n] 
                      for n in range(0,self.d)]) for m in range(0, self.d)])
-                
-                if print_output:
-                    print("f_trans_omega: ", f_trans_omega[k])
-                
+               
                 f_trans_gamma.append([])
                 for gamma in range(0, self.mesh.Nf[k]):  
                     
@@ -515,7 +506,6 @@ class SpatialDiscretization:
                     
                     if self.form == "weak":
                         
-                        
                         f_trans_gamma[k].append(
                             self.Jf_gamma[k][gamma] * f_star(
                             (self.V_gamma[i][gamma] @ u_hat[k].T).T, u_plus,
@@ -530,48 +520,7 @@ class SpatialDiscretization:
                             - (self.V_gamma[i][gamma] @ self.P[i] 
                                @ sum([f_trans_omega[k][m].T*self.n_hat[i][gamma][m] 
                                       for m in range(0,self.d)])).T)
-                    
-                    if print_output:
-                        print("f_n: ",sum([f_trans_omega[k][m]*self.n_hat[i][gamma][m] 
-                                          for m in range(0,self.d)]))
-                        
-                        print("f_extrap: ", (self.V_gamma[i][gamma] @ self.P[i] @ sum(
-                            [f_trans_omega[k][m].T*self.n_hat[i][gamma][m] 
-                                          for m in range(0,self.d)])).T)
-                        print("f_star: ", f_star((self.V_gamma[i][gamma] @ u_hat[k].T).T,
-                                                u_plus,self.x_gamma[k][gamma], 
-                                                self.n_gamma[k][gamma]))
-                
-                if print_output:
-                    
-                    vol_res = sum([self.vol[k][m] @ f_trans_omega[k][m][0,:]  
-                               for m in range(0,self.d)])
-                
-                    fac_res = [self.fac[k][gamma] @ f_trans_gamma[k][gamma][0,:]
-                               for gamma in range(0, self.mesh.Nf[k])]
-                    
-                    vol_res_weak = sum(
-                        [self.M_J_inv[k] 
-                         @ (self.Dhat[self.element_to_discretization[k]][m]).T
-                         @ self.V[self.element_to_discretization[k]].T 
-                         @ self.W[self.element_to_discretization[k]] 
-                         @ f_trans_omega[k][m][0,:] 
-                         for m in range(0,self.d)])
-                    
-                    sbp_error = -vol_res + vol_res_weak - sum(
-                        [self.M_J_inv[k] @ self.V_gamma[i][gamma].T 
-                         @ self.W_gamma[i][gamma] 
-                         @ self.V_gamma[i][gamma] @ self.P[i] 
-                         @ sum([f_trans_omega[k][m][0,:]*self.n_hat[i][gamma][m] 
-                           for m in range(0,self.d)]) 
-                         for gamma in range(0,self.mesh.Nf[k])])
-                    
-                    print("vol_res: ", vol_res)
-                    print("fac_res: ", fac_res)
-                    print("sbp_error: ", sbp_error)
-                    print("res: ", vol_res+sum(fac_res))
-                    
-
+                  
             return [np.array([sum([self.vol[k][m] @ f_trans_omega[k][m][e,:] 
                                       for m in range(0,self.d)])
                      + sum([self.fac[k][gamma] @ 
@@ -915,6 +864,8 @@ class TimeIntegrator:
                 pickle.dump(u, open(
                 results_path+"res_" +
                 str(n+1) + ".dat", "wb" ))
+                print("max: ", max([max([np.amax(u[k][e]) for e in range(0, u[k].shape[0])])
+                                   for k in range(0,len(u))]))
         
         pickle.dump(times, open(
                    results_path+"times.dat", "wb" ))
