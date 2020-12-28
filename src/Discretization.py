@@ -735,7 +735,7 @@ class SimplexQuadratureDiscretization(SpatialDiscretization):
                 
             elif facet_rule == "lgl":
                 
-                facet_quadrature = qp.line_segment.gauss_lobatto(ceil((mu+3)/2))
+                facet_quadrature = qp.c1.gauss_lobatto(ceil((mu+3)/2))
                 facet_nodes = SpatialDiscretization.map_unit_to_facets(
                     facet_quadrature.points,
                     element_type="triangle") 
@@ -837,7 +837,7 @@ class TimeIntegrator:
         
     
     def run(self, u_0, T, results_path, 
-            write_interval):
+            write_interval, prefix=""):
         
         # calculate number of steps to take and actual time step
         N_t = floor(T/self.dt_target) 
@@ -852,20 +852,21 @@ class TimeIntegrator:
         u = np.copy(u_0)
         t = 0
         times = [[0,t]]
-        print("dt = ", dt)
-        print("writing every ", N_write, " time steps, total ", N_t)
+        print(prefix, " dt = ", dt)
+        print(prefix, "writing every ", N_write, " time steps, total ", N_t)
         
         for n in range(0,N_t):
             u = np.copy(self.time_step(u,t,dt))
             t = t + dt
             if ((n+1) % N_write == 0) or (n+1 == N_t):
-                print("writing time step ", n+1, ": t = ", t)
+                print(prefix, "writing time step ", n+1, ": t = ", t)
                 times.append([n+1,t])
                 pickle.dump(u, open(
                 results_path+"res_" +
                 str(n+1) + ".dat", "wb" ))
-                print("max: ", max([max([np.amax(u[k][e]) for e in range(0, u[k].shape[0])])
-                                   for k in range(0,len(u))]))
+                print(prefix, "max: ", max([max([np.amax(u[k][e]) 
+                                         for e in range(0, u[k].shape[0])])
+                                    for k in range(0,len(u))]))
         
         pickle.dump(times, open(
                    results_path+"times.dat", "wb" ))

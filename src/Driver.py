@@ -1,6 +1,8 @@
 # GHOST - Test Problem Drivers
 
 import os
+from datetime import datetime
+import threading
 import numpy as np
 from Solver import Solver
 from Mesh import Mesh1D, Mesh2D
@@ -393,4 +395,108 @@ def grid_refine_2d(params, form, n_refine, p_geo, error_quadrature_degree, resul
         return M_list, diff_strong_weak, dI_strong, dI_weak, dE_strong, dE_weak,\
             error_strong, rates_strong, error_weak, rates_weak
              
-
+def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
+                 p_geo=2, c="c_dg", discretization_type=1):
+    
+    project_title = "euler_" + datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
+    # GHOST - Euler Test (2D)
+    
+    # read in mesh in GMSH format (here fastest to just generate)
+    points, elements = meshzoo.rectangle(
+            xmin=0.0, xmax=L,
+            ymin=0.0, ymax=L,
+            nx=M, ny=M)
+        
+    if not os.path.exists("../mesh/" +  project_title + "/"):
+        os.makedirs("../mesh/" +  project_title + "/")
+    
+    if not os.path.exists("../results/" +  project_title + "/"):
+        os.makedirs("../results/" +  project_title + "/")
+        
+    meshio.write("../mesh/" + project_title + "/M" + str(M) + ".msh",
+                 meshio.Mesh(points, {"triangle": elements}))
+    
+    mesh = Mesh2D(project_title + "_M" + str(M),
+                  "../mesh/" + project_title + "/M" + str(M) + ".msh")
+    
+    # set up periodic boundary conditions
+    left = np.array([1.0,0.0,0.0]) 
+    right = np.array([1.0,0.0,10.0])
+    bottom = np.array([0.0,1.0,0.0])
+    top = np.array([0.0,1.0,10.0])
+    mesh.add_bc_on_hyperplanes([left,right,bottom,top],[1,2,3,4])
+    mesh.make_periodic((1,2),[1]) # left-right periodic (bcs parallel to axis 1)
+    mesh.make_periodic((3,4),[0]) # top-bottom periodic (axis 0)
+    
+    #curvilinear transformation used in Del Rey Fernandez et al. (2017)
+    mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=10.0), p_geo=p_geo)
+    
+    
+    # solver parameters
+    params_strong = {"project_title": project_title + "_strong",
+             "problem": "compressible_euler",
+             "specific_heat_ratio": 1.4,
+             "numerical_flux": "roe",
+             "initial_condition": "isentropic_vortex",
+             "vortex_type": "spiegel",
+             "initial_vortex_centre": np.array([5.0,5.0]),
+             "mach_number": 0.4,
+             "angle": np.pi/4.,
+             "form": "strong",
+             "solution_degree": p,
+             "time_integrator": "rk44",
+             "final_time": 0.005,
+             "time_step_scale": 0.005}
+    
+    if discretization_type == 1:
+         params_strong["facet_rule"] = "lg"
+         params_strong["integration_type"] = "quadrature"
+         params_strong["volume_quadrature_degree"] = 2*p
+         params_strong["facet_quadrature_degree"] = 2*p+1
+         params_strong["solution_representation"] = "modal"
+    
+    elif discretization_type == 2:
+         params_strong["integration_type"] = "collocation"
+         params_strong["volume_collocation_degree"] = p
+         params_strong["facet_collocation_degree"] = p
+         params_strong["solution_representation"] = "nodal"
+    
+    elif discretization_type == 3:
+         params_strong["facet_rule"] = "lgl"
+         params_strong["integration_type"] = "quadrature"
+         params_strong["volume_quadrature_degree"] = 2*p
+         params_strong["facet_quadrature_degree"] = 2*p-1
+         params_strong["solution_representation"] = "modal"
+    
+    else:
+        raise ValueError
+    
+    strong = Solver(params_strong,mesh)
+    params_weak = params_strong.copy()
+    params_weak["project_title"] = project_title + "_weak"
+    params_weak["form"] = "weak"
+    weak = Solver(params_weak,mesh)
+    
+    thread_strong = threading.Thread(target=strong.run,
+                                     kwargs={"write_interval": 0.005,
+                                             'prefix':"strong"})
+    thread_weak = threading.Thread(target=weak.run,
+                                   kwargs={"write_interval": 0.005,
+                                           'prefix':"weak"})
+    
+    thread_strong.start()
+    thread_weak.start()
+    thread_strong.join()
+    thread_weak.join()
+    
+    strong.post_process(error_quadrature_degree=4*p)
+    weak.post_process(error_quadrature_degree=4*p)
+    
+    for e in range(0,4):
+        print("{:.3e}".format(strong.calculate_difference(weak)[e]), "& ", 
+              "{:.3e}".format((strong.I_f - strong.I_0)[e]), "& ", 
+              "{:.3e}".format((weak.I_f - weak.I_0)[e]), "& ", 
+        "{:.3e}".format(strong.calculate_error()[e]), "& ",
+        "{:.3e}".format(weak.calculate_error()[e]), " \\\\")
+    
+    return strong, weak

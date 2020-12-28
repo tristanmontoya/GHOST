@@ -184,7 +184,6 @@ class Euler(ConservationLaw):
                 
                 return (self.flux_tensor(u_m) + self.flux_tensor(u_p)) @ n
          
-        
         elif self.numerical_flux == "roe":
             
             if self.d == 1:
@@ -230,4 +229,3 @@ class Euler(ConservationLaw):
         return lambda u_m, u_p, x, n: np.array(
             [f_star(self, u_m[:,i], u_p[:,i], n[:,i])
                       for i in range(0,u_m.shape[1])]).T
-
