@@ -333,7 +333,7 @@ class Solver:
             clear_write_dir=True):
         
         if results_path is None:
-            results_path = "../results/" + self.project_title + "/" + prefix + "/"
+            results_path = "../results/" + self.project_title + "/"
             
         if not os.path.exists(results_path):
             os.makedirs(results_path)

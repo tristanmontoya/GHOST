@@ -2,6 +2,8 @@
 import os
 from datetime import datetime
 import threading
+import pickle
+from multiprocessing import Process
 import numpy as np
 from Solver import Solver
 from Mesh import Mesh1D, Mesh2D
@@ -395,10 +397,23 @@ def grid_refine_2d(params, form, n_refine, p_geo, error_quadrature_degree, resul
             error_strong, rates_strong, error_weak, rates_weak
              
 def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
-                 p_geo=2, c="c_dg", discretization_type=1):
+                 p_geo=2, c="c_dg", discretization_type=1, 
+                 form="strong"):
     
-    project_title = "euler_" + datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
+    if c== "c_dg":
+        c_desc = "0"
+    elif c == "c_+":
+        c_desc = "p"
+    else:
+        raise ValueError
+        
+        
+    descriptor = "m" + "{:.1f}".format(mach_number).replace(".","") + "p" + str(p) \
+       + "c"  + c_desc + "t" + str(discretization_type) + "_" + form 
+    
+    project_title = "euler_" + descriptor
     # GHOST - Euler Test (2D)
+    print("running solver", project_title)
     
     # read in mesh in GMSH format (here fastest to just generate)
     points, elements = meshzoo.rectangle(
@@ -409,9 +424,6 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
     if not os.path.exists("../mesh/" +  project_title + "/"):
         os.makedirs("../mesh/" +  project_title + "/")
     
-    if not os.path.exists("../results/" +  project_title + "/"):
-        os.makedirs("../results/" +  project_title + "/")
-        
     meshio.write("../mesh/" + project_title + "/M" + str(M) + ".msh",
                  meshio.Mesh(points, {"triangle": elements}))
     
@@ -428,11 +440,12 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
     mesh.make_periodic((3,4),[0]) # top-bottom periodic (axis 0)
     
     #curvilinear transformation used in Del Rey Fernandez et al. (2017)
-    mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=10.0), p_geo=p_geo)
+    mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=10.0),
+                  p_geo=p_geo)
     
     
     # solver parameters
-    params_strong = {"project_title": project_title + "_strong",
+    params = {"project_title": project_title,
              "problem": "compressible_euler",
              "specific_heat_ratio": 1.4,
              "numerical_flux": "roe",
@@ -441,7 +454,7 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
              "initial_vortex_centre": np.array([0.5*L,0.5*L]),
              "mach_number": mach_number,
              "angle": np.pi/4.,
-             "form": "strong",
+             "form": form,
              "correction": c,
              "solution_degree": p,
              "time_integrator": "rk44",
@@ -449,54 +462,42 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
              "time_step_scale": 0.005}
     
     if discretization_type == 1:
-         params_strong["facet_rule"] = "lg"
-         params_strong["integration_type"] = "quadrature"
-         params_strong["volume_quadrature_degree"] = 2*p
-         params_strong["facet_quadrature_degree"] = 2*p+1
-         params_strong["solution_representation"] = "modal"
+         params["facet_rule"] = "lg"
+         params["integration_type"] = "quadrature"
+         params["volume_quadrature_degree"] = 2*p
+         params["facet_quadrature_degree"] = 2*p+1
+         params["solution_representation"] = "modal"
     
     elif discretization_type == 2:
-         params_strong["integration_type"] = "collocation"
-         params_strong["volume_collocation_degree"] = p
-         params_strong["facet_collocation_degree"] = p
-         params_strong["solution_representation"] = "nodal"
+         params["integration_type"] = "collocation"
+         params["volume_collocation_degree"] = p
+         params["facet_collocation_degree"] = p
+         params["solution_representation"] = "nodal"
     
     elif discretization_type == 3:
-         params_strong["facet_rule"] = "lgl"
-         params_strong["integration_type"] = "quadrature"
-         params_strong["volume_quadrature_degree"] = 2*p
-         params_strong["facet_quadrature_degree"] = 2*p-1
-         params_strong["solution_representation"] = "modal"
+         params["facet_rule"] = "lgl"
+         params["integration_type"] = "quadrature"
+         params["volume_quadrature_degree"] = 2*p
+         params["facet_quadrature_degree"] = 2*p-1
+         params["solution_representation"] = "modal"
     
     else:
         raise ValueError
     
-    strong = Solver(params_strong,mesh)
-    params_weak = params_strong.copy()
-    params_weak["project_title"] = project_title + "_weak"
-    params_weak["form"] = "weak"
-    weak = Solver(params_weak,mesh)
+    solver = Solver(params,mesh)
     
-    thread_strong = threading.Thread(target=strong.run,
-                                     kwargs={"print_interval": 0.05,
-                                             'prefix':"strong"})
-    thread_weak = threading.Thread(target=weak.run,
-                                   kwargs={"print_interval": 0.05,
-                                           'prefix':"weak"})
     
-    thread_strong.start()
-    thread_weak.start()
-    thread_strong.join()
-    thread_weak.join()
+    solver.run(write_interval=params["final_time"]/1, 
+                print_interval=params["final_time"]/1)
     
-    strong.post_process(error_quadrature_degree=4*p)
-    weak.post_process(error_quadrature_degree=4*p)
-    
+    solver.post_process(error_quadrature_degree=4*p)
+    l2_error = solver.calculate_error() 
     for e in range(0,4):
-        print("{:.3e}".format(strong.calculate_difference(weak)[e]), "& ", 
-              "{:.3e}".format((strong.I_f - strong.I_0)[e]), "& ", 
-              "{:.3e}".format((weak.I_f - weak.I_0)[e]), "& ", 
-        "{:.3e}".format(strong.calculate_error()[e]), "& ",
-        "{:.3e}".format(weak.calculate_error()[e]), " \\\\")
+              print("{:.3e}".format((solver.I_f - solver.I_0)[e]), "& ", 
+              "{:.3e}".format(l2_error[e]), " \\\\")
+              
     
-    return strong, weak
+    pickle.dump(solver.I_f - solver.I_0, open("../results/"+project_title+"/conservation_error.dat", "wb" ))
+    pickle.dump(l2_error, open("../results/"+project_title+"/solution_error.dat", "wb" ))
+    
+    return solver

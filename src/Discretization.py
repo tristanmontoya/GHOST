@@ -859,21 +859,25 @@ class TimeIntegrator:
         t = 0
         times = [[0,t]]
         
-        screen = open(results_path + "screen.txt", "a")
+        screen = open(results_path + "screen.txt", "w")
         print(prefix, " dt = ", dt, file=screen)
         print(prefix, "writing every ", 
               N_write, " time steps, total ", N_t, file=screen)
-        
+        screen.close()
         start = time.time()
         for n in range(0,N_t):
             u = np.copy(self.time_step(u,t,dt)) # update solution
             t = t + dt
             if ((n+1) % N_print == 0) or (n+1 == N_t):
+                screen = open(results_path + "screen.txt", "a")
                 print(prefix, "time step: ", n+1, "t: ", t, "wall time: ", 
                       time.time()-start, file=screen)
+                screen.close()
                 
             if ((n+1) % N_write == 0) or (n+1 == N_t):
+                screen = open(results_path + "screen.txt", "a")
                 print(prefix, "writing time step ", n+1, "t = ", t, file=screen)
+                screen.close()
                 times.append([n+1,t])
                 
                 pickle.dump(u, open(results_path+"res_" +
