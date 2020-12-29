@@ -109,6 +109,7 @@ class Solver:
             if "angle" not in params:
                 params["angle"] = None
             
+            
             self.u_0 = Solver.isentropic_vortex(eps=params["vortex_strength"], 
                                                 gamma=params["specific_heat_ratio"],
                                                 x_0=params["initial_vortex_centre"],
@@ -118,7 +119,10 @@ class Solver:
                                                 M_infty=params["mach_number"],
                                                 theta=params["angle"])
             
-            self.cfl_speed = np.linalg.norm(params["background_velocity"])
+            if "cfl_speed" not in params and "mach_number" in params:
+                self.cfl_speed = params["mach_number"]
+            else:
+                self.cfl_speed = np.linalg.norm(params["background_velocity"])
             
         elif params["initial_condition"] == "entropy_wave":
             if params["problem"] != "compressible_euler":
@@ -323,11 +327,13 @@ class Solver:
         raise NotImplementedError
         
         
-    def run(self, results_path=None, write_interval=None, prefix="",
+    def run(self, results_path=None, write_interval=None,
+            print_interval=None,
+            prefix="",
             clear_write_dir=True):
         
         if results_path is None:
-            results_path = "../results/" + self.project_title + "/"
+            results_path = "../results/" + self.project_title + "/" + prefix + "/"
             
         if not os.path.exists(results_path):
             os.makedirs(results_path)
@@ -355,6 +361,7 @@ class Solver:
             self.u_hat = self.time_integrator.run(self.u_hat, self.T,
                                                   results_path,
                                                   write_interval,
+                                                  print_interval,
                                                   prefix=prefix)
             
             self.I_f = self.calculate_conserved_integral()
@@ -374,6 +381,7 @@ class Solver:
             self.u_hat = self.time_integrator.run(self.u_hat, self.T,
                                                   results_path,
                                                   write_interval,
+                                                  print_interval,
                                                   prefix=prefix)
             
             self.I_f = self.calculate_conserved_integral() 

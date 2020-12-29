@@ -7,6 +7,7 @@ import modepy as mp
 import quadpy as qp
 import matplotlib.pyplot as plt
 import pickle
+import time
 
 NORMAL_TOL = 1.0e-8
 
@@ -836,14 +837,19 @@ class TimeIntegrator:
         return beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed
         
     
-    def run(self, u_0, T, results_path, 
-            write_interval, prefix=""):
+    def run(self, u_0, T, results_path,
+            write_interval,  print_interval, prefix=""):
         
         # calculate number of steps to take and actual time step
         N_t = floor(T/self.dt_target) 
         dt = T/N_t
         
-        # interval between writes to file
+        # interval between prints and writes to file
+        if print_interval is None:
+            N_print = N_t
+        else:
+            N_print = floor(print_interval/dt)
+        
         if write_interval is None:
             N_write = N_t
         else:
@@ -852,21 +858,31 @@ class TimeIntegrator:
         u = np.copy(u_0)
         t = 0
         times = [[0,t]]
-        print(prefix, " dt = ", dt)
-        print(prefix, "writing every ", N_write, " time steps, total ", N_t)
         
+        screen = open(results_path + "screen.txt", "a")
+        print(prefix, " dt = ", dt, file=screen)
+        print(prefix, "writing every ", 
+              N_write, " time steps, total ", N_t, file=screen)
+        
+        start = time.time()
         for n in range(0,N_t):
-            u = np.copy(self.time_step(u,t,dt))
+            u = np.copy(self.time_step(u,t,dt)) # update solution
             t = t + dt
+            if ((n+1) % N_print == 0) or (n+1 == N_t):
+                print(prefix, "time step: ", n+1, "t: ", t, "wall time: ", 
+                      time.time()-start, file=screen)
+                
             if ((n+1) % N_write == 0) or (n+1 == N_t):
-                print(prefix, "writing time step ", n+1, ": t = ", t)
+                print(prefix, "writing time step ", n+1, "t = ", t, file=screen)
                 times.append([n+1,t])
-                pickle.dump(u, open(
-                results_path+"res_" +
-                str(n+1) + ".dat", "wb" ))
-                print(prefix, "max: ", max([max([np.amax(u[k][e]) 
-                                         for e in range(0, u[k].shape[0])])
-                                    for k in range(0,len(u))]))
+                
+                pickle.dump(u, open(results_path+"res_" +
+                                    str(n+1) + ".dat", "wb" ))
+                
+            if np.isnan(np.sum(np.array([[np.sum(u[k][e]) for e in range(0, u[k].shape[0])] for k in range(0,len(u))]))):
+                pickle.dump(times, open(
+                   results_path+"times.dat", "wb" ))
+                return None
         
         pickle.dump(times, open(
                    results_path+"times.dat", "wb" ))

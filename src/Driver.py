@@ -1,5 +1,4 @@
 # GHOST - Test Problem Drivers
-
 import os
 from datetime import datetime
 import threading
@@ -439,13 +438,14 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
              "numerical_flux": "roe",
              "initial_condition": "isentropic_vortex",
              "vortex_type": "spiegel",
-             "initial_vortex_centre": np.array([5.0,5.0]),
-             "mach_number": 0.4,
+             "initial_vortex_centre": np.array([0.5*L,0.5*L]),
+             "mach_number": mach_number,
              "angle": np.pi/4.,
              "form": "strong",
+             "correction": c,
              "solution_degree": p,
              "time_integrator": "rk44",
-             "final_time": 0.005,
+             "final_time": L/(mach_number/np.sqrt(2)),
              "time_step_scale": 0.005}
     
     if discretization_type == 1:
@@ -478,10 +478,10 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
     weak = Solver(params_weak,mesh)
     
     thread_strong = threading.Thread(target=strong.run,
-                                     kwargs={"write_interval": 0.005,
+                                     kwargs={"print_interval": 0.05,
                                              'prefix':"strong"})
     thread_weak = threading.Thread(target=weak.run,
-                                   kwargs={"write_interval": 0.005,
+                                   kwargs={"print_interval": 0.05,
                                            'prefix':"weak"})
     
     thread_strong.start()
