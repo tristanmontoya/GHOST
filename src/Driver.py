@@ -487,8 +487,8 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
     solver = Solver(params,mesh)
     
     
-    solver.run(write_interval=params["final_time"]/1, 
-                print_interval=params["final_time"]/1)
+    solver.run(write_interval=params["final_time"]/10, 
+                print_interval=params["final_time"]/1000)
     
     solver.post_process(error_quadrature_degree=4*p)
     l2_error = solver.calculate_error() 
