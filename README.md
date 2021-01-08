@@ -1,12 +1,9 @@
 # Generalized High-Order Solver Toolbox
 
 ## Dependencies
-[quadpy](https://github.com/nschloe/quadpy)
-
-[modepy](https://github.com/inducer/modepy)
-
-[meshio](https://github.com/nschloe/meshio)
-
+[quadpy](https://github.com/nschloe/quadpy)\
+[modepy](https://github.com/inducer/modepy)\
+[meshio](https://github.com/nschloe/meshio)\
 [meshzoo](https://github.com/nschloe/meshzoo)
 
 ## License
