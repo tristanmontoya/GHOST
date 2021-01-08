@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['src/Discretization.py', 'src/Solver.py', 'src/Mesh.py', 'src/Problem.py', 'src/Driver.py', 'tests/meshzoo_test.py', 'src/Discretization_old.py']
+recent_files = ['src/Discretization.py', 'src/Solver.py', 'src/Mesh.py', 'src/Problem.py', 'src/Driver.py']
 

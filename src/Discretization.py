@@ -432,8 +432,6 @@ class SpatialDiscretization:
             raise NotImplementedError
             
         self.M_J_inv = [np.linalg.inv(self.M_J[k]) for k in range(0, self.mesh.K)]
-      
-        
         
         # pre-compute full volume and facet operators
         if self.form == "weak":

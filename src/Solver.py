@@ -2,12 +2,10 @@
 
 import Problem
 import Discretization
-
 import numpy as np
 import modepy as mp
 import matplotlib.pyplot as plt
 from math import ceil
-
 import os
 import pickle
 
@@ -144,7 +142,7 @@ class Solver:
             self.bcs[bc_index] = [lambda x,t: 0.0 
                                   for e in range(0,self.N_eq)]
  
-        # exact solution (assume equal to initial for now, this isn't always the case)
+        # exact solution (assume equal to initial in the cases here)
         self.u = self.u_0
  
         # spatial discretization
@@ -871,7 +869,6 @@ class Solver:
                                         + str(equation_index+1) 
                                         +"}^h(\\bm{x},t)$")
                     
-                #cbar.ax.set_ylabel("$\\rho u_1$")  
                 cbar.set_ticks(np.linspace(u_range[0],u_range[1],11))
                 
                 # make title
@@ -1114,9 +1111,3 @@ class Solver:
             " -i "+plots_path+"frame_%d.png " +plots_path+"video.mp4"
             print(ff_call)
             os.system(ff_call)
-                               
-            
-        
-        
-        
-        

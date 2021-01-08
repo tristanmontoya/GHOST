@@ -304,9 +304,9 @@ class Mesh2D(Mesh):
             if self.Nv_local[k] == 3:
                 
                 self.X_affine.append(lambda xi,k=k: 
-                                     -0.5*(xi[0]+xi[1])*self.v_affine[:,self.element_to_vertex[k][0]] \
-                                         + 0.5*(xi[0] + 1)*self.v_affine[:,self.element_to_vertex[k][1]] \
-                                             + 0.5*(xi[1] + 1)*self.v_affine[:,self.element_to_vertex[k][2]])
+                    -0.5*(xi[0]+xi[1])*self.v_affine[:,self.element_to_vertex[k][0]] \
+                        + 0.5*(xi[0] + 1)*self.v_affine[:,self.element_to_vertex[k][1]] \
+                            + 0.5*(xi[1] + 1)*self.v_affine[:,self.element_to_vertex[k][2]])
             else: 
                 raise NotImplementedError
         

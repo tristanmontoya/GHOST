@@ -1,9 +1,7 @@
 # GHOST - Test Problem Drivers
+
 import os
-from datetime import datetime
-import threading
 import pickle
-from multiprocessing import Process
 import numpy as np
 from Solver import Solver
 from Mesh import Mesh1D, Mesh2D
@@ -135,7 +133,8 @@ def grid_refine_1d(params, form, n_refine, p_geo, error_quadrature_degree, resul
                 rates_strong[:,n] = np.zeros(N_eq)
             else:
                  rates_strong[:,n] = np.array(
-                            [(np.log(error_strong[e,n]) - np.log(error_strong[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
+                            [(np.log(error_strong[e,n]) - np.log(error_strong[e,n-1]))
+                             /(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
                             for e in range(0,N_eq)])
             
             print("M: ", M, ", strong form")
@@ -160,7 +159,8 @@ def grid_refine_1d(params, form, n_refine, p_geo, error_quadrature_degree, resul
                 rates_weak[:,n] = np.zeros(N_eq)
             else:
                  rates_weak[:,n] = np.array(
-                            [(np.log(error_weak[e,n]) - np.log(error_weak[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
+                            [(np.log(error_weak[e,n]) - np.log(error_weak[e,n-1]))/
+                             (np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
                             for e in range(0,N_eq)])
             
             print("M: ", M, ", weak form")
@@ -398,7 +398,7 @@ def grid_refine_2d(params, form, n_refine, p_geo, error_quadrature_degree, resul
              
 def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
                  p_geo=2, c="c_dg", discretization_type=1, 
-                 form="strong"):
+                 form="strong", run=True):
     
     if c== "c_dg":
         c_desc = "0"
@@ -486,18 +486,20 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
     
     solver = Solver(params,mesh)
     
-    
-    solver.run(write_interval=params["final_time"]/10, 
-                print_interval=params["final_time"]/1000)
-    
-    solver.post_process(error_quadrature_degree=4*p)
-    l2_error = solver.calculate_error() 
-    for e in range(0,4):
-              print("{:.3e}".format((solver.I_f - solver.I_0)[e]), "& ", 
-              "{:.3e}".format(l2_error[e]), " \\\\")
-              
-    
-    pickle.dump(solver.I_f - solver.I_0, open("../results/"+project_title+"/conservation_error.dat", "wb" ))
-    pickle.dump(l2_error, open("../results/"+project_title+"/solution_error.dat", "wb" ))
-    
+    if run:
+        solver.run(write_interval=params["final_time"]/10, 
+                    print_interval=params["final_time"]/1000)
+        
+        solver.post_process(error_quadrature_degree=4*p)
+        l2_error = solver.calculate_error() 
+        for e in range(0,4):
+                  print("{:.3e}".format((solver.I_f - solver.I_0)[e]), "& ", 
+                  "{:.3e}".format(l2_error[e]), " \\\\")
+                  
+        
+        pickle.dump(solver.I_f - solver.I_0, open("../results/"+project_title+"/conservation_error.dat", "wb" ))
+        pickle.dump(l2_error, open("../results/"+project_title+"/solution_error.dat", "wb" ))
+        
     return solver
+
+    
