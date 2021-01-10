@@ -7,4 +7,4 @@
 [meshzoo](https://github.com/nschloe/meshzoo)
 
 ## License
-This software is released under the [GPLv3 license](https://www.gnu.org/licenses/gpl-3.0.en.html)
+This software is released under the [GPLv3 license](https://www.gnu.org/licenses/gpl-3.0.en.html).
