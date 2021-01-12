@@ -6,8 +6,8 @@ reconstruction methods based on the summation-by-parts property," Submitted to *
 
 
 ## Dependencies
-[numpy](https://numpy.org/)\
-[scipy](https://www.scipy.org/)\
+[NumPy](https://numpy.org/)\
+[SciPy](https://www.scipy.org/)\
 [matplotlib](https://matplotlib.org/)\
 [quadpy](https://github.com/nschloe/quadpy)\
 [modepy](https://github.com/inducer/modepy)\
