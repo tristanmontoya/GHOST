@@ -1,1 +1,6 @@
 **/.spyproject
+
+plots/*
+results/*
+notebooks/*
+mesh/*
