@@ -690,6 +690,44 @@ class SpatialDiscretization:
             raise NotImplementedError
         
         
+    def plot_ref_el(self, filename=None, markersize=8):
+        
+        if self.d == 2:  # assume for now to be triangles
+            
+            elem_plot = plt.figure(frameon=False)
+            ax = plt.axes()
+            ax.axis('off')
+            ax.set_aspect('equal')
+            
+            ax.plot(np.array([-1.0,1.0,-1.0,-1.0]),
+                    np.array([-1.0,-1.0,1.0,-1.0]), "-k")
+            
+            ax.plot(self.xi_omega[0][0,:],
+                    self.xi_omega[0][1,:], "o",
+                    markersize=markersize,
+                    color="black",
+                    fillstyle='none')
+            
+            for gamma in range(0, self.Nf[0]):
+                
+                ax.plot(self.xi_gamma[0][gamma][0,:], 
+                        self.xi_gamma[0][gamma][1,:],
+                        "s", 
+                        markersize=0.5*markersize, 
+                        color="black")
+                
+            if filename is None:
+                elem_plot.savefig("../plots/" + self.name + 
+                                "_element.pdf",
+                                bbox_inches='tight')
+                
+            else:
+                elem_plot.savefig(filename, bbox_inches='tight')
+            
+        else:
+            raise NotImplementedError
+            
+
 class SimplexQuadratureDiscretization(SpatialDiscretization):
     
     def __init__(self, mesh, p, tau=None, mu=None,

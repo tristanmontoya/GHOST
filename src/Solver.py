@@ -748,7 +748,7 @@ class Solver:
  
             # place contours
             contours = np.linspace(u_range[0]-0.1*u_diff, 
-                                   u_range[1]+0.1*u_diff,13)
+                                   u_range[1]+0.1*u_diff,25)
             
             # set up plots
             if plot_numerical:
@@ -838,11 +838,11 @@ class Solver:
                             
                     if plot_exact:
                         
-                        if plot_curves:
-                            ax2.plot(edge_points[0,:], 
-                                        edge_points[1,:], 
-                                        '-', 
-                                        color="black")
+                        # if plot_curves:
+                        #     ax2.plot(edge_points[0,:], 
+                        #                 edge_points[1,:], 
+                        #                 '-', 
+                        #                 color="black")
                         
                         if plot_nodes:
                            
@@ -860,7 +860,7 @@ class Solver:
                         self.x_v_global[0,:], self.x_v_global[1,:],
                         self.u_hv_global[equation_index],
                                    levels=contours,
-                                   cmap="jet")
+                                   cmap="viridis")
                 cbar = numerical.colorbar(contour_numerical)
                 if self.N_eq == 1:
                     cbar.ax.set_ylabel("$\mathcal{U}^h(\\bm{x},t)$")  
@@ -868,6 +868,7 @@ class Solver:
                     cbar.ax.set_ylabel("$\mathcal{U}_{" 
                                         + str(equation_index+1) 
                                         +"}^h(\\bm{x},t)$")
+                    #cbar.ax.set_ylabel(r'$\varrho(\bm{x},t)$')
                     
                 cbar.set_ticks(np.linspace(u_range[0],u_range[1],11))
                 
@@ -889,7 +890,7 @@ class Solver:
                         self.x_v_global[0,:], self.x_v_global[1,:],
                         self.u_v_global[equation_index],
                                    levels=contours,
-                                   cmap="jet")
+                                   cmap="viridis")
                 cbar_ex = exact.colorbar(contour_exact)
                 
                 if self.N_eq == 1:
@@ -898,6 +899,9 @@ class Solver:
                     cbar_ex.ax.set_ylabel("$\mathcal{U}_{" 
                                           + str(equation_index+1) 
                                           +"}(\\bm{x},t)$")
+                    
+                    # cbar_ex.ax.set_ylabel(r'$\varrho(\bm{x},t)$')
+                    
                 cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],11))
                 exact.savefig(
                     "../plots/" + self.params["project_title"]

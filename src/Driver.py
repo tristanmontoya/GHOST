@@ -398,7 +398,7 @@ def grid_refine_2d(params, form, n_refine, p_geo, error_quadrature_degree, resul
              
 def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
                  p_geo=2, c="c_dg", discretization_type=1, 
-                 form="strong", run=True):
+                 form="strong", suffix=None, run=True):
     
     if c== "c_dg":
         c_desc = "0"
@@ -406,10 +406,12 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
         c_desc = "p"
     else:
         raise ValueError
-        
-        
+    
     descriptor = "m" + "{:.1f}".format(mach_number).replace(".","") + "p" + str(p) \
        + "c"  + c_desc + "t" + str(discretization_type) + "_" + form 
+       
+    if suffix is not None:
+        descriptor = descriptor + suffix
     
     project_title = "euler_" + descriptor
     # GHOST - Euler Test (2D)
