@@ -334,7 +334,7 @@ class SpatialDiscretization:
                                    self.V[self.element_to_discretization[k]]) @ 
         self.V[self.element_to_discretization[k]].T @ 
         self.W[self.element_to_discretization[k]] @ 
-        self.J_omega[k] for k in range(0,self.mesh.K)]
+        np.diag(self.J_omega[k]) for k in range(0,self.mesh.K)]
         
         # derivative operator
         if self.solution_representation == "modal":

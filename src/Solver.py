@@ -318,14 +318,14 @@ class Solver:
         return lambda x: np.apply_along_axis(g, 0, x[0])
         
     def project_function(self,g):
-        if self.params["initial_projection"] = "unweighted":
+        if self.params["initial_projection"] == "unweighted":
             return [np.array([self.discretization.P[
                 self.discretization.element_to_discretization[k]] @
                     g(self.discretization.x_omega[k])[e] 
                     for e in range(0,self.N_eq)])
                     for k in range(0,self.discretization.mesh.K)]
                 
-        elif self.params["initial_projection"] = "weighted":
+        elif self.params["initial_projection"] == "weighted":
             return [np.array([self.discretization.P_J[k] @
                     g(self.discretization.x_omega[k])[e] 
                     for e in range(0,self.N_eq)])
