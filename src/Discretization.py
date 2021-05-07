@@ -327,6 +327,15 @@ class SpatialDiscretization:
         self.P = [self.Minv[i] @ self.V[i].T @ self.W[i] 
                 for i in range(0,self.Nd)]
         
+        # weighted projection matrix
+        self.P_J =  [np.linalg.inv(self.V[self.element_to_discretization[k]].T @ 
+                                   self.W[self.element_to_discretization[k]] @ 
+                                   np.diag(self.J_omega[k]) @ 
+                                   self.V[self.element_to_discretization[k]]) @ 
+        self.V[self.element_to_discretization[k]].T @ 
+        self.W[self.element_to_discretization[k]] @ 
+        self.J_omega[k] for k in range(0,self.mesh.K)]
+        
         # derivative operator
         if self.solution_representation == "modal":
             
@@ -407,6 +416,7 @@ class SpatialDiscretization:
                 c_alpha = [c_plus[self.p[i]]*np.array([special.comb(self.p[i], q, 
                                 exact=True) for q in range(0,self.p[i])]) 
                            for i in range(0,self.Nd)]
+                
                 D_alpha = [[np.linalg.matrix_power(self.Dhat[i][0], alpha[i][q][0]) 
                            @ np.linalg.matrix_power(self.Dhat[i][1], alpha[i][q][1])
                            for q in range(0,self.p[i])]
@@ -558,7 +568,7 @@ class SpatialDiscretization:
                                       self.n_gamma[nu][rho])
             
             
-    def plot(self, plot_nodes=True, plot_geometry_nodes=False, 
+    def plot(self, plot_nodes=True, plot_geometry_nodes=False, axes=True,
              markersize=4, geometry_resolution=10, filename=None):
     
         # assign a colour to each element
@@ -624,10 +634,16 @@ class SpatialDiscretization:
                          - 0.025 * self.mesh.extent[1],
                           self.mesh.xmax[1] 
                           + 0.025 * self.mesh.extent[1]]) 
+                         
             ax.set_aspect('equal')
             plt.xlabel("$x_1$")
             plt.ylabel("$x_2$")
-                
+            
+            if axes == False:   
+                ax.axis('off')
+                ax.axes.xaxis.set_visible(False)
+                ax.axes.yaxis.set_visible(False)
+            
             # only works for triangles, otherwise need to do this 
             # for each discretization type and put in loop over k
             ref_edge_points = SpatialDiscretization.map_unit_to_facets(
@@ -651,7 +667,7 @@ class SpatialDiscretization:
                 if plot_geometry_nodes:
                     ax.plot(self.mesh.x_geo[k][0,:], 
                             self.mesh.x_geo[k][1,:], "ok",
-                          fillstyle='none',
+                          #fillstyle='solid',
                           markersize=markersize)
                         
                 for gamma in range(0, self.mesh.Nf[k]):
