@@ -276,12 +276,14 @@ def grid_refine_2d(params, form, n_refine, p_geo, error_quadrature_degree, resul
     for n in range(0, n_refine):
         
        # read in mesh in GMSH format (here fastest to just generate)
-        points, elements = meshzoo.rectangle(
-                xmin=0.0, xmax=L,
-                ymin=0.0, ymax=L,
-                nx=M+1, ny=M+1
-                )
-        
+        #points, elements = meshzoo.rectangle(
+        #        xmin=0.0, xmax=L,
+        #        ymin=0.0, ymax=L,
+        #        nx=M+1, ny=M+1
+        #        )
+        points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M+1, 
+                variant="zigzag")
+
         if not os.path.exists("../mesh/" + params["project_title"] + "/"):
             os.makedirs("../mesh/" + params["project_title"] + "/")
             
@@ -416,13 +418,11 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
     project_title = "euler_" + descriptor
     # GHOST - Euler Test (2D)
     print("running solver", project_title)
-    
-    # read in mesh in GMSH format (here fastest to just generate)
-    points, elements = meshzoo.rectangle(
-            xmin=0.0, xmax=L,
-            ymin=0.0, ymax=L,
-            nx=M, ny=M)
-        
+   
+    points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M+1, 
+                variant="zigzag")
+
+
     if not os.path.exists("../mesh/" +  project_title + "/"):
         os.makedirs("../mesh/" +  project_title + "/")
     
