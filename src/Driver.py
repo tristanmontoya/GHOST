@@ -585,7 +585,7 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
              "solution_degree": p,
              "time_integrator": "rk44",
              "final_time": L/(mach_number/np.sqrt(2)),
-             "time_step_scale": 0.005}
+             "time_step_scale": 0.0025}
     
     if discretization_type == 1:
          params["facet_rule"] = "lg"

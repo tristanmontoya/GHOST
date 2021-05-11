@@ -745,9 +745,11 @@ class Solver:
             
             if filename is None:
                 
-                solution_plot.savefig("../plots/" + self.params["project_title"] + 
-                                "_solution.pdf", facecolor="white", 
-                                transparent=False)
+                solution_plot.savefig("../plots/"
+                                      + self.params["project_title"] 
+                                      + "_solution.pdf", 
+                                      facecolor="white", 
+                                      transparent=False)
                 
             else:
                 
@@ -887,8 +889,10 @@ class Solver:
                     plt.title(title)
                 
                 if filename is None:
-                    numerical.savefig("../plots/" + self.params["project_title"]
-                        + "_numerical.pdf", facecolor="white", transparent=False,
+                    numerical.savefig("../plots/" 
+                                      + self.params["project_title"]
+                        + "_numerical.pdf", facecolor="white",
+                        transparent=False,
                         bbox_inches="tight", pad_inches=0)
                 else:
                     numerical.savefig(filename, facecolor="white", 
@@ -1042,7 +1046,8 @@ class Solver:
             if filename is None:
                 numerical.savefig(
                     "../plots/" + self.params["project_title"]
-                    + "_vel_numerical.pdf", facecolor="white", transparent=False,
+                    + "_vel_numerical.pdf", facecolor="white",
+                    transparent=False,
                     bbox_inches="tight", pad_inches=0)
             else:
                 numerical.savefig(filename, facecolor="white", 
@@ -1116,7 +1121,8 @@ class Solver:
             self.post_process(visualization_resolution=20,
                               process_exact_solution=False)
             self.plot(filename=plots_path+"frame_"+str(i)+".png",
-                           title="$t = " + str(np.round(times[i][1], decimals=2)) + "$",
+                           title="$t = " 
+                           + str(np.round(times[i][1], decimals=2)) + "$",
                            equation_index=equation_index, plot_numerical=True,
                            plot_exact=False, u_range=u_range, show_fig=False)
             
