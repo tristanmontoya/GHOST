@@ -523,7 +523,7 @@ def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
         
     return solver
           
-def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=11, L=10.0,
+def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
                  p_geo=2, c="c_dg", discretization_type=1, 
                  form="strong", suffix=None, run=True):
     
