@@ -880,12 +880,17 @@ class TimeIntegrator:
     
     
     @staticmethod
-    def calculate_time_step(spatial_discretization, wave_speed, beta):
+    def calculate_time_step(spatial_discretization, wave_speed, beta, h=None):
         
-        h = np.amin(
-            spatial_discretization.mesh.extent)/(
-                spatial_discretization.mesh.K ** (
-                    1.0/spatial_discretization.d))
+        if h is None:
+            h = np.amin(
+                spatial_discretization.mesh.extent)/(
+                    spatial_discretization.mesh.K ** (
+                        1.0/spatial_discretization.d))
+#        print("K = ",spatial_discretization.mesh.K)
+#        
+#        print("h = ",h)
+#        print("dtstar = ",beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed)
         return beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed
         
     
@@ -895,7 +900,7 @@ class TimeIntegrator:
         # calculate number of steps to take and actual time step
         N_t = floor(T/self.dt_target) 
         dt = T/N_t
-        
+    
         # interval between prints and writes to file
         if print_interval is None:
             N_print = N_t
