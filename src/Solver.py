@@ -11,7 +11,7 @@ import pickle
 
 class Solver:
     
-    def __init__(self, params, mesh):
+    def __init__(self, params, mesh, h=None):
         
         self.project_title = params["project_title"]
         
@@ -219,7 +219,7 @@ class Solver:
                 
             self.time_integrator = Discretization.TimeIntegrator(
                 self.R, Discretization.TimeIntegrator.calculate_time_step(
-                    self.discretization, self.cfl_speed, self.beta),
+                    self.discretization, self.cfl_speed, self.beta, h),
                 self.time_marching_method)
             self.T = params["final_time"]
         

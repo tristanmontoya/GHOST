@@ -7,8 +7,27 @@ from Solver import Solver
 from Mesh import Mesh1D, Mesh2D
 import meshzoo
 import meshio
+import sys
 
-
+class suppress_output: 
+    def __init__(self,suppress_stdout=False,suppress_stderr=False): 
+        self.suppress_stdout = suppress_stdout 
+        self.suppress_stderr = suppress_stderr 
+        self._stdout = None 
+        self._stderr = None
+    def __enter__(self): 
+        devnull = open(os.devnull, "w") 
+        if self.suppress_stdout: 
+            self._stdout = sys.stdout 
+            sys.stdout = devnull        
+        if self.suppress_stderr: 
+            self._stderr = sys.stderr 
+            sys.stderr = devnull 
+    def __exit__(self, *args): 
+        if self.suppress_stdout: 
+            sys.stdout = self._stdout 
+        if self.suppress_stderr: 
+            sys.stderr = self._stderr
 def grid_refine(project_title="advection_grid_refine_test",
                 d=1,
                 n_refine=4,
@@ -323,7 +342,8 @@ def grid_refine_2d(params, form, n_refine, p_geo, error_quadrature_degree, resul
                 rates_strong[:,n] = np.zeros(N_eq)
             else:
                  rates_strong[:,n] = np.array(
-                            [(np.log(error_strong[e,n]) - np.log(error_strong[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
+                            [(np.log(error_strong[e,n]) 
+                            - np.log(error_strong[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
                             for e in range(0,N_eq)])
                  
             print("M: ", M, ", strong form")
@@ -348,7 +368,8 @@ def grid_refine_2d(params, form, n_refine, p_geo, error_quadrature_degree, resul
                 rates_weak[:,n] = np.zeros(N_eq)
             else:
                 rates_weak[:,n] = np.array(
-                    [(np.log(error_weak[e,n]) - np.log(error_weak[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
+                    [(np.log(error_weak[e,n]) 
+                    - np.log(error_weak[e,n-1]))/(np.log(1.0/M_list[n])-np.log(1.0/M_list[n-1]))
                     for e in range(0,N_eq)])
             
             print("M: ", M, ", weak form")
@@ -397,8 +418,112 @@ def grid_refine_2d(params, form, n_refine, p_geo, error_quadrature_degree, resul
     
         return M_list, diff_strong_weak, dI_strong, dI_weak, dE_strong, dE_weak,\
             error_strong, rates_strong, error_weak, rates_weak
-             
-def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
+
+def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
+                 p_geo=1, c="c_dg", discretization_type=1, 
+                 upwind_parameter = 0.0,
+                 form="strong", suffix=None, run=True):
+    
+    
+    if c== "c_dg":
+        c_desc = "0"
+    elif c == "c_+":
+        c_desc = "p"
+    else:
+        raise ValueError
+    
+    descriptor = "p" + str(p) + "b" +str(int(round(upwind_parameter))) \
+    + "c"  + c_desc + "t" + str(discretization_type) + "_" + form 
+       
+    if suffix is not None:
+        descriptor = descriptor + suffix
+    
+    project_title = "advection_" + descriptor
+    print(project_title)
+   
+    points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M+1, 
+                variant="zigzag")
+
+
+    if not os.path.exists("../mesh/" +  project_title + "/"):
+        os.makedirs("../mesh/" +  project_title + "/")
+    
+    meshio.write("../mesh/" + project_title + "/M" + str(M) + ".msh",
+                 meshio.Mesh(points, {"triangle": elements}))
+    
+    mesh = Mesh2D(project_title + "_M" + str(M),
+                  "../mesh/" + project_title + "/M" + str(M) + ".msh")
+    
+    # set up periodic boundary conditions
+    left = np.array([1.0,0.0,0.0]) 
+    right = np.array([1.0,0.0,L])
+    bottom = np.array([0.0,1.0,0.0])
+    top = np.array([0.0,1.0,L])
+    mesh.add_bc_on_hyperplanes([left,right,bottom,top],[1,2,3,4])
+    mesh.make_periodic((1,2),[1]) # left-right periodic (bcs parallel to axis 1)
+    mesh.make_periodic((3,4),[0]) # top-bottom periodic (axis 0)
+    
+    #curvilinear transformation used in Del Rey Fernandez et al. (2017)
+    mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=L),
+                  p_geo=p_geo)
+    
+    # solver parameters
+    params = {"project_title": project_title,
+             "problem": "constant_advection",
+             "initial_condition": "sine",
+             "wavelength": np.ones(2),
+             "wave_speed": a*np.array([np.sin(theta),np.cos(theta)]),
+             "upwind_parameter": upwind_parameter,
+             "form": form,
+             "correction": c,
+             "solution_degree": p,
+             "time_integrator": "rk44",
+             "final_time": L/(a*np.cos(theta)),
+             "time_step_scale": 0.0025}
+    
+    if discretization_type == 1:
+         params["facet_rule"] = "lg"
+         params["integration_type"] = "quadrature"
+         params["volume_quadrature_degree"] = 2*p
+         params["facet_quadrature_degree"] = 2*p+1
+         params["solution_representation"] = "modal"
+    
+    elif discretization_type == 2:
+         params["integration_type"] = "collocation"
+         params["volume_collocation_degree"] = p
+         params["facet_collocation_degree"] = p
+         params["solution_representation"] = "nodal"
+    
+    elif discretization_type == 3:
+         params["facet_rule"] = "lgl"
+         params["integration_type"] = "quadrature"
+         params["volume_quadrature_degree"] = 2*p
+         params["facet_quadrature_degree"] = 2*p-1
+         params["solution_representation"] = "modal"
+    
+    else:
+        raise ValueError
+    
+    solver = Solver(params,mesh,L/M)
+    
+    if run:
+        solver.run(write_interval=params["final_time"]/10, 
+                    print_interval=params["final_time"]/1000)
+        
+        solver.post_process(error_quadrature_degree=4*p)
+        l2_error = solver.calculate_error() 
+        print("{:.3e}".format((solver.I_f[0] - solver.I_0[0])), "& ",
+              "{:.3e}".format((solver.E_f[0] - solver.E_0[0])), "& "
+              "{:.3e}".format(l2_error[0]), " \\\\")
+                  
+        
+        pickle.dump(solver.I_f - solver.I_0, open("../results/"+project_title+"/conservation_error.dat", "wb" ))
+        pickle.dump(solver.E_f - solver.E_0, open("../results/"+project_title+"/energy_error.dat", "wb" ))
+        pickle.dump(l2_error, open("../results/"+project_title+"/solution_error.dat", "wb" ))
+        
+    return solver
+          
+def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=11, L=10.0,
                  p_geo=2, c="c_dg", discretization_type=1, 
                  form="strong", suffix=None, run=True):
     
@@ -416,8 +541,7 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
         descriptor = descriptor + suffix
     
     project_title = "euler_" + descriptor
-    # GHOST - Euler Test (2D)
-    print("running solver", project_title)
+    print(project_title)
    
     points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M+1, 
                 variant="zigzag")
@@ -426,23 +550,23 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
     if not os.path.exists("../mesh/" +  project_title + "/"):
         os.makedirs("../mesh/" +  project_title + "/")
     
-    meshio.write("../mesh/" + project_title + "/M" + str(M) + ".msh",
+    with suppress_output(suppress_stdout=True,suppress_stderr=True):
+        meshio.write("../mesh/" + project_title + "/M" + str(M) + ".msh",
                  meshio.Mesh(points, {"triangle": elements}))
-    
-    mesh = Mesh2D(project_title + "_M" + str(M),
-                  "../mesh/" + project_title + "/M" + str(M) + ".msh")
+        mesh = Mesh2D(project_title + "_M" + str(M),
+                      "../mesh/" + project_title + "/M" + str(M) + ".msh")
     
     # set up periodic boundary conditions
     left = np.array([1.0,0.0,0.0]) 
-    right = np.array([1.0,0.0,10.0])
+    right = np.array([1.0,0.0,L])
     bottom = np.array([0.0,1.0,0.0])
-    top = np.array([0.0,1.0,10.0])
+    top = np.array([0.0,1.0,L])
     mesh.add_bc_on_hyperplanes([left,right,bottom,top],[1,2,3,4])
     mesh.make_periodic((1,2),[1]) # left-right periodic (bcs parallel to axis 1)
     mesh.make_periodic((3,4),[0]) # top-bottom periodic (axis 0)
     
     #curvilinear transformation used in Del Rey Fernandez et al. (2017)
-    mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=10.0),
+    mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=L),
                   p_geo=p_geo)
     
     
@@ -455,7 +579,7 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
              "vortex_type": "spiegel",
              "initial_vortex_centre": np.array([0.5*L,0.5*L]),
              "mach_number": mach_number,
-             "angle": np.pi/4.,
+             "angle": theta,
              "form": form,
              "correction": c,
              "solution_degree": p,
@@ -486,7 +610,7 @@ def euler_driver(mach_number=0.4, p=2, M=11, L=10.0,
     else:
         raise ValueError
     
-    solver = Solver(params,mesh)
+    solver = Solver(params,mesh,L/M)
     
     if run:
         solver.run(write_interval=params["final_time"]/10, 
