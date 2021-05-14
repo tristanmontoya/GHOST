@@ -1,0 +1,2 @@
+  dt =  0.00043403151390075103
+ writing every  8145  time steps, total  81458

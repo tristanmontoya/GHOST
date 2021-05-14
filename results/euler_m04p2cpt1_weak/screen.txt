@@ -1,0 +1,3 @@
+  dt =  0.0007812643978284213
+ writing every  4525  time steps, total  45254
+ time step:  45 t:  0.035156897902278925 wall time:  214.46265769004822
