@@ -546,7 +546,6 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M+1, 
                 variant="zigzag")
 
-
     if not os.path.exists("../mesh/" +  project_title + "/"):
         os.makedirs("../mesh/" +  project_title + "/")
     
@@ -622,7 +621,6 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
                   print("{:.3e}".format((solver.I_f - solver.I_0)[e]), "& ", 
                   "{:.3e}".format(l2_error[e]), " \\\\")
                   
-        
         pickle.dump(solver.I_f - solver.I_0, open("../results/"+project_title+"/conservation_error.dat", "wb" ))
         pickle.dump(l2_error, open("../results/"+project_title+"/solution_error.dat", "wb" ))
         
