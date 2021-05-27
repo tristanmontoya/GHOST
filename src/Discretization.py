@@ -412,7 +412,7 @@ class SpatialDiscretization:
                 
                 alpha = [np.array([[q,self.p[i] - q] for q in range(0,self.p[i])]) 
                          for i in range(0,self.Nd)]
-            
+        
                 c_alpha = [c_plus[self.p[i]]*np.array([special.comb(self.p[i], q, 
                                 exact=True) for q in range(0,self.p[i])]) 
                            for i in range(0,self.Nd)]

@@ -850,11 +850,11 @@ class Solver:
                             
                     if plot_exact:
                         
-                        # if plot_curves:
-                        #     ax2.plot(edge_points[0,:], 
-                        #                 edge_points[1,:], 
-                        #                 '-', 
-                        #                 color="black")
+                        if plot_curves:
+                            ax2.plot(edge_points[0,:], 
+                                        edge_points[1,:], 
+                                        '-', 
+                                        color="black")
                         
                         if plot_nodes:
                            
@@ -880,7 +880,6 @@ class Solver:
                     cbar.ax.set_ylabel("$\mathcal{U}_{" 
                                         + str(equation_index+1) 
                                         +"}^h(\\bm{x},t)$")
-                    #cbar.ax.set_ylabel(r'$\varrho(\bm{x},t)$')
                     
                 cbar.set_ticks(np.linspace(u_range[0],u_range[1],11))
                 
@@ -913,8 +912,6 @@ class Solver:
                     cbar_ex.ax.set_ylabel("$\mathcal{U}_{" 
                                           + str(equation_index+1) 
                                           +"}(\\bm{x},t)$")
-                    
-                    # cbar_ex.ax.set_ylabel(r'$\varrho(\bm{x},t)$')
                     
                 cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],11))
                 exact.savefig(
