@@ -2,7 +2,7 @@
 Python implementation of discontinuous Galerkin and flux reconstruction methods for conservation laws described in:
 
 Tristan Montoya and David W. Zingg, "A unifying algebraic framework for discontinuous Galerkin and flux
-reconstruction methods based on the summation-by-parts property," Submitted to *Journal of Computational Physics*, 2021.
+reconstruction methods based on the summation-by-parts property," Submitted, 2021.
 
 
 ## Dependencies
