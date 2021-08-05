@@ -228,7 +228,8 @@ class Solver:
         
         # LaTeX plotting preamble
         plt.rc('text', usetex=True)
-        plt.rcParams['text.latex.preamble']=r"\usepackage{amsmath}\usepackage{bm}"
+        plt.rcParams['text.latex.preamble']=\
+            r"\usepackage{amsmath}\usepackage{bm}\usepackage[cm]{sfmath}"
         
         
     @staticmethod
@@ -331,11 +332,12 @@ class Solver:
                     for e in range(0,self.N_eq)])
                     for k in range(0,self.discretization.mesh.K)]
             
-            
         raise NotImplementedError
         
         
-    def run(self, results_path=None, write_interval=None,
+    def run(self,
+            results_path=None, 
+            write_interval=None,
             print_interval=None,
             prefix="",
             clear_write_dir=True):
@@ -575,7 +577,8 @@ class Solver:
                                             self.d, self.d])
                     
                     for m in range(0, self.d):
-                        x_prime_error[:,:,m] = V_geo_xi_error[m] @ self.discretization.mesh.xhat_geo[k]
+                        x_prime_error[:,:,m] = V_geo_xi_error[m] \
+                            @ self.discretization.mesh.xhat_geo[k]
                         
                     self.J_e.append(
                         np.array([np.linalg.det(x_prime_error[j,:,:]) 
@@ -650,6 +653,7 @@ class Solver:
                                     for k in range(0,self.discretization.mesh.K)])
                                     for e in range(0,self.N_eq)])        
             
+        
     def plot(self,
              filename=None,
              title=None,
@@ -661,7 +665,8 @@ class Solver:
              markersize=4, 
              geometry_resolution=10,
              u_range = [-1.0,1.0],
-             show_fig=True):
+             show_fig=True,
+             transparent=True):
         
         u_diff = u_range[1] - u_range[0]
         self.color = iter(plt.cm.rainbow(
@@ -724,17 +729,17 @@ class Solver:
             if plot_numerical:
                 
                 if self.N_eq == 1:
-                    numerical.set_label("$\mathcal{U}^h(x,t)$")
+                    numerical.set_label("$U^h(x,t)$")
                 else:
-                    numerical.set_label("$\mathcal{U}_{" 
+                    numerical.set_label("$U_{" 
                                                 + str(equation_index+1) 
                                                 +"}^h(x,t)$")
             if plot_exact:
                 
                 if self.N_eq == 1:
-                    exact.set_label("$\mathcal{U}(x,t)$")
+                    exact.set_label("$U(x,t)$")
                 else:
-                    exact.set_label("$\mathcal{U}_{" 
+                    exact.set_label("$U_{" 
                                                 + str(equation_index+1) 
                                                 +"}(x,t)$")
             ax.legend()
@@ -743,18 +748,19 @@ class Solver:
                 plt.show()
             plt.close()
             
+            if transparent: 
+                ax.set_rasterized(True)
             if filename is None:
-                
                 solution_plot.savefig("../plots/"
                                       + self.params["project_title"] 
                                       + "_solution.pdf", 
                                       facecolor="white", 
-                                      transparent=False)
+                                      transparent=transparent)
                 
             else:
-                
+                ax.set_rasterized(True)
                 solution_plot.savefig(filename, facecolor="white", 
-                                      transparent=False, dpi=300)
+                                      transparent=transparent, dpi=300)
                  
         elif self.d == 2:
  
@@ -875,14 +881,18 @@ class Solver:
                                    cmap="viridis")
                 cbar = numerical.colorbar(contour_numerical)
                 if self.N_eq == 1:
-                    cbar.ax.set_ylabel("$\mathcal{U}^h(\\bm{x},t)$")  
+                    cbar.ax.set_ylabel("$U^h(\\bm{x},t)$")  
                 else:
-                    cbar.ax.set_ylabel("$\mathcal{U}_{" 
+                    cbar.ax.set_ylabel("$U_{" 
                                         + str(equation_index+1) 
                                         +"}^h(\\bm{x},t)$")
                     
                 cbar.set_ticks(np.linspace(u_range[0],u_range[1],11))
-                
+
+ #               if transparent: 
+ #                   ax.set_rasterized(True)
+ #                   ax2.set_rasterized(True)
+
                 # make title
                 if title is not None:
                     plt.title(title)
@@ -890,12 +900,11 @@ class Solver:
                 if filename is None:
                     numerical.savefig("../plots/" 
                                       + self.params["project_title"]
-                        + "_numerical.pdf", facecolor="white",
-                        transparent=False,
-                        bbox_inches="tight", pad_inches=0)
+                        + "_numerical.pdf",
+                        transparent=transparent,
+                        bbox_inches="tight", facecolor='none', edgecolor='none', pad_inches=0)
                 else:
-                    numerical.savefig(filename, facecolor="white", 
-                                      transparent=False, dpi=300)
+                    numerical.savefig(filename, transparent=transparent, facecolor='none', edgecolor='none', dpi=300)
                
             if plot_exact:
                 
@@ -907,9 +916,9 @@ class Solver:
                 cbar_ex = exact.colorbar(contour_exact)
                 
                 if self.N_eq == 1:
-                    cbar_ex.ax.set_ylabel("$\mathcal{U}(\\bm{x},t)$")
+                    cbar_ex.ax.set_ylabel("$U(\\bm{x},t)$")
                 else:
-                    cbar_ex.ax.set_ylabel("$\mathcal{U}_{" 
+                    cbar_ex.ax.set_ylabel("$U_{" 
                                           + str(equation_index+1) 
                                           +"}(\\bm{x},t)$")
                     
@@ -925,161 +934,6 @@ class Solver:
         else:
             raise NotImplementedError
 
-        
-    def plot_velocity_field(self,
-             filename=None,
-             title=None,
-             equation_index=[1,2],
-             plot_exact=True, 
-             plot_numerical=True, 
-             plot_arrows=True,
-             plot_curves=True,
-             markersize=4, 
-             geometry_resolution=10,
-             u_range = [-1.0,1.0],
-             show_fig=True):
-        
-        # vector plot of velocity
-        if self.d != 2:
-            raise NotImplementedError
-        
-        # place contours
-        contours = np.linspace(u_range[0], 
-                               u_range[1],11)
-        
-        # set up plots
-        if plot_numerical:
-            
-            numerical = plt.figure(1)
-            ax = plt.axes()
-            ax.set_xlim([self.discretization.mesh.xmin[0] 
-                         - 0.025 * self.discretization.mesh.extent[0],
-                          self.discretization.mesh.xmax[0] 
-                          + 0.025 * self.discretization.mesh.extent[0]])
-            
-            ax.set_ylim([self.discretization.mesh.xmin[1] 
-                         - 0.025 * self.discretization.mesh.extent[1],
-                          self.discretization.mesh.xmax[1] 
-                          + 0.025 * self.discretization.mesh.extent[1]]) 
-            ax.set_aspect('equal')
-            plt.xlabel("$x_1$")
-            plt.ylabel("$x_2$")
-            
-        if plot_exact: 
-            
-            exact = plt.figure(2)
-            ax2 = plt.axes()
-            ax2.set_xlim([self.discretization.mesh.xmin[0] 
-                          - 0.025 * self.discretization.mesh.extent[0],
-                          self.discretization.mesh.xmax[0] 
-                          + 0.025 * self.discretization.mesh.extent[0]])
-            
-            ax2.set_ylim([self.discretization.mesh.xmin[1] 
-                          - 0.025 * self.discretization.mesh.extent[1],
-                          self.discretization.mesh.xmax[1] 
-                          + 0.025 * self.discretization.mesh.extent[1]])
-            ax2.set_aspect('equal')
-            plt.xlabel("$x_1$")
-            plt.ylabel("$x_2$")
-        
-        # only works for triangles, otherwise need to do this 
-        # for each discretization type and put in loop over k
-        ref_edge_points = Discretization.SpatialDiscretization.map_unit_to_facets(
-            np.linspace(-1.0,1.0,geometry_resolution))
-        V_edge_geo = [mp.vandermonde(
-            self.discretization.mesh.basis_geo, ref_edge_points[gamma])
-                      for gamma in range(0,3)]
-
-        # loop through all elements
-        for k in range(0, self.discretization.mesh.K):
-            
-            for gamma in range(0, self.discretization.mesh.Nf[k]):
-                
-                # plot facet edge curves
-                edge_points = (V_edge_geo[gamma] 
-                               @ self.discretization.mesh.xhat_geo[k]).T
-                
-                if plot_numerical:
-                    
-                    if plot_curves:
-                        ax.plot(edge_points[0,:], 
-                                    edge_points[1,:], 
-                                    '-', 
-                                    color="black")
-                    
-                if plot_exact:
-                    
-                    if plot_curves:
-                        ax2.plot(edge_points[0,:], 
-                                    edge_points[1,:], 
-                                    '-', 
-                                    color="black")
-                    
-        if plot_numerical:
-            
-            contour_numerical = ax.tricontourf(
-                    self.x_v_global[0,:], self.x_v_global[1,:],
-                    np.sqrt(self.u_hv_global[equation_index[0]]**2 
-                            +self.u_hv_global[equation_index[1]]**2),
-                               levels=contours,
-                               cmap="jet")
-            
-            if plot_arrows:
-                    
-                norm =  np.sqrt(self.u_hv_global[equation_index[0]]**2
-                                +self.u_hv_global[equation_index[1]]**2)
-                ax.quiver(self.x_v_global[0,:], self.x_v_global[1,:],
-                           self.u_hv_global[equation_index[0]]/norm, 
-                           self.u_hv_global[equation_index[1]]/norm)
-            
-            cbar = numerical.colorbar(contour_numerical)
-            cbar.ax.set_ylabel("$||\\bm{\mathcal{V}}^h(\\bm{x},t)||_2$")
-            cbar.set_ticks(np.linspace(u_range[0],u_range[1],11))
-            
-            # make title
-            if title is not None:
-                plt.title(title)
-            
-            if filename is None:
-                numerical.savefig(
-                    "../plots/" + self.params["project_title"]
-                    + "_vel_numerical.pdf", facecolor="white",
-                    transparent=False,
-                    bbox_inches="tight", pad_inches=0)
-            else:
-                numerical.savefig(filename, facecolor="white", 
-                                  transparent=False, dpi=300)
-           
-        
-        if plot_exact:
-            
-            contour_exact = ax2.tricontourf(
-                    self.x_v_global[0,:], self.x_v_global[1,:],
-                      np.sqrt(self.u_v_global[equation_index[0]]**2 
-                            +self.u_v_global[equation_index[1]]**2),
-                                levels=contours,
-                                cmap="jet")
-            
-            if plot_arrows:
-                
-                norm =  np.sqrt(self.u_v_global[equation_index[0]]**2
-                                +self.u_v_global[equation_index[1]]**2)
-                
-                ax2.quiver(self.x_v_global[0,:], self.x_v_global[1,:],
-                           self.u_v_global[equation_index[0]]/norm, 
-                           self.u_v_global[equation_index[1]]/norm)
-            
-            cbar_ex = exact.colorbar(contour_exact)
-            cbar_ex.ax.set_ylabel("$||\\bm{\mathcal{V}}(\\bm{x},t)||_2$")
-            cbar_ex.set_ticks(np.linspace(u_range[0],u_range[1],10))
-            exact.savefig(
-                "../plots/" + self.params["project_title"]
-                + "_vel_exact.pdf", bbox_inches="tight", pad_inches=0)
-            
-        if show_fig:
-            plt.show()
-        plt.close() 
-        
             
     def load_solution(self, results_path=None, time_step=0):
         

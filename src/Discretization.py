@@ -410,21 +410,24 @@ class SpatialDiscretization:
                           3: 6.0e-4,
                           4: 5.6e-6}
                 
-                alpha = [np.array([[q,self.p[i] - q] for q in range(0,self.p[i])]) 
+                # alpha = (alpha_0, alpha_1) = (p-q, q) , q = 0, ..., p
+                alpha = [np.array([[self.p[i] - q,q] for q in range(0,self.p[i] + 1)]) 
                          for i in range(0,self.Nd)]
         
+                # c_alpha = p choose q, q = 0, ..., p
                 c_alpha = [c_plus[self.p[i]]*np.array([special.comb(self.p[i], q, 
-                                exact=True) for q in range(0,self.p[i])]) 
+                                exact=True) for q in range(0,self.p[i] + 1)])
                            for i in range(0,self.Nd)]
                 
-                D_alpha = [[np.linalg.matrix_power(self.Dhat[i][0], alpha[i][q][0]) 
+                # d^{|alpha|}/dx^{alpha_0}dy^{alpha_1} 
+                D_alpha = [[np.linalg.matrix_power(self.Dhat[i][0], alpha[i][q][0])
                            @ np.linalg.matrix_power(self.Dhat[i][1], alpha[i][q][1])
-                           for q in range(0,self.p[i])]
+                           for q in range(0,self.p[i]+1)]
                            for i in range(0,self.Nd)]
                     
                 self.K = [1.0/abs_omega*sum([c_alpha[i][q]*D_alpha[i][q].T 
                                              @ self.M[i] @ D_alpha[i][q]
-                               for q in range(0,self.p[i])])
+                               for q in range(0,self.p[i]+1)])
                     for i in range(0,self.Nd)]
         
             self.M_J = [(self.M[self.element_to_discretization[k]]
@@ -503,9 +506,9 @@ class SpatialDiscretization:
                     
                     if self.mesh.local_to_local[(k,gamma)] is not None:  
                         
-                        nu, rho = self.mesh.local_to_local[(k,gamma)]
+                        nu, eta = self.mesh.local_to_local[(k,gamma)]
                         u_plus = (self.facet_permutation[k][gamma].T @ self.V_gamma[
-                            self.element_to_discretization[nu]][rho] @ u_hat[nu].T).T
+                            self.element_to_discretization[nu]][eta] @ u_hat[nu].T).T
                         
                     else:
                         
@@ -553,8 +556,8 @@ class SpatialDiscretization:
                 
                 if self.mesh.local_to_local[(k,gamma)] is not None:
                     
-                    nu, rho = self.mesh.local_to_local[(k,gamma)]
-                    if np.amax(np.abs(self.n_gamma[nu][rho].T 
+                    nu, eta = self.mesh.local_to_local[(k,gamma)]
+                    if np.amax(np.abs(self.n_gamma[nu][eta].T 
                                       + self.facet_permutation[k][gamma] 
                                       @ self.n_gamma[k][gamma].T)) > NORMAL_TOL:
                         self.normals_good[k][gamma] = False
@@ -564,8 +567,8 @@ class SpatialDiscretization:
                                   (k,gamma))
                             print("T(n_k_gamma)", 
                                   self.facet_permutation[k][gamma] 
-                                      @ self.n_gamma[k][gamma], "n_nu,rho: ", 
-                                      self.n_gamma[nu][rho])
+                                      @ self.n_gamma[k][gamma], "n_nu,eta: ", 
+                                      self.n_gamma[nu][eta])
             
             
     def plot(self, plot_nodes=True, plot_geometry_nodes=False, axes=True,

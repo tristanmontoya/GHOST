@@ -133,12 +133,12 @@ class Mesh(ABC):
                     
                     
                     if self.local_to_bc_index[other_index] == bc_index[1]:
-                        nu,rho = other_index[0], other_index[1]
+                        nu,eta = other_index[0], other_index[1]
             
                         other_facet_vertices = [
-                            self.v[:,self.local_to_vertex[nu][rho][i]]
+                            self.v[:,self.local_to_vertex[nu][eta][i]]
                                       for i in range(0,len(
-                                              self.local_to_vertex[nu][rho]))]
+                                              self.local_to_vertex[nu][eta]))]
                         other_midpoint = sum(other_facet_vertices)/len(
                             other_facet_vertices)   
                         
@@ -153,8 +153,8 @@ class Mesh(ABC):
                             # on the periodic bcs are neighbours
                             
                             # add local-to-local connectivity to dictionary
-                            self.local_to_local[k,gamma] = (nu,rho)
-                            self.local_to_local[nu,rho] = (k,gamma)             
+                            self.local_to_local[k,gamma] = (nu,eta)
+                            self.local_to_local[nu,eta] = (k,gamma)             
                             break
                         
         
@@ -195,7 +195,7 @@ class Mesh1D(Mesh):
         # when evaluating fluxes look for this when local to local is None
         self.local_to_bc_index = {}
     
-        # generate local to local connectivity (kappa,gamma to rho,nu)
+        # generate local to local connectivity (kappa,gamma to eta,nu)
         for k in range(0,self.K):
             
             for gamma in range(0,2):
@@ -203,13 +203,13 @@ class Mesh1D(Mesh):
                 # initially assume face has no neignbours before searching
                 self.local_to_local[k,gamma] = None
                 
-                # find (nu,rho) matching (k,gamma)
+                # find (nu,eta) matching (k,gamma)
                 for nu in range(0,self.K):
                     if nu == k:
                         continue
                     
                     try:
-                        rho = self.local_to_vertex[nu].index(
+                        eta = self.local_to_vertex[nu].index(
                             (self.local_to_vertex[k][gamma][0],))
                         
                     except ValueError:
@@ -217,7 +217,7 @@ class Mesh1D(Mesh):
                         continue 
     
                     # add to dictionaries
-                    self.local_to_local[k,gamma] = (nu,rho)
+                    self.local_to_local[k,gamma] = (nu,eta)
                     break
     
         super().__init__(name,1)
@@ -270,25 +270,25 @@ class Mesh2D(Mesh):
         # when evaluating fluxes look for this when local to local is None
         self.local_to_bc_index = {}
         
-        # generate local to local connectivity (kappa,gamma to rho,nu)
+        # generate local to local connectivity (kappa,gamma to nu,eta)
         for k in range(0,self.K):
             for gamma in range(0,self.Nf[k]):
                 
                 # initially assume face has no neignbours before searching
                 self.local_to_local[k,gamma] = None
                 
-                # find (nu,rho) with edge containing matching vertices 
+                # find (nu,eta) with edge containing matching vertices 
                 # corresponding to (k,gamma) swapped (due to CCW ordering)
                 for nu in range(0,self.K):
                     try:
-                        rho = self.local_to_vertex[nu].index(
+                        eta = self.local_to_vertex[nu].index(
                             (self.local_to_vertex[k][gamma][1],
                              self.local_to_vertex[k][gamma][0]))
                     except ValueError:
                         continue # this element is not a neighbour of (k,gamma)
                         
                     # add to dictionaries
-                    self.local_to_local[k,gamma] = (nu,rho)
+                    self.local_to_local[k,gamma] = (nu,eta)
                     break
                 
         super().__init__(name,2)
