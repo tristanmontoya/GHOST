@@ -8,6 +8,7 @@ import quadpy as qp
 import matplotlib.pyplot as plt
 import pickle
 import time
+import os.path
 
 NORMAL_TOL = 1.0e-8
 
@@ -227,7 +228,6 @@ class SpatialDiscretization:
               
     def map_nodes(self):
         
-        # go through each element (note: this could be done in parallel)
         for k in range(0, self.mesh.K):
             i = self.element_to_discretization[k]
             
@@ -350,7 +350,15 @@ class SpatialDiscretization:
                                                 self.xi_omega[i]))
                             for i in range(0,self.Nd)]
                 
-            self.Dhat = [[self.P[i] @ self.V_xi[i][m] 
+            # self.Dhat = [[self.P[i] @ self.V_xi[i][m] 
+            #               for m in range(0, self.d)]
+            #              for i in range(0, self.Nd)]
+            
+            self.S = [[self.V[i].T @ self.W[i] @ self.V_xi[i][m] 
+                       for m in range(0, self.d)]
+                       for i in range(self.Nd)]
+            
+            self.Dhat = [[self.Minv[i] @ self.S[i][m]
                           for m in range(0, self.d)]
                          for i in range(0, self.Nd)]
             
@@ -401,7 +409,8 @@ class SpatialDiscretization:
                 D_alpha = [np.linalg.matrix_power(self.Dhat[i][0],self.p[i]) 
                            for i in range(0,self.Nd)]
                 
-                self.K = [1.0/abs_omega*c_plus[self.p[i]]*D_alpha[i].T @ self.M[i] @ D_alpha[i] 
+                self.K = [1.0/abs_omega*c_plus[self.p[i]]*D_alpha[i].T 
+                          @ self.M[i] @ D_alpha[i] 
                           for i in range(0,self.Nd)] 
                 
             elif self.d == 2:
@@ -484,7 +493,6 @@ class SpatialDiscretization:
 
         
     def build_global_residual(self, f, f_star, bc, N_eq):
-        
         
         def global_residual(self, f, f_star, bc, N_eq, u_hat, t,
                             print_output=False):
@@ -898,35 +906,82 @@ class TimeIntegrator:
         
     
     def run(self, u_0, T, results_path,
-            write_interval,  print_interval, prefix=""):
+            write_interval, 
+            print_interval, 
+            restart=True,
+            prefix=""):
         
-        # calculate number of steps to take and actual time step
-        N_t = floor(T/self.dt_target) 
-        dt = T/N_t
-    
-        # interval between prints and writes to file
-        if print_interval is None:
-            N_print = N_t
-        else:
-            N_print = floor(print_interval/dt)
-        
-        if write_interval is None:
-            N_write = N_t
-        else:
-            N_write = floor(write_interval/dt)
+        if restart:
             
-        u = np.copy(u_0)
-        t = 0
-        times = [[0,t]]
+            if os.path.isfile(results_path+"times.dat"):
+            
+                times = None
+                dt = None
+                N_t = None
+                N_write = None
+                self.is_done = False
+                
+                times = pickle.load(open(results_path+"times.dat", "rb"))
+                dt = pickle.load(open(results_path+"time_step_size.dat", "rb" ))
+                N_t = pickle.load(open(results_path+"number_of_steps.dat", "rb" ))
+                N_write = pickle.load(open(results_path+"write_interval.dat", "rb" ))
+            
+                u = np.copy(u_0)
+                n_0 = times[-1][0]
+                t = times[-1][1]
+                
+                screen = open(results_path + "screen.txt", "w")
+                print(prefix, "restarting from time step ", n_0, 
+                     ", t=", t, file=screen)
+                screen.close()
+            
+            else:
+                
+                screen = open(results_path + "screen.txt", "w")
+                print(prefix, "No previous file found for restart. Starting new run.",
+                      file=screen)
+                screen.close()
+                restart=False
+    
+        else:
+            
+            # calculate number of steps to take and actual time step
+            N_t = floor(T/self.dt_target) 
+            dt = T/N_t
+            self.is_done = False
         
+            u = np.copy(u_0)
+            n_0 = 0
+            t = 0
+            times = [[n_0,t]]
+            
+            # interval between prints and writes to file
+            if print_interval is None:
+                N_print = N_t
+            else:
+                N_print = floor(print_interval/dt)
+            if write_interval is None:
+                N_write = N_t
+            else:
+                N_write = floor(write_interval/dt)    
+                
+            pickle.dump(dt, open(results_path+"time_step_size.dat", "wb" ))
+            pickle.dump(N_t, open(results_path+"number_of_steps.dat", "wb" ))
+            pickle.dump(N_write, open(results_path+"write_interval.dat", "wb" ))
+            
+             
+            
         screen = open(results_path + "screen.txt", "w")
         print(prefix, " dt = ", dt, file=screen)
         print(prefix, "writing every ", 
               N_write, " time steps, total ", N_t, file=screen)
         screen.close()
         start = time.time()
-        for n in range(0,N_t):
+        
+        for n in range(n_0,N_t):
+            
             u = np.copy(self.time_step(u,t,dt)) # update solution
+
             t = t + dt
             if ((n+1) % N_print == 0) or (n+1 == N_t):
                 screen = open(results_path + "screen.txt", "a")
@@ -943,13 +998,26 @@ class TimeIntegrator:
                 pickle.dump(u, open(results_path+"res_" +
                                     str(n+1) + ".dat", "wb" ))
                 
-            if np.isnan(np.sum(np.array([[np.sum(u[k][e]) for e in range(0, u[k].shape[0])] for k in range(0,len(u))]))):
+                pickle.dump(times, open(
+                   results_path+"times.dat", "wb" ))
+                
+            if np.isnan(np.sum(np.array([[np.sum(u[k][e]) 
+                                          for e in range(0, u[k].shape[0])] 
+                                         for k in range(0,len(u))]))):
+                
                 pickle.dump(times, open(
                    results_path+"times.dat", "wb" ))
                 return None
         
         pickle.dump(times, open(
                    results_path+"times.dat", "wb" ))
+        
+        
+        screen = open(results_path + "screen.txt", "w")
+        print(prefix, "Simulation complete.",file=screen)
+        screen.close()
+        
+        self.is_done = True
         
         return u
     

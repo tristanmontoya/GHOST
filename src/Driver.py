@@ -13,7 +13,11 @@ import meshio
 def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
                  p_geo=1, c="c_dg", discretization_type=1, 
                  upwind_parameter = 0.0,
-                 form="strong", suffix=None, run=True, new_mesh=True):
+                 form="strong", 
+                 suffix=None, 
+                 run=True, 
+                 restart=True,
+                 new_mesh=True):
     
     if c== "c_dg":
         c_desc = "0"
@@ -98,8 +102,10 @@ def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
     solver = Solver(params,mesh,L/M)
     
     if run:
+        
         solver.run(write_interval=params["final_time"]/10, 
-                    print_interval=params["final_time"]/1000)
+                    print_interval=params["final_time"]/1000,
+                    restart=restart)
         
         solver.post_process(error_quadrature_degree=4*p)
         l2_error = solver.calculate_error() 
@@ -117,7 +123,7 @@ def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
 
 def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
                  p_geo=2, c="c_dg", discretization_type=1, 
-                 form="strong", suffix=None, run=True, new_mesh=True):
+                 form="strong", suffix=None, run=True, restart=True, new_mesh=True):
     
     if c== "c_dg":
         c_desc = "0"
@@ -206,17 +212,21 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     solver = Solver(params,mesh,L/M)
     
     if run:
+        
         solver.run(write_interval=params["final_time"]/10, 
-                    print_interval=params["final_time"]/1000)
+                    print_interval=params["final_time"]/1000,
+                    restart=restart)
         
         solver.post_process(error_quadrature_degree=4*p)
         l2_error = solver.calculate_error() 
+        
         for e in range(0,4):
                   print("{:.3e}".format((solver.I_f - solver.I_0)[e]), "& ", 
                   "{:.3e}".format(l2_error[e]), " \\\\")
                   
         pickle.dump(open("../results/"+project_title+"/conservation_initial.dat", "wb" ))
-        pickle.dump(solver.I_f - solver.I_0, open("../results/"+project_title+"/conservation_error.dat", "wb" ))
+        pickle.dump(solver.I_f - solver.I_0, 
+                    open("../results/"+project_title+"/conservation_error.dat", "wb" ))
         pickle.dump(l2_error, open("../results/"+project_title+"/solution_error.dat", "wb" ))
         
     return solver

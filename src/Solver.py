@@ -319,7 +319,9 @@ class Solver:
         return lambda x: np.apply_along_axis(g, 0, x[0])
         
     def project_function(self,g):
+        
         if self.params["initial_projection"] == "unweighted":
+            
             return [np.array([self.discretization.P[
                 self.discretization.element_to_discretization[k]] @
                     g(self.discretization.x_omega[k])[e] 
@@ -327,6 +329,7 @@ class Solver:
                     for k in range(0,self.discretization.mesh.K)]
                 
         elif self.params["initial_projection"] == "weighted":
+            
             return [np.array([self.discretization.P_J[k] @
                     g(self.discretization.x_omega[k])[e] 
                     for e in range(0,self.N_eq)])
@@ -340,7 +343,8 @@ class Solver:
             write_interval=None,
             print_interval=None,
             prefix="",
-            clear_write_dir=True):
+            clear_write_dir=False,
+            restart=True):
         
         if results_path is None:
             results_path = "../results/" + self.project_title + "/"
@@ -348,56 +352,67 @@ class Solver:
         if not os.path.exists(results_path):
             os.makedirs(results_path)
             
-        elif clear_write_dir:
-            os.system("rm -rf "+results_path+"*")
-            
         # run problem
         if self.params["problem"] == "projection":
             self.u_hat = self.project_function(self.u_0)
             pickle.dump(self.u_hat, open(results_path+"res_" 
                                          + str(0) + ".dat", "wb" ))
             
-        elif self.params["problem"] == "constant_advection":
-            
-            # evaluate initial condition by projection
-            self.u_hat = self.project_function(self.u_0)
-            
-            pickle.dump(self.u_hat, open(results_path+"res_" 
-                                         + str(0) + ".dat", "wb" ))
-            
-            self.I_0 = self.calculate_conserved_integral() 
-            self.E_0 = self.calculate_energy()
-            
-            self.u_hat = self.time_integrator.run(self.u_hat, self.T,
-                                                  results_path,
-                                                  write_interval,
-                                                  print_interval,
-                                                  prefix=prefix)
-            
-            self.I_f = self.calculate_conserved_integral()
-            self.E_f = self.calculate_energy()
+        elif self.params["problem"] == "constant_advection" \
+            or self.params["problem"] == "compressible_euler":
         
-        elif self.params["problem"] == "compressible_euler":
+            # if existing solution exists in data file and user has selected
+            # option to restart, begin from that solution.
+            if restart and os.path.isfile(results_path+"times.dat"):
+                
+                    times = pickle.load(open(results_path+"times.dat", "rb"))
+                    
+                    print("Restarting from time step ", times[-1][0])
+                
+                    self.load_solution(results_path, times[-1][0])
+                    
+                    self.u_hat = self.time_integrator.run(self.u_hat, self.T,
+                                                     results_path,
+                                                     write_interval,
+                                                     print_interval,
+                                                     restart=True,
+                                                     prefix=prefix)
+                   
+            # otherwise, clear write directory and start a new simulation
+            else:
+                
+                os.system("rm -rf "+results_path+"*")
             
-            # evaluate initial condition by projection
-            self.u_hat = self.project_function(self.u_0)
+                # evaluate initial condition by projection
+                self.u_hat = self.project_function(self.u_0)
+                
+                pickle.dump(self.u_hat, open(results_path+"res_" 
+                                             + str(0) + ".dat", "wb" ))
             
-            pickle.dump(self.u_hat, open(results_path+"res_" 
-                                         + str(0) + ".dat", "wb" ))
+                self.I_0 = self.calculate_conserved_integral() 
+                self.E_0 = self.calculate_energy()
+           
+                pickle.dump(self.I_0, 
+                            open(results_path+"conservation_initial.dat", "wb" ))
+                pickle.dump(self.E_0, 
+                            open(results_path+"energy_initial.dat", "wb" ))
+                
+                self.u_hat = self.time_integrator.run(self.u_hat, self.T,
+                                                      results_path,
+                                                      write_interval,
+                                                      print_interval,
+                                                      restart=False,
+                                                      prefix=prefix)
             
-            self.I_0 = self.calculate_conserved_integral() 
-            self.E_0 = self.calculate_energy()
-            
-            self.u_hat = self.time_integrator.run(self.u_hat, self.T,
-                                                  results_path,
-                                                  write_interval,
-                                                  print_interval,
-                                                  prefix=prefix)
-            
-            self.I_f = self.calculate_conserved_integral() 
-            self.E_f = self.calculate_energy()
+            if self.time_integrator.is_done:
+                
+                self.I_0 = pickle.load(open(results_path+"conservation_initial.dat", "rb" ))
+                self.E_0 = pickle.load(open(results_path+"energy_initial.dat", "rb" ))
+                self.I_f = self.calculate_conserved_integral()
+                self.E_f = self.calculate_energy()
             
         else:
+            
             raise NotImplementedError
    
     
@@ -607,6 +622,7 @@ class Solver:
                 [self.u_v[k][e] for k in range(0,self.discretization.mesh.K)]) 
                     for e in range(0, self.N_eq)]
                
+                
     def calculate_error(self, norm="L2"):
         
         if norm == "L2":
@@ -618,6 +634,7 @@ class Solver:
         
         else:
             raise NotImplementedError
+            
             
     def calculate_difference(self, other_solver, norm="L2"):
         
@@ -651,7 +668,7 @@ class Solver:
                                           self.discretization.element_to_discretization[k]] 
                                       @ self.u_hat[k][e]
                                     for k in range(0,self.discretization.mesh.K)])
-                                    for e in range(0,self.N_eq)])        
+                                    for e in range(0,self.N_eq)])
             
         
     def plot(self,
@@ -888,10 +905,6 @@ class Solver:
                                         +"}^h(\\bm{x},t)$")
                     
                 cbar.set_ticks(np.linspace(u_range[0],u_range[1],11))
-
- #               if transparent: 
- #                   ax.set_rasterized(True)
- #                   ax2.set_rasterized(True)
 
                 # make title
                 if title is not None:
