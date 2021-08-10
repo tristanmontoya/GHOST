@@ -10,19 +10,22 @@ import meshzoo
 import meshio
 
 
-def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
-                 p_geo=1, c="c_dg", discretization_type=1, 
-                 upwind_parameter = 0.0,
-                 form="strong", 
-                 suffix=None, 
-                 run=True, 
-                 restart=True,
-                 new_mesh=True):
+def advection_driver(a=np.sqrt(2), 
+                     theta=np.pi/4, p=2, M=5, L=1.0, 
+                     p_geo=1, c="c_dg", discretization_type=1, 
+                     upwind_parameter = 0.0,
+                     form="strong", 
+                     suffix=None, 
+                     run=True, 
+                     restart=True,
+                     new_mesh=True):
     
     if c== "c_dg":
         c_desc = "0"
+        
     elif c == "c_+":
         c_desc = "p"
+        
     else:
         raise ValueError
     
@@ -38,7 +41,6 @@ def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
     if new_mesh:
         points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M+1, 
                     variant="zigzag")
-    
     
         if not os.path.exists("../mesh/" +  project_title + "/"):
             os.makedirs("../mesh/" +  project_title + "/")
@@ -77,6 +79,7 @@ def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
              "time_step_scale": 0.0025}
     
     if discretization_type == 1:
+        
          params["facet_rule"] = "lg"
          params["integration_type"] = "quadrature"
          params["volume_quadrature_degree"] = 2*p
@@ -84,12 +87,14 @@ def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
          params["solution_representation"] = "modal"
     
     elif discretization_type == 2:
+        
          params["integration_type"] = "collocation"
          params["volume_collocation_degree"] = p
          params["facet_collocation_degree"] = p
          params["solution_representation"] = "nodal"
     
     elif discretization_type == 3:
+        
          params["facet_rule"] = "lgl"
          params["integration_type"] = "quadrature"
          params["volume_quadrature_degree"] = 2*p
@@ -114,9 +119,12 @@ def advection_driver(a=np.sqrt(2), theta=np.pi/4, p=2, M=5, L=1.0,
               "{:.3e}".format(l2_error[0]), " \\\\")
                   
         
-        pickle.dump(solver.I_f - solver.I_0, open("../results/"+project_title+"/conservation_error.dat", "wb" ))
-        pickle.dump(solver.E_f - solver.E_0, open("../results/"+project_title+"/energy_error.dat", "wb" ))
-        pickle.dump(l2_error, open("../results/"+project_title+"/solution_error.dat", "wb" ))
+        pickle.dump(solver.I_f - solver.I_0, open(
+            "../results/"+project_title+"/conservation_error.dat", "wb" ))
+        pickle.dump(solver.E_f - solver.E_0, open(
+            "../results/"+project_title+"/energy_error.dat", "wb" ))
+        pickle.dump(l2_error, open(
+            "../results/"+project_title+"/solution_error.dat", "wb" ))
         
     return solver
           
@@ -127,8 +135,10 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     
     if c== "c_dg":
         c_desc = "0"
+        
     elif c == "c_+":
         c_desc = "p"
+        
     else:
         raise ValueError
     
@@ -168,14 +178,13 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=L),
                   p_geo=p_geo)
     
-    
     # solver parameters
     params = {"project_title": project_title,
              "problem": "compressible_euler",
              "specific_heat_ratio": 1.4,
              "numerical_flux": "roe",
              "initial_condition": "isentropic_vortex",
-             "vortex_type": "spiegel",
+             "vortex_strength": 1.0,
              "initial_vortex_centre": np.array([0.5*L,0.5*L]),
              "mach_number": mach_number,
              "angle": theta,
@@ -187,6 +196,7 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
              "time_step_scale": 0.0025}
     
     if discretization_type == 1:
+        
          params["facet_rule"] = "lg"
          params["integration_type"] = "quadrature"
          params["volume_quadrature_degree"] = 2*p
@@ -194,12 +204,14 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
          params["solution_representation"] = "modal"
     
     elif discretization_type == 2:
+        
          params["integration_type"] = "collocation"
          params["volume_collocation_degree"] = p
          params["facet_collocation_degree"] = p
          params["solution_representation"] = "nodal"
     
     elif discretization_type == 3:
+        
          params["facet_rule"] = "lgl"
          params["integration_type"] = "quadrature"
          params["volume_quadrature_degree"] = 2*p
@@ -224,10 +236,12 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
                   print("{:.3e}".format((solver.I_f - solver.I_0)[e]), "& ", 
                   "{:.3e}".format(l2_error[e]), " \\\\")
                   
-        pickle.dump(open("../results/"+project_title+"/conservation_initial.dat", "wb" ))
-        pickle.dump(solver.I_f - solver.I_0, 
-                    open("../results/"+project_title+"/conservation_error.dat", "wb" ))
-        pickle.dump(l2_error, open("../results/"+project_title+"/solution_error.dat", "wb" ))
+        pickle.dump(open(
+            "../results/"+project_title+"/conservation_initial.dat", "wb" ))
+        pickle.dump(solver.I_f - solver.I_0, open(
+            "../results/"+project_title+"/conservation_error.dat", "wb" ))
+        pickle.dump(l2_error, open(
+            "../results/"+project_title+"/solution_error.dat", "wb" ))
         
     return solver
 

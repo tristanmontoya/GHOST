@@ -12,6 +12,7 @@ import os.path
 
 NORMAL_TOL = 1.0e-8
 
+
 class SpatialDiscretization:
     
     def __init__(self, mesh, element_to_discretization, p,
@@ -390,6 +391,7 @@ class SpatialDiscretization:
                 @ np.diag(self.J_omega[k]) 
                 @ self.V[self.element_to_discretization[k]] 
                 for k in range(0,self.mesh.K)]
+            
             self.L = [[self.Minv[i] @ self.V_gamma[i][gamma].T
                        @ self.W_gamma[i][gamma] for gamma in range(0, self.Nf[i])]
                        for i in range(0,self.Nd)]
@@ -398,7 +400,6 @@ class SpatialDiscretization:
             
             abs_omega = 2.0**self.d/(factorial(self.d))
             
-            # get coeffs
             if self.d == 1:
                 
                 c_plus = {2: 0.183,
@@ -894,14 +895,12 @@ class TimeIntegrator:
     def calculate_time_step(spatial_discretization, wave_speed, beta, h=None):
         
         if h is None:
+            
             h = np.amin(
                 spatial_discretization.mesh.extent)/(
                     spatial_discretization.mesh.K ** (
                         1.0/spatial_discretization.d))
-#        print("K = ",spatial_discretization.mesh.K)
-#        
-#        print("h = ",h)
-#        print("dtstar = ",beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed)
+                    
         return beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed
         
     
@@ -930,7 +929,7 @@ class TimeIntegrator:
                 n_0 = times[-1][0]
                 t = times[-1][1]
                 
-                screen = open(results_path + "screen.txt", "w")
+                screen = open(results_path + "screen.txt", "a")
                 print(prefix, "restarting from time step ", n_0, 
                      ", t=", t, file=screen)
                 screen.close()
@@ -1013,7 +1012,7 @@ class TimeIntegrator:
                    results_path+"times.dat", "wb" ))
         
         
-        screen = open(results_path + "screen.txt", "w")
+        screen = open(results_path + "screen.txt", "a")
         print(prefix, "Simulation complete.",file=screen)
         screen.close()
         

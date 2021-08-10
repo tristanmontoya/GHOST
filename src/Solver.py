@@ -92,8 +92,6 @@ class Solver:
                     "Isentropic vortex only applicable to Euler equations")
             if self.d != 2:
                 raise NotImplementedError
-            if "vortex_type" not in params:
-                params["vortex_type"] = "shu",
             if "initial_vortex_centre" not in params:
                 params["vortex_centre"] =  np.array([5.0,5.0])
             if "background_velocity" not in params:
@@ -101,7 +99,7 @@ class Solver:
             if "background_temperature" not in params:
                 params["background_temperature"] = 1
             if "vortex_strength" not in params:
-                params["vortex_strength"] = 5.0
+                params["vortex_strength"] = 1.0
             if "mach_number" not in params:
                 params["mach_number"] = None
             if "angle" not in params:
@@ -111,7 +109,6 @@ class Solver:
             self.u_0 = Solver.isentropic_vortex(eps=params["vortex_strength"], 
                                                 gamma=params["specific_heat_ratio"],
                                                 x_0=params["initial_vortex_centre"],
-                                                vortex_type=params["vortex_type"],
                                                 T_infty=params["background_temperature"],
                                                 v_infty=params["background_velocity"],
                                                 M_infty=params["mach_number"],
@@ -246,51 +243,29 @@ class Solver:
         return g
     
     @staticmethod
-    def isentropic_vortex(eps, gamma, x_0, vortex_type="shu",
-                          T_infty=1.0, v_infty = np.array([1.0,1.0]),
+    def isentropic_vortex(eps, gamma, x_0, T_infty=1.0, 
+                          v_infty = np.array([1.0,1.0]),
                           M_infty=0.4, theta=np.pi/4.):
-  
-        if vortex_type == "shu":
+
+        def g(x):
             
-            def g_shu(x):
-                
-                delta_x = x - x_0
-                delta_T = (-(gamma-1.0)/(8*gamma*np.pi**2)*eps**2)*np.exp(
-                    1-np.linalg.norm(delta_x)**2)
-                delta_v = eps/(2*np.pi)*np.exp((1-np.linalg.norm(x-x_0)**2)/2.0)*np.array(
-                    [-delta_x[1], delta_x[0]])
-                rho = (T_infty + delta_T)**(1.0/(gamma-1.0))
-                
-                p = rho**gamma
-                v = v_infty + delta_v
+            beta = M_infty*eps
             
-                return np.concatenate(
-                    ([rho],rho*v, 
-                     [p/(gamma-1) + 0.5*rho*np.linalg.norm(v)**2]))
-            
-            return lambda x: np.apply_along_axis(g_shu, 0, x)
+            delta_x = x - x_0
+    
+            delta_T = -0.5*(gamma-1.0)*beta**2*np.exp(
+                1-np.linalg.norm(delta_x)**2)
+            delta_v = beta*np.exp((1-np.linalg.norm(x-x_0)**2)/2.0)*np.array(
+                [-delta_x[1], delta_x[0]])
+            rho = (1 + delta_T)**(1.0/(gamma-1.0))
+            p = (1.0/gamma)*rho**gamma
+            v = M_infty*(np.array([np.cos(theta), np.sin(theta)])) + delta_v
         
-        elif vortex_type == "spiegel":
-             
-            def g_spiegel(x):
+            return np.concatenate(
+                ([rho],rho*v, 
+                 [p/(gamma-1) + 0.5*rho*np.linalg.norm(v)**2]))
                 
-                beta = M_infty*eps*np.sqrt(2)/(4*np.pi)*np.exp(0.5)
-                
-                delta_x = x - x_0
-        
-                delta_T = -0.5*(gamma-1.0)*beta**2*np.exp(
-                    1-np.linalg.norm(delta_x)**2)
-                delta_v = beta*np.exp((1-np.linalg.norm(x-x_0)**2)/2.0)*np.array(
-                    [-delta_x[1], delta_x[0]])
-                rho = (1 + delta_T)**(1.0/(gamma-1.0))
-                p = (1.0/gamma)*rho**gamma
-                v = M_infty*(np.array([np.cos(theta), np.sin(theta)])) + delta_v
-            
-                return np.concatenate(
-                    ([rho],rho*v, 
-                     [p/(gamma-1) + 0.5*rho*np.linalg.norm(v)**2]))
-                
-        return lambda x: np.apply_along_axis(g_spiegel, 0, x)
+        return lambda x: np.apply_along_axis(g, 0, x)
             
     
     @staticmethod
