@@ -968,8 +968,6 @@ class TimeIntegrator:
             pickle.dump(N_t, open(results_path+"number_of_steps.dat", "wb" ))
             pickle.dump(N_write, open(results_path+"write_interval.dat", "wb" ))
             
-             
-            
         screen = open(results_path + "screen.txt", "w")
         print(prefix, " dt = ", dt, file=screen)
         print(prefix, "writing every ", 

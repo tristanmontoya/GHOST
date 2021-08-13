@@ -5,7 +5,6 @@ import pickle
 import numpy as np
 from Solver import Solver
 from Mesh import Mesh2D
-from math import floor
 import meshzoo
 import meshio
 
@@ -126,12 +125,26 @@ def advection_driver(a=np.sqrt(2),
         pickle.dump(l2_error, open(
             "../results/"+project_title+"/solution_error.dat", "wb" ))
         
+    else:
+        
+        if restart and os.path.isfile(
+                "../results/" +  project_title + "/times.dat"):
+            
+                times = pickle.load(open(
+                    "../results/" +  project_title + "/times.dat", "rb"))
+                
+                print("Loaded from time step ", times[-1][0])
+            
+                solver.load_solution("../results/" +  project_title + "/",
+                                     times[-1][0])
+    
     return solver
           
 
 def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
                  p_geo=2, c="c_dg", discretization_type=1, 
-                 form="strong", suffix=None, run=True, restart=True, new_mesh=True):
+                 form="strong", suffix=None, run=True, 
+                 restart=True, new_mesh=True):
     
     if c== "c_dg":
         c_desc = "0"
@@ -243,12 +256,26 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
         pickle.dump(l2_error, open(
             "../results/"+project_title+"/solution_error.dat", "wb" ))
         
+    else:
+        
+        if restart and os.path.isfile(
+                "../results/" +  project_title + "/times.dat"):
+            
+                times = pickle.load(open(
+                    "../results/" +  project_title + "/times.dat", "rb"))
+                
+                print("Loaded from time step ", times[-1][0])
+            
+                solver.load_solution("../results/" +  project_title + "/",
+                                     times[-1][0])
+    
     return solver
 
 
 def write_output_advection(a=np.sqrt(2), p=2, p_geo=1, M=8, L=1.0, correction_type="c_dg",
-                             upwind_parameter = 1, discretization_type=1, 
-                                headings_disc=False, headings_corr=False):
+                           upwind_parameter = 1, discretization_type=1, 
+                           headings_disc=False, headings_corr=False, 
+                           solution_error=False):
     
     discretization_text = {1: "Quadrature I", 2: "Collocation", 3: "Quadrature II"}
     correction_text = {"c_dg": "$c_{\\mathrm{DG}}$", "c_+": "$c_+$"}
@@ -257,26 +284,29 @@ def write_output_advection(a=np.sqrt(2), p=2, p_geo=1, M=8, L=1.0, correction_ty
                                 p_geo=p_geo, c=correction_type, 
                                 discretization_type=discretization_type,
                                 upwind_parameter=float(upwind_parameter),
-                                form="strong", run=False, new_mesh=False)
+                                form="strong", run=False, restart=True, 
+                                new_mesh=False)
+    
     weak = advection_driver(a=np.sqrt(2), 
                             p=p, M=M, L=L,
                             p_geo=p_geo, c=correction_type, 
                             discretization_type=discretization_type,
                             upwind_parameter=float(upwind_parameter),
-                            form="weak", run=False, new_mesh=False)
+                            form="weak", run=False, restart=True, 
+                            new_mesh=False)
     
-    strong.load_solution(time_step=floor(strong.T/strong.time_integrator.dt_target))
     strong.post_process(error_quadrature_degree=4*p)
-    weak.load_solution(time_step=floor(weak.T/weak.time_integrator.dt_target))
     weak.post_process(error_quadrature_degree=4*p)
 
     diff = strong.calculate_difference(weak)
-    strong_cons_error = pickle.load(open("../results/" + strong.params["project_title"] + "/conservation_error.dat", "rb"))
-    weak_cons_error = pickle.load(open("../results/" + weak.params["project_title"] + "/conservation_error.dat", "rb"))
-    strong_energy_error = pickle.load(open("../results/" + strong.params["project_title"] + "/energy_error.dat", "rb"))
-    weak_energy_error = pickle.load(open("../results/" + weak.params["project_title"] + "/energy_error.dat", "rb"))   
- #   strong_sol_error = pickle.load(open("../results/" + strong.params["project_title"] + "/solution_error.dat", "rb"))
- #   weak_sol_error = pickle.load(open("../results/" + weak.params["project_title"] + "/solution_error.dat", "rb"))
+    strong_cons_error = pickle.load(open(
+        "../results/" + strong.params["project_title"] + "/conservation_error.dat", "rb"))
+    weak_cons_error = pickle.load(open(
+        "../results/" + weak.params["project_title"] + "/conservation_error.dat", "rb"))
+    strong_energy_error = pickle.load(open(
+        "../results/" + strong.params["project_title"] + "/energy_error.dat", "rb"))
+    weak_energy_error = pickle.load(open(
+        "../results/" + weak.params["project_title"] + "/energy_error.dat", "rb"))   
     
     line = ""
     if headings_disc:
@@ -295,36 +325,47 @@ def write_output_advection(a=np.sqrt(2), p=2, p_geo=1, M=8, L=1.0, correction_ty
     
     return line
 
-def write_output_euler(mach_number=0.4, theta=np.pi/4, p=2, p_geo=2, M=8, L=1.0, correction_type="c_dg",
-                             upwind_parameter = 1, discretization_type=1, 
-                                headings_disc=False, headings_corr=False):
+
+def write_output_euler(mach_number=0.4, theta=np.pi/4, p=2, p_geo=2,
+                       M=8, L=1.0, correction_type="c_dg", 
+                       upwind_parameter = 1, discretization_type=1, 
+                       headings_disc=False, headings_corr=False, 
+                       solution_error=False):
     
-    discretization_text = {1: "Quadrature I", 2: "Collocation", 3: "Quadrature II"}
+    discretization_text = {1: "Quadrature I",
+                           2: "Collocation",
+                           3: "Quadrature II"}
+    
     correction_text = {"c_dg": "$c_{\\mathrm{DG}}$", "c_+": "$c_+$"}
-    equation_text = {0: "$\\rho$", 1: "$\\rho V_1$", 2: "$\\rho V_2$", 3: "$E$" }
+    
+    equation_text = {0: "$\\rho$",
+                     1: "$\\rho V_1$", 
+                     2: "$\\rho V_2$", 
+                     3: "$E$" }
 
     strong = euler_driver(mach_number=mach_number, 
                             p=p, M=M, L=L,
                             p_geo=p_geo, c=correction_type, 
                             discretization_type=discretization_type,
-                            form="strong", run=False, new_mesh=False)
+                            form="strong", run=False, restart=True, 
+                            new_mesh=False)
+    
     weak = euler_driver(mach_number=mach_number, 
                             p=p, M=M, L=L,
                             p_geo=p_geo, c=correction_type, 
                             discretization_type=discretization_type,
-                            form="weak", run=False, new_mesh=False)
+                            form="weak", run=False, restart=True, 
+                            new_mesh=False)
     
-    strong.load_solution(time_step=floor(strong.T/strong.time_integrator.dt_target))
     strong.post_process(error_quadrature_degree=4*p)
-    weak.load_solution(time_step=floor(weak.T/weak.time_integrator.dt_target))
     weak.post_process(error_quadrature_degree=4*p)
 
     diff = strong.calculate_difference(weak)
-    strong_cons_error = pickle.load(open("../results/" + strong.params["project_title"] + "/conservation_error.dat", "rb"))
-    weak_cons_error = pickle.load(open("../results/" + weak.params["project_title"] + "/conservation_error.dat", "rb"))
- #   strong_sol_error = pickle.load(open("../results/" + strong.params["project_title"] + "/solution_error.dat", "rb"))
- #   weak_sol_error = pickle.load(open("../results/" + weak.params["project_title"] + "/solution_error.dat", "rb"))
-    
+    strong_cons_error = pickle.load(open(
+        "../results/" + strong.params["project_title"] + "/conservation_error.dat", "rb"))
+    weak_cons_error = pickle.load(open(
+        "../results/" + weak.params["project_title"] + "/conservation_error.dat", "rb"))
+     
     line = ""
     if headings_disc:
         line = line + discretization_text[discretization_type]

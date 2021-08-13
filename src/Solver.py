@@ -342,7 +342,7 @@ class Solver:
                 
                     times = pickle.load(open(results_path+"times.dat", "rb"))
                     
-                    print("Restarting from time step ", times[-1][0])
+                    print("Loaded from time step ", times[-1][0])
                 
                     self.load_solution(results_path, times[-1][0])
                     
