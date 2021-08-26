@@ -238,7 +238,7 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     
     if run:
         
-        solver.run(write_interval=params["final_time"]/10, 
+        solver.run(write_interval=params["final_time"]/100, 
                     print_interval=params["final_time"]/1000,
                     restart=restart)
         

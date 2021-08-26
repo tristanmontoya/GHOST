@@ -1,0 +1,44 @@
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Submitted batch job 5898741
+
+scontrol show jobid 5897378
+JobId=5897378 JobName=euler_p3
+   UserId=tmontoya(3046870) GroupId=zingg(6000086) MCS_label=N/A
+   Priority=988081 Nice=0 Account=rrg-zingg-ad QOS=normal
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=11:30:06 TimeLimit=12:00:00 TimeMin=N/A
+   SubmitTime=2021-08-19T23:46:49 EligibleTime=2021-08-19T23:46:49
+   AccrueTime=2021-08-19T23:46:49
+   StartTime=2021-08-20T03:29:25 EndTime=2021-08-20T14:59:31 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2021-08-20T03:29:25
+   Partition=compute AllocNode:Sid=nia-login01:363120
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=nia1842
+   BatchHost=nia1842
+   NumNodes=1 NumCPUs=80 NumTasks=40 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=80,mem=175000M,node=1,billing=40
+   Socks/Node=* NtasksPerN:B:S:C=40:0:*:* CoreSpec=*
+   MinCPUsNode=40 MinMemoryNode=175000M MinTmpDiskNode=0
+   Features=[skylake|cascade] DelayBoot=00:00:00
+   OverSubscribe=NO Contiguous=0 Licenses=(null) Network=(null)
+   Command=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST_private/notebooks/submit_euler_p3.sh
+   WorkDir=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST_private/notebooks
+   StdErr=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST_private/notebooks/slurm-5897378.out
+   StdIn=/dev/null
+   StdOut=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST_private/notebooks/slurm-5897378.out
+   Power=
+   MailUser=tmontoya@scinet.local MailType=NONE
+
+sacct -j 5897378
+       JobID    JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+5897378        euler_p3 rrg-zingg+   11:30:06                        07:01.267 5-17:41:21      0:0 
+5897378.bat+      batch rrg-zingg+   11:30:06  72853580K   2718744K  07:01.267 5-17:41:21      0:0 
+5897378.ext+     extern rrg-zingg+   11:30:06    138360K       876K   00:00:00   00:00:00      0:0 
+
+kernel messages produced during job executions:
+[Aug20 08:26] CIFS PidTable: buckets 64
+[  +0.005018] CIFS BufTable: buckets 64
+[Aug20 13:13] CIFS PidTable: buckets 64
+[  +0.004984] CIFS BufTable: buckets 64

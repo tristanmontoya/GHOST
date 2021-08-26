@@ -1,0 +1,3 @@
+  dt =  0.0005580424752087786
+ writing every  633  time steps, total  63356
+ Simulation complete.

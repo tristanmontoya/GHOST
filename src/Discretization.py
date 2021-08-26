@@ -923,8 +923,7 @@ class TimeIntegrator:
                 times = pickle.load(open(results_path+"times.dat", "rb"))
                 dt = pickle.load(open(results_path+"time_step_size.dat", "rb" ))
                 N_t = pickle.load(open(results_path+"number_of_steps.dat", "rb" ))
-                N_write = pickle.load(open(results_path+"write_interval.dat", "rb" ))
-            
+         
                 u = np.copy(u_0)
                 n_0 = times[-1][0]
                 t = times[-1][1]
@@ -953,21 +952,20 @@ class TimeIntegrator:
             n_0 = 0
             t = 0
             times = [[n_0,t]]
-            
-            # interval between prints and writes to file
-            if print_interval is None:
-                N_print = N_t
-            else:
-                N_print = floor(print_interval/dt)
-            if write_interval is None:
-                N_write = N_t
-            else:
-                N_write = floor(write_interval/dt)    
-                
+               
             pickle.dump(dt, open(results_path+"time_step_size.dat", "wb" ))
             pickle.dump(N_t, open(results_path+"number_of_steps.dat", "wb" ))
-            pickle.dump(N_write, open(results_path+"write_interval.dat", "wb" ))
-            
+        
+        # interval between prints and writes to file
+        if print_interval is None:
+            N_print = N_t
+        else:
+            N_print = floor(print_interval/dt)
+        if write_interval is None:
+            N_write = N_t
+        else:
+            N_write = floor(write_interval/dt)    
+              
         screen = open(results_path + "screen.txt", "w")
         print(prefix, " dt = ", dt, file=screen)
         print(prefix, "writing every ", 
