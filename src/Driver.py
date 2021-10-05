@@ -11,7 +11,7 @@ import meshio
 
 def advection_driver(a=np.sqrt(2), 
                      theta=np.pi/4, p=2, M=5, L=1.0, 
-                     p_geo=1, c="c_dg", discretization_type=1, 
+                     p_map=1, c="c_dg", discretization_type=1, 
                      upwind_parameter = 0.0,
                      form="strong", 
                      suffix=None, 
@@ -19,6 +19,7 @@ def advection_driver(a=np.sqrt(2),
                      restart=True,
                      new_mesh=True):
     
+    # get rid of special characters in descriptor for file name
     if c== "c_dg":
         c_desc = "0"
         
@@ -60,8 +61,9 @@ def advection_driver(a=np.sqrt(2),
     mesh.make_periodic((3,4),[0]) # top-bottom periodic (axis 0)
     
     #curvilinear transformation used in Del Rey Fernandez et al. (2017)
-    mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=L),
-                  p_geo=p_geo)
+    mesh.map_mesh(curving_function=Mesh2D.grid_transformation(
+        warp_factor=0.2, L=L),
+        p_map=p_map)
     
     # solver parameters
     params = {"project_title": project_title,
@@ -74,9 +76,10 @@ def advection_driver(a=np.sqrt(2),
              "correction": c,
              "solution_degree": p,
              "time_integrator": "rk44",
-             "final_time": L/(a*np.cos(theta)),
+             "final_time": 0.1*L/(a*np.cos(theta)),
              "time_step_scale": 0.0025}
     
+    # "Quadrature I"
     if discretization_type == 1:
         
          params["facet_rule"] = "lg"
@@ -85,6 +88,7 @@ def advection_driver(a=np.sqrt(2),
          params["facet_quadrature_degree"] = 2*p+1
          params["solution_representation"] = "modal"
     
+    # "Collocation"
     elif discretization_type == 2:
         
          params["integration_type"] = "collocation"
@@ -92,6 +96,7 @@ def advection_driver(a=np.sqrt(2),
          params["facet_collocation_degree"] = p
          params["solution_representation"] = "nodal"
     
+    # "Quadrature II"
     elif discretization_type == 3:
         
          params["facet_rule"] = "lgl"
@@ -142,10 +147,11 @@ def advection_driver(a=np.sqrt(2),
           
 
 def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
-                 p_geo=2, c="c_dg", discretization_type=1, 
+                 p_map=2, c="c_dg", discretization_type=1, 
                  form="strong", suffix=None, run=True, 
                  restart=True, new_mesh=True):
     
+    # get rid of special characters in descriptor for file name
     if c== "c_dg":
         c_desc = "0"
         
@@ -188,8 +194,9 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     mesh.make_periodic((3,4),[0]) # top-bottom periodic (axis 0)
     
     #curvilinear transformation used in Del Rey Fernandez et al. (2017)
-    mesh.map_mesh(f_map=Mesh2D.grid_transformation(warp_factor=0.2, L=L),
-                  p_geo=p_geo)
+    mesh.map_mesh(curving_function=Mesh2D.grid_transformation(
+        warp_factor=0.2, L=L),
+        p_map=p_map)
     
     # solver parameters
     params = {"project_title": project_title,
@@ -208,6 +215,7 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
              "final_time": L/(mach_number/np.sqrt(2)),
              "time_step_scale": 0.0025}
     
+    # "Quadrature I"
     if discretization_type == 1:
         
          params["facet_rule"] = "lg"
@@ -216,6 +224,7 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
          params["facet_quadrature_degree"] = 2*p+1
          params["solution_representation"] = "modal"
     
+    # Collocation
     elif discretization_type == 2:
         
          params["integration_type"] = "collocation"
@@ -223,6 +232,7 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
          params["facet_collocation_degree"] = p
          params["solution_representation"] = "nodal"
     
+    # Quadrature II
     elif discretization_type == 3:
         
          params["facet_rule"] = "lgl"
@@ -272,16 +282,18 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     return solver
 
 
-def write_output_advection(a=np.sqrt(2), p=2, p_geo=1, M=8, L=1.0, correction_type="c_dg",
+def write_output_advection(a=np.sqrt(2), p=2, p_map=1, M=8, L=1.0, correction_type="c_dg",
                            upwind_parameter = 1, discretization_type=1, 
                            headings_disc=False, headings_corr=False, 
                            solution_error=False):
-    
+
+    # Generate tables for paper
+
     discretization_text = {1: "Quadrature I", 2: "Collocation", 3: "Quadrature II"}
     correction_text = {"c_dg": "$c_{\\mathrm{DG}}$", "c_+": "$c_+$"}
 
     strong = advection_driver(a=a, p=p, M=M, L=L,
-                                p_geo=p_geo, c=correction_type, 
+                                p_map=p_map, c=correction_type, 
                                 discretization_type=discretization_type,
                                 upwind_parameter=float(upwind_parameter),
                                 form="strong", run=False, restart=True, 
@@ -289,7 +301,7 @@ def write_output_advection(a=np.sqrt(2), p=2, p_geo=1, M=8, L=1.0, correction_ty
     
     weak = advection_driver(a=np.sqrt(2), 
                             p=p, M=M, L=L,
-                            p_geo=p_geo, c=correction_type, 
+                            p_map=p_map, c=correction_type, 
                             discretization_type=discretization_type,
                             upwind_parameter=float(upwind_parameter),
                             form="weak", run=False, restart=True, 
@@ -326,11 +338,13 @@ def write_output_advection(a=np.sqrt(2), p=2, p_geo=1, M=8, L=1.0, correction_ty
     return line
 
 
-def write_output_euler(mach_number=0.4, theta=np.pi/4, p=2, p_geo=2,
+def write_output_euler(mach_number=0.4, theta=np.pi/4, p=2, p_map=2,
                        M=8, L=1.0, correction_type="c_dg", 
                        upwind_parameter = 1, discretization_type=1, 
                        headings_disc=False, headings_corr=False, 
                        solution_error=False):
+
+    # Generate tables for paper
     
     discretization_text = {1: "Quadrature I",
                            2: "Collocation",
@@ -345,14 +359,14 @@ def write_output_euler(mach_number=0.4, theta=np.pi/4, p=2, p_geo=2,
 
     strong = euler_driver(mach_number=mach_number, 
                             p=p, M=M, L=L,
-                            p_geo=p_geo, c=correction_type, 
+                            p_map=p_map, c=correction_type, 
                             discretization_type=discretization_type,
                             form="strong", run=False, restart=True, 
                             new_mesh=False)
     
     weak = euler_driver(mach_number=mach_number, 
                             p=p, M=M, L=L,
-                            p_geo=p_geo, c=correction_type, 
+                            p_map=p_map, c=correction_type, 
                             discretization_type=discretization_type,
                             form="weak", run=False, restart=True, 
                             new_mesh=False)

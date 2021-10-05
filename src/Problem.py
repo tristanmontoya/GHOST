@@ -75,9 +75,8 @@ class Euler(ConservationLaw):
     
     def roe_flux(self,u_m, u_p):
         
-        # solve a locally 1d riemann problem for 2d normal/tangential
-        # problem (set y-momentum to zero for truly 1d)
-        # will have to modify for 3D extension
+        # solve a locally 1d Riemann problem for 2d normal/tangential
+        # problem (set y-momentum to zero for actual 1d)
         
         # difference in conserved variables
         du = u_p - u_m
@@ -149,7 +148,7 @@ class Euler(ConservationLaw):
        
     def flux_tensor(self, u):
             
-        # gets the full flux tensor (N_e by d array)
+        # gets the full flux tensor (N_eq by d array)
         
         # get primitive vars
         q = self.conservative_to_primitive(u) 
