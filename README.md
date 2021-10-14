@@ -3,7 +3,7 @@ GHOST is a Python implementation of discontinuous Galerkin and flux reconstructi
 
 Tristan Montoya and David W. Zingg, "A unifying algebraic framework for discontinuous Galerkin and flux reconstruction methods based on the summation-by-parts property." Preprint, [arXiv:2101.10478v1](https://arxiv.org/abs/2101.10478) (2021).
 
-As GHOST was developed for use as a test bed for numerical schemes and to run numerical experiments for simple model problems in support of theoretical studies in the above manuscript, competitive performance for practical problems is not expected.
+As GHOST was developed for use as a test bed for numerical schemes and to run numerical experiments for simple model problems in support of the theoretical studies in the above manuscript, competitive performance for practical problems is not expected.
 
 ## Features
 
