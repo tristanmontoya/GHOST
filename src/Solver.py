@@ -116,8 +116,7 @@ class Solver:
 
             if "angle" not in params:
                 params["angle"] = None
-            
-            
+              
             self.u_0 = Solver.isentropic_vortex(eps=params["vortex_strength"], 
                                                 zeta=params["specific_heat_ratio"],
                                                 x_0=params["initial_vortex_centre"],
@@ -266,6 +265,7 @@ class Solver:
                     0,x)])
         return g
     
+
     @staticmethod
     def isentropic_vortex(eps, zeta, x_0, T_iN_facty=1.0, 
                           v_iN_facty = np.array([1.0,1.0]),
@@ -303,6 +303,7 @@ class Solver:
         
         return lambda x: np.apply_along_axis(g, 0, x)
     
+
     @staticmethod
     def entropy_wave_1d(zeta):
         
@@ -411,7 +412,6 @@ class Solver:
                 self.E_f = self.calculate_energy()
             
         else:
-            
             raise NotImplementedError
    
     
@@ -602,7 +602,6 @@ class Solver:
                          for e in range(0, self.N_eq)]
                         for k in range(0,self.discretization.mesh.N_el)]
                    
-            
             if process_visualization:
                 
                 # evaluate exact solution at visualization points
@@ -643,6 +642,8 @@ class Solver:
                                             self.J_error[k]*self.ref_error_quadrature.weights)
                                     for k in range(0,self.discretization.mesh.N_el)]))
                                     for e in range(0,self.N_eq)])
+        else: 
+            raise NotImplementedError()
         
         
     def calculate_energy(self):

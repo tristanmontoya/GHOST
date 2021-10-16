@@ -22,9 +22,11 @@ class Mesh(ABC):
         self.compute_affine_mapping()
         self.map_mesh()
     
+    
     @abstractmethod 
     def compute_affine_mapping(self):
         pass
+
 
     def map_mesh(self, curving_function=None, p_map=3):
         
