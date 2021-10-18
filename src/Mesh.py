@@ -1,4 +1,4 @@
-# GHOST - Mesh Data Structure and Utilities
+# GHOST - Meshes
 
 import numpy as np
 import modepy as mp

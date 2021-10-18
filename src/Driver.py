@@ -1,4 +1,4 @@
-# GHOST - Test Problem Drivers
+# GHOST - Drivers for model problems
 
 import os
 import pickle
@@ -70,13 +70,14 @@ def advection_driver(a=np.sqrt(2),
              "problem": "constant_advection",
              "initial_condition": "sine",
              "wavelength": np.ones(2),
-             "wave_speed": a*np.array([np.sin(theta),np.cos(theta)]),
+             "wave_speed": a*np.array([np.cos(theta),np.sin(theta)]),
              "upwind_parameter": upwind_parameter,
              "form": form,
              "correction": c,
              "solution_degree": p,
              "time_integrator": "rk44",
-             "final_time": 0.1*L/(a*np.cos(theta)),
+             "final_time": L/(a*np.amax(np.abs(np.cos(theta)),
+            np.abs(np.sin(theta)))),
              "time_step_scale": 0.0025}
     
     # "Quadrature I"
@@ -212,7 +213,8 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
              "correction": c,
              "solution_degree": p,
              "time_integrator": "rk44",
-             "final_time": L/(mach_number/np.sqrt(2)),
+             "final_time": L/(mach_number*np.amax(np.abs(np.cos(theta)),
+            np.abs(np.sin(theta)))),
              "time_step_scale": 0.0025}
     
     # "Quadrature I"

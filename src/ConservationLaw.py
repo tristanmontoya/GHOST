@@ -1,4 +1,4 @@
-# GHOST - Physical Problem Definition
+# GHOST - Conservation laws
 
 from abc import ABC, abstractmethod
 import numpy as np
@@ -9,10 +9,12 @@ class ConservationLaw(ABC):
         self.d = d
         self.N_eq = N_eq
         
+
     @abstractmethod
     def build_physical_flux(self):
         pass
     
+
     @abstractmethod
     def build_numerical_flux(self):
         pass
@@ -95,6 +97,7 @@ class Euler(ConservationLaw):
                                             u_m[3] 
                                             - 0.5*u_m[0]*Vs_m))
                                         /u_m[0]])
+
         z_p = np.sqrt(u_p[0])*np.array([1.0, 
                                         v_p[0],
                                         v_p[1],

@@ -1,4 +1,4 @@
-# GHOST - Time Integrators
+# GHOST - Time integrators
 
 import numpy as np
 from math import floor

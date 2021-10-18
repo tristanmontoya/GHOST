@@ -1,4 +1,4 @@
-# GHOST - Spatial Discretization
+# GHOST - Spatial discretizations
 
 import numpy as np
 from scipy import special

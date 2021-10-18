@@ -1,6 +1,6 @@
-# GHOST - Solver Components
+# GHOST - Solvers
 
-import Problem
+import ConservationLaw
 import SpatialDiscretization
 import TimeIntegrator
 import numpy as np
@@ -36,7 +36,7 @@ class Solver:
                 else:
                     raise NotImplementedError
                 
-            self.pde = Problem.ConstantAdvection(params["wave_speed"],
+            self.pde = ConservationLaw.ConstantAdvection(params["wave_speed"],
                 params["upwind_parameter"])
             self.f = self.pde.build_physical_flux()
             self.f_star = self.pde.build_numerical_flux()
@@ -57,7 +57,7 @@ class Solver:
             if "numerical_flux" not in params:
                 params["numerical_flux"] = "roe"
 
-            self.pde = Problem.Euler(self.d,
+            self.pde = ConservationLaw.Euler(self.d,
                                      zeta=params["specific_heat_ratio"],
                                      numerical_flux=params["numerical_flux"])
             self.f = self.pde.build_physical_flux()
@@ -120,9 +120,9 @@ class Solver:
             self.u_0 = Solver.isentropic_vortex(eps=params["vortex_strength"], 
                                                 zeta=params["specific_heat_ratio"],
                                                 x_0=params["initial_vortex_centre"],
-                                                T_iN_facty=params["background_temperature"],
-                                                v_iN_facty=params["background_velocity"],
-                                                M_iN_facty=params["mach_number"],
+                                                T_infty=params["background_temperature"],
+                                                v_infty=params["background_velocity"],
+                                                Ma_infty=params["mach_number"],
                                                 theta=params["angle"])
             
             if "cfl_speed" not in params and "mach_number" in params:
@@ -267,13 +267,13 @@ class Solver:
     
 
     @staticmethod
-    def isentropic_vortex(eps, zeta, x_0, T_iN_facty=1.0, 
-                          v_iN_facty = np.array([1.0,1.0]),
-                          M_iN_facty=0.4, theta=np.pi/4.):
+    def isentropic_vortex(eps, zeta, x_0, T_infty=1.0, 
+                          v_infty = np.array([1.0,1.0]),
+                          Ma_infty=0.4, theta=np.pi/4.):
 
         def g(x):
             
-            beta = M_iN_facty*eps
+            beta = Ma_infty*eps
             
             delta_x = x - x_0
     
@@ -283,7 +283,7 @@ class Solver:
                 [-delta_x[1], delta_x[0]])
             rho = (1 + delta_T)**(1.0/(zeta-1.0))
             p = (1.0/zeta)*rho**zeta
-            v = M_iN_facty*(np.array([np.cos(theta), np.sin(theta)])) + delta_v
+            v = Ma_infty*(np.array([np.cos(theta), np.sin(theta)])) + delta_v
         
             return np.concatenate(
                 ([rho],rho*v, 
@@ -318,6 +318,7 @@ class Solver:
         
         return lambda x: np.apply_along_axis(g, 0, x[0])
         
+
     def project_function(self,g):
         
         if self.params["initial_projection"] == "unweighted":
