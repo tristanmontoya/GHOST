@@ -16,7 +16,6 @@ class Mesh(ABC):
         # name and dimension
         self.name = name
         self.d = d
-        
         # evaluate the mapping and metric terms from affine mesh
         self.v_affine = np.copy(self.v)
         self.compute_affine_mapping()
