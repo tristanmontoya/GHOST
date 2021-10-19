@@ -1,5 +1,5 @@
-  dt =  0.0017857142857142857
- writing every  560  time steps, total  560
- time step:  560 t:  0.9999999999999968 wall time:  5.26889705657959
- writing time step  560 t =  0.9999999999999968
+  dt =  4.4642857142857136e-05
+ writing every  22400  time steps, total  22400
+ time step:  22400 t:  1.000000000000364 wall time:  210.8797788619995
+ writing time step  22400 t =  1.000000000000364
  Simulation complete.

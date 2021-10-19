@@ -2,13 +2,15 @@
 
 import os
 import pickle
+import ctypes
+import shutil
 import numpy as np
 from Solver import Solver
 from Mesh import Mesh2D
 import meshzoo
 import meshio
 
-
+# periodic linear advection equation on square domain
 def advection_driver(a=np.sqrt(2), 
                      theta=np.pi/4, p=2, M=5, L=1.0, 
                      p_map=1, c="c_dg", discretization_type=1, 
@@ -37,20 +39,25 @@ def advection_driver(a=np.sqrt(2),
     
     project_title = "advection_" + descriptor
     print(project_title)
-   
+
     if new_mesh:
-        points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M+1, 
+        points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M, 
                     variant="zigzag")
-    
-        if not os.path.exists("../mesh/" +  project_title + "/"):
-            os.makedirs("../mesh/" +  project_title + "/")
         
-        meshio.write("../mesh/" + project_title + "/M" + str(M) + ".msh",
-                     meshio.Mesh(points, {"triangle": elements}))
+        if not os.path.exists("../mesh/" + "square_L" 
+            + str(round(L)) + "/"):
+
+            os.makedirs("../mesh/" + "square_L" 
+            + str(round(L)) + "/")
+        
+        meshio.write("../mesh/" +  "square_L" 
+        + str(round(L)) + "/M" + str(M) + ".msh",
+                    meshio.Mesh(points, {"triangle": np.array(elements).astype((ctypes.c_size_t))}))
         
     mesh = Mesh2D(project_title + "_M" + str(M),
-                  "../mesh/" + project_title + "/M" + str(M) + ".msh")
-    
+                  ("../mesh/" +  "square_L" 
+                  + str(round(L)) + "/M" + str(M) + ".msh"))
+
     # set up periodic boundary conditions
     left = np.array([1.0,0.0,0.0]) 
     right = np.array([1.0,0.0,L])
@@ -76,7 +83,7 @@ def advection_driver(a=np.sqrt(2),
              "correction": c,
              "solution_degree": p,
              "time_integrator": "rk44",
-             "final_time": L/(a*np.amax(np.abs(np.cos(theta)),
+             "final_time": L/(a*max(np.abs(np.cos(theta)),
             np.abs(np.sin(theta)))),
              "time_step_scale": 0.0025}
     
@@ -119,11 +126,7 @@ def advection_driver(a=np.sqrt(2),
         
         solver.post_process(error_quadrature_degree=4*p)
         l2_error = solver.calculate_error() 
-        print("{:.3e}".format((solver.I_f[0] - solver.I_0[0])), "& ",
-              "{:.3e}".format((solver.E_f[0] - solver.E_0[0])), "& "
-              "{:.3e}".format(l2_error[0]), " \\\\")
-                  
-        
+
         pickle.dump(solver.I_f - solver.I_0, open(
             "../results/"+project_title+"/conservation_error.dat", "wb" ))
         pickle.dump(solver.E_f - solver.E_0, open(
@@ -147,6 +150,7 @@ def advection_driver(a=np.sqrt(2),
     return solver
           
 
+# isentropic vortex on square domain with periodic boundary conds
 def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
                  p_map=2, c="c_dg", discretization_type=1, 
                  form="strong", suffix=None, run=True, 
@@ -162,8 +166,7 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     else:
         raise ValueError
     
-    descriptor = "m" + "{:.1f}".format(mach_number).replace(".","") + "p" + str(p) \
-       + "c"  + c_desc + "t" + str(discretization_type) + "_" + form 
+    descriptor = "m" + "{:.1f}".format(mach_number).replace(".","") + "p" + str(p) + "c"  + c_desc + "t" + str(discretization_type) + "_" + form 
        
     if suffix is not None:
         descriptor = descriptor + suffix
@@ -172,19 +175,24 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     print(project_title)
     
     if new_mesh:
-        points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M+1, 
+
+        points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M, 
                     variant="zigzag")
-    
-    
-        if not os.path.exists("../mesh/" +  project_title + "/"):
-            os.makedirs("../mesh/" +  project_title + "/")
         
-        meshio.write("../mesh/" + project_title + "/M" + str(M) + ".msh",
-                     meshio.Mesh(points, {"triangle": elements}))
+        if not os.path.exists("../mesh/" + "square_L" 
+            + str(round(L)) + "/"):
+
+            os.makedirs("../mesh/" + "square_L" 
+            + str(round(L)) + "/")
+        
+        meshio.write("../mesh/" +  "square_L" 
+        + str(round(L)) + "/M" + str(M) + ".msh",
+                    meshio.Mesh(points, {"triangle": np.array(elements).astype((ctypes.c_size_t))}))
         
     mesh = Mesh2D(project_title + "_M" + str(M),
-                  "../mesh/" + project_title + "/M" + str(M) + ".msh")
-    
+                  ("../mesh/" +  "square_L" 
+                  + str(round(L)) + "/M" + str(M) + ".msh"))
+
     # set up periodic boundary conditions
     left = np.array([1.0,0.0,0.0]) 
     right = np.array([1.0,0.0,L])
@@ -213,7 +221,7 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
              "correction": c,
              "solution_degree": p,
              "time_integrator": "rk44",
-             "final_time": L/(mach_number*np.amax(np.abs(np.cos(theta)),
+             "final_time": L/(mach_number*max(np.abs(np.cos(theta)),
             np.abs(np.sin(theta)))),
              "time_step_scale": 0.0025}
     
@@ -256,13 +264,7 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
         
         solver.post_process(error_quadrature_degree=4*p)
         l2_error = solver.calculate_error() 
-        
-        for e in range(0,4):
-                  print("{:.3e}".format((solver.I_f - solver.I_0)[e]), "& ", 
-                  "{:.3e}".format(l2_error[e]), " \\\\")
                   
-        pickle.dump(open(
-            "../results/"+project_title+"/conservation_initial.dat", "wb" ))
         pickle.dump(solver.I_f - solver.I_0, open(
             "../results/"+project_title+"/conservation_error.dat", "wb" ))
         pickle.dump(l2_error, open(

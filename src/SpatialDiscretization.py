@@ -10,9 +10,6 @@ import pickle
 import time
 import os.path
 
-NORMAL_TOL = 1.0e-8
-
-
 class SpatialDiscretization:
     
     def __init__(self, mesh, element_to_discretization, p,
@@ -66,7 +63,6 @@ class SpatialDiscretization:
         self.N_gamma = [[x_hat_fac[i][zeta].shape[1] 
                          for zeta in range(0,self.N_fac[i])] 
                         for i in range(0,self.N_d)]
-        
        
         # build permutation and interpolation operators
         self.build_facet_permutation()
@@ -572,7 +568,7 @@ class SpatialDiscretization:
                                                 bc, N_eq, u_tilde, t)
         
 
-    def test_normals(self, print_output=True):
+    def test_normals(self, print_output=True, tol=1.0e-8):
         # check each interface to see if the normals computed for
         #  each coincident face by mapping are opposite one another
         
@@ -588,7 +584,7 @@ class SpatialDiscretization:
                     nu, eta = self.mesh.local_to_local[(k,zeta)]
                     if np.amax(np.abs(self.n[nu][eta].T 
                                       + self.facet_permutation[k][zeta] 
-                                      @ self.n[k][zeta].T)) > NORMAL_TOL:
+                                      @ self.n[k][zeta].T)) > tol:
                         self.normals_good[k][zeta] = False
                         
                         if print_output:

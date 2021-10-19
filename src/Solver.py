@@ -58,7 +58,7 @@ class Solver:
                 params["numerical_flux"] = "roe"
 
             self.pde = ConservationLaw.Euler(self.d,
-                                     zeta=params["specific_heat_ratio"],
+                                     gamma=params["specific_heat_ratio"],
                                      numerical_flux=params["numerical_flux"])
             self.f = self.pde.build_physical_flux()
             self.f_star = self.pde.build_numerical_flux()
@@ -118,7 +118,7 @@ class Solver:
                 params["angle"] = None
               
             self.u_0 = Solver.isentropic_vortex(eps=params["vortex_strength"], 
-                                                zeta=params["specific_heat_ratio"],
+                                                gamma=params["specific_heat_ratio"],
                                                 x_0=params["initial_vortex_centre"],
                                                 T_infty=params["background_temperature"],
                                                 v_infty=params["background_velocity"],
@@ -267,7 +267,7 @@ class Solver:
     
 
     @staticmethod
-    def isentropic_vortex(eps, zeta, x_0, T_infty=1.0, 
+    def isentropic_vortex(eps, gamma, x_0, T_infty=1.0, 
                           v_infty = np.array([1.0,1.0]),
                           Ma_infty=0.4, theta=np.pi/4.):
 
@@ -277,35 +277,35 @@ class Solver:
             
             delta_x = x - x_0
     
-            delta_T = -0.5*(zeta-1.0)*beta**2*np.exp(
+            delta_T = -0.5*(gamma-1.0)*beta**2*np.exp(
                 1-np.linalg.norm(delta_x)**2)
             delta_v = beta*np.exp((1-np.linalg.norm(x-x_0)**2)/2.0)*np.array(
                 [-delta_x[1], delta_x[0]])
-            rho = (1 + delta_T)**(1.0/(zeta-1.0))
-            p = (1.0/zeta)*rho**zeta
+            rho = (1 + delta_T)**(1.0/(gamma-1.0))
+            p = (1.0/gamma)*rho**gamma
             v = Ma_infty*(np.array([np.cos(theta), np.sin(theta)])) + delta_v
         
             return np.concatenate(
                 ([rho],rho*v, 
-                 [p/(zeta-1) + 0.5*rho*np.linalg.norm(v)**2]))
+                 [p/(gamma-1) + 0.5*rho*np.linalg.norm(v)**2]))
                 
         return lambda x: np.apply_along_axis(g, 0, x)
             
     
     @staticmethod
-    def euler_freestream(d,zeta):
+    def euler_freestream(d,gamma):
         
         def g(x):
             
             q = np.ones([d+2])
-            return np.concatenate((q[0:d+1], [q[d+1]/(zeta-1)+ 
+            return np.concatenate((q[0:d+1], [q[d+1]/(gamma-1)+ 
                               0.5*q[0]*(np.linalg.norm(q[1:d-1]))**2]))
         
         return lambda x: np.apply_along_axis(g, 0, x)
     
 
     @staticmethod
-    def entropy_wave_1d(zeta):
+    def entropy_wave_1d(gamma):
         
         def g(x):
             
@@ -314,7 +314,7 @@ class Solver:
             p = 1.0
             
             return np.array([rho, rho*u,  
-                             p/(zeta-1) + 0.5*rho*u**2])
+                             p/(gamma-1) + 0.5*rho*u**2])
         
         return lambda x: np.apply_along_axis(g, 0, x[0])
         
@@ -415,7 +415,17 @@ class Solver:
         else:
             raise NotImplementedError
    
+
+    def load_solution(self, results_path=None, time_step=0):
+        
+        if results_path is None:
+              results_path = "../results/" + self.project_title + "/"
+        
+        self.u_tilde = pickle.load(open(results_path 
+                                      + "res_" 
+                                      + str(time_step) + ".dat", "rb"))
     
+
     def post_process(self, visualization_resolution=10, 
                      error_quadrature_degree=10,
                      process_visualization=True,
@@ -493,7 +503,7 @@ class Solver:
                         
                         V_plot = mp.vandermonde(self.discretization.basis[
                                     self.discretization.element_to_discretization[k]],
-                                    ref_volume_points) @ self.discretization.Vp_inv[
+                                    ref_volume_points) @ self.discretization.V_tilde_inv[
                                     self.discretization.element_to_discretization[k]]
                                         
                     else:
@@ -576,7 +586,7 @@ class Solver:
                         
                         V_error = mp.vandermonde(self.discretization.basis[
                                     self.discretization.element_to_discretization[k]],
-                                    self.ref_error_quadrature.nodes) @ self.discretization.Vp_inv[
+                                    self.ref_error_quadrature.nodes) @ self.discretization.V_tilde_inv[
                                     self.discretization.element_to_discretization[k]]
                                         
                     else:
@@ -949,58 +959,8 @@ class Solver:
                 
             if show_fig:
                 plt.show()
+
             plt.close() 
             
         else:
             raise NotImplementedError
-
-            
-    def load_solution(self, results_path=None, time_step=0):
-        
-        if results_path is None:
-              results_path = "../results/" + self.project_title + "/"
-        
-        self.u_tilde = pickle.load(open(results_path 
-                                      + "res_" 
-                                      + str(time_step) + ".dat", "rb"))
-        
-        
-    def plot_time_steps(self, results_path=None, 
-                        plots_path=None,
-                        u_range = [0.0,1.0], 
-                        equation_index=0,
-                        clear_write_dir=True,
-                        make_video=True,
-                        framerate=2):
-        
-        if results_path is None:
-              results_path = "../results/" + self.project_title + "/"
-              
-        if plots_path is None:
-              plots_path = "../plots/" + self.project_title + "/"
-        
-        if not os.path.exists(plots_path):
-            os.makedirs(plots_path)
-        elif clear_write_dir:
-            os.system("rm -rf "+plots_path+"*")
-        
-        times = pickle.load(open(results_path + "times.dat", "rb"))
-        
-        for i in range(0,len(times)):
-
-            self.load_solution(results_path=results_path,
-                               time_step=times[i][0])
-            self.post_process(visualization_resolution=20,
-                              process_exact_solution=False)
-            self.plot(filename=plots_path+"frame_"+str(i)+".png",
-                           title="$t = " 
-                           + str(np.round(times[i][1], decimals=2)) + "$",
-                           equation_index=equation_index, plot_numerical=True,
-                           plot_exact=False, u_range=u_range, show_fig=False)
-            
-        if make_video:
-
-            ff_call = "ffmpeg -framerate "+ str(framerate)+ \
-            " -i "+plots_path+"frame_%d.png " +plots_path+"video.mp4"
-            print(ff_call)
-            os.system(ff_call)
