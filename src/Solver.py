@@ -357,7 +357,7 @@ class Solver:
         if self.params["problem"] == "projection":
             self.u_tilde = self.project_function(self.u_0)
             pickle.dump(self.u_tilde, open(results_path+"res_" 
-                                         + str(0) + ".dat", "wb" ))
+                                         + str(0) + ".dat", "wb"), protocol=0)
             
         elif self.params["problem"] == "constant_advection" \
             or self.params["problem"] == "compressible_euler":
@@ -388,15 +388,15 @@ class Solver:
                 self.u_tilde = self.project_function(self.u_0)
                 
                 pickle.dump(self.u_tilde, open(results_path+"res_" 
-                                             + str(0) + ".dat", "wb" ))
+                                             + str(0) + ".dat", "wb"), protocol=0)
             
                 self.I_0 = self.calculate_conserved_integral() 
                 self.E_0 = self.calculate_energy()
            
                 pickle.dump(self.I_0, 
-                            open(results_path+"conservation_initial.dat", "wb" ))
+                            open(results_path+"conservation_initial.dat", "wb"), protocol=0)
                 pickle.dump(self.E_0, 
-                            open(results_path+"energy_initial.dat", "wb" ))
+                            open(results_path+"energy_initial.dat", "wb"), protocol=0)
                 
                 self.u_tilde = self.time_integrator.run(self.u_tilde, self.T,
                                                       results_path,
@@ -407,8 +407,8 @@ class Solver:
             
             if self.time_integrator.is_done:
                 
-                self.I_0 = pickle.load(open(results_path+"conservation_initial.dat", "rb" ))
-                self.E_0 = pickle.load(open(results_path+"energy_initial.dat", "rb" ))
+                self.I_0 = pickle.load(open(results_path+"conservation_initial.dat", "rb"))
+                self.E_0 = pickle.load(open(results_path+"energy_initial.dat", "rb"))
                 self.I_f = self.calculate_conserved_integral()
                 self.E_f = self.calculate_energy()
             

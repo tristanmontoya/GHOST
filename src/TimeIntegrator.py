@@ -59,7 +59,7 @@ class TimeIntegrator:
             
             else:
                 
-                screen = open(results_path + "screen.txt", "w")
+                screen = open(results_path + "screen.txt", "wt")
                 print(prefix, "No previous file found for restart. Starting new run.",
                       file=screen)
                 screen.close()
@@ -77,8 +77,8 @@ class TimeIntegrator:
             t = 0
             times = [[n_0,t]]
                
-            pickle.dump(dt, open(results_path+"time_step_size.dat", "wb" ))
-            pickle.dump(N_t, open(results_path+"number_of_steps.dat", "wb" ))
+            pickle.dump(dt, open(results_path+"time_step_size.dat", "wb"), protocol=0)
+            pickle.dump(N_t, open(results_path+"number_of_steps.dat", "wb"), protocol=0)
         
         # interval between prints and writes to file
         if print_interval is None:
@@ -90,7 +90,7 @@ class TimeIntegrator:
         else:
             N_write = floor(write_interval/dt)    
               
-        screen = open(results_path + "screen.txt", "w")
+        screen = open(results_path + "screen.txt", "wt")
         print(prefix, " dt = ", dt, file=screen)
         print(prefix, "writing every ", 
               N_write, " time steps, total ", N_t, file=screen)
@@ -115,21 +115,21 @@ class TimeIntegrator:
                 times.append([n+1,t])
                 
                 pickle.dump(u, open(results_path+"res_" +
-                                    str(n+1) + ".dat", "wb" ))
+                                    str(n+1) + ".dat", "wb"), protocol=0)
                 
                 pickle.dump(times, open(
-                   results_path+"times.dat", "wb" ))
+                   results_path+"times.dat", "wb"), protocol=0)
                 
             if np.isnan(np.sum(np.array([[np.sum(u[k][e]) 
                                           for e in range(0, u[k].shape[0])] 
                                          for k in range(0,len(u))]))):
                 
                 pickle.dump(times, open(
-                   results_path+"times.dat", "wb" ))
+                   results_path+"times.dat", "wb"), protocol=0)
                 return None
         
         pickle.dump(times, open(
-                   results_path+"times.dat", "wb" ))
+                   results_path+"times.dat", "wb"), protocol=0)
         
         
         screen = open(results_path + "screen.txt", "a")
