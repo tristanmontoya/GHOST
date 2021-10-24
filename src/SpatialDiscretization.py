@@ -6,7 +6,6 @@ from math import floor, ceil, factorial
 import modepy as mp
 import quadpy as qp
 import matplotlib.pyplot as plt
-import pickle
 import time
 import os.path
 

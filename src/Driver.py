@@ -128,11 +128,11 @@ def advection_driver(a=np.sqrt(2),
         l2_error = solver.calculate_error() 
 
         pickle.dump(solver.I_f - solver.I_0, open(
-            "../results/"+project_title+"/conservation_error.dat", "wb" ))
+            "../results/"+project_title+"/conservation_error.dat", "wb"), protocol=0)
         pickle.dump(solver.E_f - solver.E_0, open(
-            "../results/"+project_title+"/energy_error.dat", "wb" ))
+            "../results/"+project_title+"/energy_error.dat", "wb"), protocol=0)
         pickle.dump(l2_error, open(
-            "../results/"+project_title+"/solution_error.dat", "wb" ))
+            "../results/"+project_title+"/solution_error.dat", "wb"), protocol=0)
         
     else:
         
@@ -266,9 +266,9 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
         l2_error = solver.calculate_error() 
                   
         pickle.dump(solver.I_f - solver.I_0, open(
-            "../results/"+project_title+"/conservation_error.dat", "wb" ))
+            "../results/"+project_title+"/conservation_error.dat", "wb"), protocol=0)
         pickle.dump(l2_error, open(
-            "../results/"+project_title+"/solution_error.dat", "wb" ))
+            "../results/"+project_title+"/solution_error.dat", "wb"), protocol=0)
         
     else:
         

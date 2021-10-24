@@ -65,7 +65,7 @@ class Mesh(ABC):
         # generate displacement field
         for k in range(0,self.N_el):
             
-            # perturbed nodes
+            # perturted nodes
             self.x_map.append(np.array([curving_function(self.X_affine[k](
                 self.x_hat_map[:,i])) 
                 for i in range(0,self.N_map)]).T)

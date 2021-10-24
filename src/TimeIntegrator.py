@@ -2,8 +2,8 @@
 
 import numpy as np
 from math import floor
-import pickle
 import time
+import json
 import os
 
 class TimeIntegrator:
@@ -27,7 +27,7 @@ class TimeIntegrator:
                     
         return beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed
         
-    
+
     def run(self, u_0, T, results_path,
             write_interval, 
             print_interval, 
@@ -36,7 +36,7 @@ class TimeIntegrator:
         
         if restart:
             
-            if os.path.isfile(results_path+"times.dat"):
+            if os.path.isfile(results_path+"data.json"):
             
                 times = None
                 dt = None
@@ -44,25 +44,27 @@ class TimeIntegrator:
                 N_write = None
                 self.is_done = False
                 
-                times = pickle.load(open(results_path+"times.dat", "rb"))
-                dt = pickle.load(open(results_path+"time_step_size.dat", "rb" ))
-                N_t = pickle.load(open(results_path+"number_of_steps.dat", "rb" ))
+                with open(results_path+"data.json") as file:
+                   data = json.load(file)
+
+                times = data["write_times"]
+                dt = data["time_step_size"]
+                N_t = data["number_of_time_steps"]
          
                 u = np.copy(u_0)
                 n_0 = times[-1][0]
                 t = times[-1][1]
                 
-                screen = open(results_path + "screen.txt", "a")
-                print(prefix, "restarting from time step ", n_0, 
-                     ", t=", t, file=screen)
-                screen.close()
+                with open(results_path + "screen.txt", "a") as screen:
+                    print(prefix, "restarting from time step ", n_0, 
+                        ", t=", t, file=screen)
             
             else:
                 
-                screen = open(results_path + "screen.txt", "w")
-                print(prefix, "No previous file found for restart. Starting new run.",
-                      file=screen)
-                screen.close()
+                with open(results_path + "screen.txt", "w") as screen:
+                    print(prefix, 
+                        "No previous file found for restart. Starting new run.",
+                        file=screen)
                 restart=False
     
         else:
@@ -76,9 +78,11 @@ class TimeIntegrator:
             n_0 = 0
             t = 0
             times = [[n_0,t]]
-               
-            pickle.dump(dt, open(results_path+"time_step_size.dat", "wb" ))
-            pickle.dump(N_t, open(results_path+"number_of_steps.dat", "wb" ))
+            
+            with open(results_path+"data.json", "w") as file:
+                data = {"time_step_size": dt, "number_of_steps": N_t,
+                    "write_times": times }
+                json.dump(data,file)
         
         # interval between prints and writes to file
         if print_interval is None:
@@ -90,11 +94,11 @@ class TimeIntegrator:
         else:
             N_write = floor(write_interval/dt)    
               
-        screen = open(results_path + "screen.txt", "w")
-        print(prefix, " dt = ", dt, file=screen)
-        print(prefix, "writing every ", 
-              N_write, " time steps, total ", N_t, file=screen)
-        screen.close()
+        with open(results_path + "screen.txt", "w") as screen:
+            print(prefix, "dt = ", dt, file=screen)
+            print(prefix, "writing every ", 
+                N_write, " time steps, total ", N_t, file=screen)
+
         start = time.time()
         
         for n in range(n_0,N_t):
@@ -103,38 +107,40 @@ class TimeIntegrator:
 
             t = t + dt
             if ((n+1) % N_print == 0) or (n+1 == N_t):
-                screen = open(results_path + "screen.txt", "a")
-                print(prefix, "time step: ", n+1, "t: ", t, "wall time: ", 
-                      time.time()-start, file=screen)
-                screen.close()
+
+                with open(results_path + "screen.txt", "a") as screen:
+                    print(prefix, "time step: ", n+1, "t: ", t, "wall time: ", 
+                        time.time()-start, file=screen)
                 
             if ((n+1) % N_write == 0) or (n+1 == N_t):
-                screen = open(results_path + "screen.txt", "a")
-                print(prefix, "writing time step ", n+1, "t = ", t, file=screen)
-                screen.close()
+
+                with open(results_path + "screen.txt", "a") as screen:
+                    print(prefix, "writing time step ", n+1, "t = ", t, file=screen)
+                    
                 times.append([n+1,t])
                 
-                pickle.dump(u, open(results_path+"res_" +
-                                    str(n+1) + ".dat", "wb" ))
+                with open(results_path+"res_" + str(n+1)
+                    + ".json", "w") as file:
+                    json.dump([[u[k][e].tolist() 
+                        for e in range(0, u[k].shape[0])]
+                        for k in range (0, len(u))], file)
                 
-                pickle.dump(times, open(
-                   results_path+"times.dat", "wb" ))
+                with open(results_path+"data.json", "w") as file:
+                    json.dump(data, file)
                 
             if np.isnan(np.sum(np.array([[np.sum(u[k][e]) 
                                           for e in range(0, u[k].shape[0])] 
                                          for k in range(0,len(u))]))):
                 
-                pickle.dump(times, open(
-                   results_path+"times.dat", "wb" ))
+                with open(results_path+"data.json", "w") as file:
+                    json.dump(data, file)
                 return None
         
-        pickle.dump(times, open(
-                   results_path+"times.dat", "wb" ))
+        with open(results_path+"data.json", "w") as file:
+                    json.dump(data, file)
         
-        
-        screen = open(results_path + "screen.txt", "a")
-        print(prefix, "Simulation complete.",file=screen)
-        screen.close()
+        with open(results_path + "screen.txt", "a") as screen:
+            print(prefix, "Simulation complete.",file=screen)
         
         self.is_done = True
         
@@ -178,7 +184,7 @@ class TimeIntegrator:
             
             r = self.R(u,t)
             return [np.array([u[k][e,:] + dt *r[k][e,:] 
-                              for e in range(u[k].shape[0])])
+                              for e in range(0, u[k].shape[0])])
                     for k in range(0, len(u))]
         
         else:
