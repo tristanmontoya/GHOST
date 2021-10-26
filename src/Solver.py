@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from math import ceil
 import os
 import json
-import pickle
 
 class Solver:
     
@@ -369,20 +368,22 @@ class Solver:
         
             # if existing solution exists in data file and user has selected
             # option to restart, begin from that solution.
-            if restart and os.path.isfile(results_path+"times.dat"):
-                
-                    times = pickle.load(open(results_path+"times.dat", "rb"))
+            if restart and os.path.isfile(results_path+"data.json"):
+
+                    with open(results_path+"data.json", "r") as file:
+                        data = json.load(file)
                     
-                    print("Loaded from time step ", times[-1][0])
+                    print("loaded from time step ", data["write_times"][-1][0])
                 
-                    self.load_solution(results_path, times[-1][0])
+                    self.load_solution(results_path, data["write_times"][-1][0])
                     
-                    self.u_tilde = self.time_integrator.run(self.u_tilde, self.T,
-                                                     results_path,
-                                                     write_interval,
-                                                     print_interval,
-                                                     restart=True,
-                                                     prefix=prefix)
+                    self.u_tilde = self.time_integrator.run(self.u_tilde, 
+                                                    self.T,
+                                                    results_path,
+                                                    write_interval,
+                                                    print_interval,
+                                                    restart=True,
+                                                    prefix=prefix)
                    
             # otherwise, clear write directory and start a new simulation
             else:
@@ -401,11 +402,13 @@ class Solver:
                 self.I_0 = self.calculate_conserved_integral() 
                 self.E_0 = self.calculate_energy()
            
-                pickle.dump(self.I_0, 
-                            open(results_path+"conservation_initial.dat", "wb"), protocol=0)
-                pickle.dump(self.E_0, 
-                            open(results_path+"energy_initial.dat", "wb"), protocol=0)
+                with open(results_path+"conservation_initial.json", "w") as file:
+                    json.dump(self.I_0.tolist(), file)
                 
+                with open(results_path+"energy_initial.json", "w") as file:
+                    json.dump(self.E_0.tolist(), file)
+                
+                # run the time integrator
                 self.u_tilde = self.time_integrator.run(self.u_tilde, self.T,
                                                       results_path,
                                                       write_interval,
@@ -413,12 +416,23 @@ class Solver:
                                                       restart=False,
                                                       prefix=prefix)
             
+            # read 
             if self.time_integrator.is_done:
                 
-                self.I_0 = pickle.load(open(results_path+"conservation_initial.dat", "rb"))
-                self.E_0 = pickle.load(open(results_path+"energy_initial.dat", "rb"))
+                with open(results_path+"conservation_initial.json", "r") as file:
+                    self.I_0 = np.asarray(json.load(file))
+
+                with open(results_path+"energy_initial.json", "r") as file:                
+                    self.E_0 = np.asarray(json.load(file))
+                
                 self.I_f = self.calculate_conserved_integral()
                 self.E_f = self.calculate_energy()
+
+                with open(results_path+"conservation_final.json", "w") as file:
+                    json.dump(self.I_f.tolist(), file)
+                
+                with open(results_path+"energy_final.json", "w") as file:
+                    json.dump(self.E_f.tolist(), file)
             
         else:
             raise NotImplementedError
@@ -429,9 +443,11 @@ class Solver:
         if results_path is None:
               results_path = "../results/" + self.project_title + "/"
         
-        self.u_tilde = pickle.load(open(results_path 
-                                      + "res_" 
-                                      + str(time_step) + ".dat", "rb"))
+        with open(results_path + "res_" + str(time_step) + ".json", "r") as file:
+            data = json.load(file)
+            self.u_tilde = [[np.asarray(data[k][e])
+                        for e in range(0, len(data[k]))]
+                        for k in range (0, len(data))]
     
 
     def post_process(self, visualization_resolution=10, 

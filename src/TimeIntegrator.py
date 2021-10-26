@@ -49,7 +49,7 @@ class TimeIntegrator:
 
                 times = data["write_times"]
                 dt = data["time_step_size"]
-                N_t = data["number_of_time_steps"]
+                N_t = data["number_of_steps"]
          
                 u = np.copy(u_0)
                 n_0 = times[-1][0]
@@ -140,7 +140,7 @@ class TimeIntegrator:
                     json.dump(data, file)
         
         with open(results_path + "screen.txt", "a") as screen:
-            print(prefix, "Simulation complete.",file=screen)
+            print(prefix, "simulation complete!",file=screen)
         
         self.is_done = True
         

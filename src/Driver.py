@@ -1,9 +1,8 @@
 # GHOST - Drivers for model problems
 
 import os
-import pickle
+import json
 import ctypes
-import shutil
 import numpy as np
 from Solver import Solver
 from Mesh import Mesh2D
@@ -32,7 +31,7 @@ def advection_driver(a=np.sqrt(2),
         raise ValueError
     
     descriptor = "p" + str(p) + "b" +str(int(round(upwind_parameter))) \
-    + "c"  + c_desc + "t" + str(discretization_type) + "_" + form 
+        + "c"  + c_desc + "t" + str(discretization_type) + "_" + form 
        
     if suffix is not None:
         descriptor = descriptor + suffix
@@ -41,8 +40,9 @@ def advection_driver(a=np.sqrt(2),
     print(project_title)
 
     if new_mesh:
+        
         points, elements = meshzoo.rectangle_tri((0.0,0.0),(L,L), n=M, 
-                    variant="zigzag")
+            variant="zigzag")
         
         if not os.path.exists("../mesh/" + "square_L" 
             + str(round(L)) + "/"):
@@ -123,29 +123,31 @@ def advection_driver(a=np.sqrt(2),
         solver.run(write_interval=params["final_time"]/10, 
                     print_interval=params["final_time"]/1000,
                     restart=restart)
-        
+
         solver.post_process(error_quadrature_degree=4*p)
         l2_error = solver.calculate_error() 
 
-        pickle.dump(solver.I_f - solver.I_0, open(
-            "../results/"+project_title+"/conservation_error.dat", "wb"), protocol=0)
-        pickle.dump(solver.E_f - solver.E_0, open(
-            "../results/"+project_title+"/energy_error.dat", "wb"), protocol=0)
-        pickle.dump(l2_error, open(
-            "../results/"+project_title+"/solution_error.dat", "wb"), protocol=0)
+        with open("../results/"+project_title+"/conservation_error.json", "w") as file:
+            json.dump((solver.I_f - solver.I_0).tolist(), file)
+
+        with open("../results/"+project_title+"/energy_difference.json", "w") as file:
+            json.dump((solver.E_f - solver.E_0).tolist(), file)
+
+        with open("../results/"+project_title+"/solution_error.json", "w") as file:
+            json.dump(l2_error.tolist(), file)
         
     else:
         
         if restart and os.path.isfile(
-                "../results/" +  project_title + "/times.dat"):
+            "../results/" +  project_title + "/data.json"):
             
-                times = pickle.load(open(
-                    "../results/" +  project_title + "/times.dat", "rb"))
-                
-                print("Loaded from time step ", times[-1][0])
+            with open("../results/" +  project_title + "/data.json", "r") as file:
+                data = json.load(file)
             
-                solver.load_solution("../results/" +  project_title + "/",
-                                     times[-1][0])
+            print("loaded from time step ", data["write_times"][-1][0])
+        
+            solver.load_solution("../results/" +  project_title + "/",
+                                    times[-1][0])
     
     return solver
           
@@ -166,7 +168,8 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
     else:
         raise ValueError
     
-    descriptor = "m" + "{:.1f}".format(mach_number).replace(".","") + "p" + str(p) + "c"  + c_desc + "t" + str(discretization_type) + "_" + form 
+    descriptor = "m" + "{:.1f}".format(mach_number).replace(".","") + "p" \
+        + str(p) + "c"  + c_desc + "t" + str(discretization_type) + "_" + form 
        
     if suffix is not None:
         descriptor = descriptor + suffix
@@ -265,31 +268,32 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
         solver.post_process(error_quadrature_degree=4*p)
         l2_error = solver.calculate_error() 
                   
-        pickle.dump(solver.I_f - solver.I_0, open(
-            "../results/"+project_title+"/conservation_error.dat", "wb"), protocol=0)
-        pickle.dump(l2_error, open(
-            "../results/"+project_title+"/solution_error.dat", "wb"), protocol=0)
+        with open("../results/"+project_title+"/conservation_error.json", "w") as file:
+            json.dump((solver.I_f - solver.I_0).tolist(), file)
+        with open("../results/"+project_title+"/solution_error.json", "w") as file:
+            json.dump(l2_error.tolist(), file)
         
     else:
         
         if restart and os.path.isfile(
-                "../results/" +  project_title + "/times.dat"):
+            "../results/" +  project_title + "/data.json"):
             
-                times = pickle.load(open(
-                    "../results/" +  project_title + "/times.dat", "rb"))
-                
-                print("Loaded from time step ", times[-1][0])
+            with open("../results/" +  project_title + "/data.json", "r") as file:
+                data = json.load(file)
             
-                solver.load_solution("../results/" +  project_title + "/",
-                                     times[-1][0])
+            print("loaded from time step ", data["write_times"][-1][0])
+        
+            solver.load_solution("../results/" +  project_title + "/",
+                times[-1][0])
     
     return solver
 
 
-def write_output_advection(a=np.sqrt(2), p=2, p_map=1, M=8, L=1.0, correction_type="c_dg",
-                           upwind_parameter = 1, discretization_type=1, 
-                           headings_disc=False, headings_corr=False, 
-                           solution_error=False):
+def write_output_advection(a=np.sqrt(2), p=2, p_map=1, M=8,
+                            L=1.0,correction_type="c_dg",
+                            upwind_parameter = 1, discretization_type=1, 
+                            headings_disc=False, headings_corr=False, 
+                            solution_error=False):
 
     # Generate tables for paper
 
@@ -315,14 +319,14 @@ def write_output_advection(a=np.sqrt(2), p=2, p_map=1, M=8, L=1.0, correction_ty
     weak.post_process(error_quadrature_degree=4*p)
 
     diff = strong.calculate_difference(weak)
-    strong_cons_error = pickle.load(open(
-        "../results/" + strong.params["project_title"] + "/conservation_error.dat", "rb"))
-    weak_cons_error = pickle.load(open(
-        "../results/" + weak.params["project_title"] + "/conservation_error.dat", "rb"))
-    strong_energy_error = pickle.load(open(
-        "../results/" + strong.params["project_title"] + "/energy_error.dat", "rb"))
-    weak_energy_error = pickle.load(open(
-        "../results/" + weak.params["project_title"] + "/energy_error.dat", "rb"))   
+    with open("../results/"+strong.params["project_title"]+"/conservation_error.json", "r") as file:
+        strong_cons_error = json.load(file)
+    with open("../results/"+weak.params["project_title"]+"/conservation_error.json", "r") as file:
+        weak_cons_error = json.load(file)
+    with open("../results/"+strong.params["project_title"]+"/energy_difference.json", "r") as file:
+        strong_energy_difference = json.load(file)
+    with open("../results/"+weak.params["project_title"]+"/energy_difference.json", "r") as file:
+        weak_energy_difference = json.load(file)
     
     line = ""
     if headings_disc:
@@ -336,8 +340,8 @@ def write_output_advection(a=np.sqrt(2), p=2, p_map=1, M=8, L=1.0, correction_ty
         + "{:.3e}".format(diff[0]) + " & " 
         + "{:.3e}".format(strong_cons_error[0]) + " & "
         + "{:.3e}".format(weak_cons_error[0]) + " & "
-        + "{:.3e}".format(strong_energy_error[0]) + " & "
-        + "{:.3e}".format(weak_energy_error[0]) + "\\\\ \n")
+        + "{:.3e}".format(strong_energy_difference[0]) + " & "
+        + "{:.3e}".format(weak_energy_difference[0]) + "\\\\ \n")
     
     return line
 
@@ -379,10 +383,10 @@ def write_output_euler(mach_number=0.4, theta=np.pi/4, p=2, p_map=2,
     weak.post_process(error_quadrature_degree=4*p)
 
     diff = strong.calculate_difference(weak)
-    strong_cons_error = pickle.load(open(
-        "../results/" + strong.params["project_title"] + "/conservation_error.dat", "rb"))
-    weak_cons_error = pickle.load(open(
-        "../results/" + weak.params["project_title"] + "/conservation_error.dat", "rb"))
+    with open("../results/"+strong.params["project_title"]+"/conservation_error.json", "r") as file:
+        strong_cons_error = json.load(file)
+    with open("../results/"+weak.params["project_title"]+"/conservation_error.json", "r") as file:
+        weak_cons_error = json.load(file)
      
     line = ""
     if headings_disc:
