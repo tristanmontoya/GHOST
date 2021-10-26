@@ -1,4 +1,5 @@
 notebooks/* linguist-vendored
 results/* linguist-vendored
+examples/* linguist-vendored
 mesh/* linguist-vendored
 plots/* linguist-vendored
