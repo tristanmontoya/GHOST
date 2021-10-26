@@ -44,7 +44,7 @@ class SpatialDiscretization:
         # number of discretization types
         self.N_d = len(self.p) 
         
-        # dimension of polynomial space 
+        # dimension of total-degree polynomial space 
         self.N_p = [special.comb(self.p[i] + self.d, self.d, 
                                 exact=True) for i in range(0,self.N_d)]
         
@@ -509,32 +509,28 @@ class SpatialDiscretization:
                 
                 i = self.element_to_discretization[k]
                
-                # flux at volume nodes
-                f_h = f((self.V[i] @ u_tilde[k].T).T, self.x[k])
-                
-                # volume-weighted contravariant fluxes
-                f_contravariant.append([sum(
-                    [self.J[k]*self.G_inv[k][:,m,n]* f_h[n] 
+                # compute volume-weighted contravariant fluxes
+                f_contravariant.append([sum([self.J[k]*self.G_inv[k][:,m,n]*f((self.V[i] @ u_tilde[k].T).T, self.x[k])[n] 
                      for n in range(0,self.d)]) for m in range(0, self.d)])
                
                 f_facet.append([])
                 for zeta in range(0, self.mesh.N_fac[k]):  
                     
-                    # interior facet
+                    # get external state for interior facet
                     if self.mesh.local_to_local[(k,zeta)] is not None:  
                         
                         nu, eta = self.mesh.local_to_local[(k,zeta)]
                         u_plus = (self.facet_permutation[k][zeta].T @ self.R[
                             self.element_to_discretization[nu]][eta] @ u_tilde[nu].T).T
                         
-                    # boundary facet
+                    # get external state for boundary facet
                     else:
                         
                         u_plus = [bc[self.mesh.local_to_bc_index[(k,zeta)]][e](
                             self.x_fac[k][zeta], t) 
                             for e in range(0, N_eq)]
                     
-                    # weak form - facet flux is just numerical flux
+                    # weak form - facet flux is just transformed numerical flux
                     if self.form == "weak":
                         
                         f_facet[k].append(
@@ -542,11 +538,10 @@ class SpatialDiscretization:
                             (self.R[i][zeta] @ u_tilde[k].T).T, u_plus,
                             self.x_fac[k][zeta], self.n[k][zeta]))
                         
-                    
-                    # weak form - facet flux is the
-                    # difference between numerical and physical flux
+                    # weak form - facet flux is the difference between
+                    # transformed numerical and physical flux
                     elif self.form == "strong":
-               
+                        
                         f_facet[k].append(self.Jf[k][zeta] * f_star(
                             (self.R[i][zeta] @ u_tilde[k].T).T, u_plus,
                             self.x_fac[k][zeta], self.n[k][zeta])
@@ -554,7 +549,7 @@ class SpatialDiscretization:
                                @ sum([f_contravariant[k][m].T*self.n_hat[i][zeta][m] 
                                       for m in range(0,self.d)])).T)
                   
-            # apply strong or weak volume and facet operators
+            # apply pre-computeds strong or weak volume and facet matrices
             return [np.array([sum([self.vol[k][m] @ f_contravariant[k][m][e,:] 
                                       for m in range(0,self.d)])
                      + sum([self.fac[k][zeta] @ 
@@ -563,13 +558,14 @@ class SpatialDiscretization:
                     for e in range(0, N_eq)])
                     for k in range(0, self.mesh.N_el)]
                 
+        # return global residual
         return lambda u_tilde, t: global_residual(self, f, f_star,
                                                 bc, N_eq, u_tilde, t)
         
 
     def test_normals(self, print_output=True, tol=1.0e-8):
         # check each interface to see if the normals computed for
-        #  each coincident face by mapping are opposite one another
+        # each coincident face by mapping are opposite one another
         
         self.normals_good = []
         
