@@ -1,0 +1,36 @@
+
+scontrol show jobid 6297477
+JobId=6297477 JobName=advection_p4
+   UserId=tmontoya(3046870) GroupId=zingg(6000086) MCS_label=N/A
+   Priority=1189096 Nice=0 Account=rrg-zingg-ad QOS=normal
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=01:08:43 TimeLimit=1-00:00:00 TimeMin=N/A
+   SubmitTime=2021-10-26T18:59:40 EligibleTime=2021-10-26T18:59:40
+   AccrueTime=2021-10-26T18:59:40
+   StartTime=2021-10-27T09:32:52 EndTime=2021-10-27T10:41:35 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2021-10-27T09:32:52
+   Partition=compute AllocNode:Sid=nia-login05:424575
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=nia1676
+   BatchHost=nia1676
+   NumNodes=1 NumCPUs=80 NumTasks=40 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=80,mem=175000M,node=1,billing=40
+   Socks/Node=* NtasksPerN:B:S:C=40:0:*:* CoreSpec=*
+   MinCPUsNode=40 MinMemoryNode=175000M MinTmpDiskNode=0
+   Features=[skylake|cascade] DelayBoot=00:00:00
+   OverSubscribe=NO Contiguous=0 Licenses=(null) Network=(null)
+   Command=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/submit_advection_p4.sh
+   WorkDir=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks
+   StdErr=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6297477.out
+   StdIn=/dev/null
+   StdOut=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6297477.out
+   Power=
+   MailUser=tmontoya@scinet.local MailType=NONE
+
+sacct -j 6297477
+       JobID    JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+6297477      advection+ rrg-zingg+   01:08:43                        01:04.290   22:24:23      0:0 
+6297477.bat+      batch rrg-zingg+   01:08:43  42112872K   4088544K  01:04.290   22:24:23      0:0 
+6297477.ext+     extern rrg-zingg+   01:08:43    138360K      1068K   00:00:00   00:00:00      0:0 
