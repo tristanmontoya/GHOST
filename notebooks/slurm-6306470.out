@@ -1,0 +1,37 @@
+/var/spool/slurm/slurmd/job6306470/slurm_script: line 18: [: : integer expression expected
+
+scontrol show jobid 6306470
+JobId=6306470 JobName=euler_p3
+   UserId=tmontoya(3046870) GroupId=zingg(6000086) MCS_label=N/A
+   Priority=1128018 Nice=0 Account=rrg-zingg-ad QOS=normal
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=11:30:06 TimeLimit=12:00:00 TimeMin=N/A
+   SubmitTime=2021-10-27T13:14:26 EligibleTime=2021-10-27T13:14:26
+   AccrueTime=2021-10-27T13:14:26
+   StartTime=2021-10-28T23:16:12 EndTime=2021-10-29T10:46:18 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2021-10-28T23:16:12
+   Partition=compute AllocNode:Sid=nia-login06:272201
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=nia1930
+   BatchHost=nia1930
+   NumNodes=1 NumCPUs=80 NumTasks=40 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=80,mem=175000M,node=1,billing=40
+   Socks/Node=* NtasksPerN:B:S:C=40:0:*:* CoreSpec=*
+   MinCPUsNode=40 MinMemoryNode=175000M MinTmpDiskNode=0
+   Features=[skylake|cascade] DelayBoot=00:00:00
+   OverSubscribe=NO Contiguous=0 Licenses=(null) Network=(null)
+   Command=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/submit_euler_p3.sh
+   WorkDir=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks
+   StdErr=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6306470.out
+   StdIn=/dev/null
+   StdOut=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6306470.out
+   Power=
+   MailUser=tmontoya@scinet.local MailType=NONE
+
+sacct -j 6306470
+       JobID    JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+6306470        euler_p3 rrg-zingg+   11:30:06                        06:01.205 5-17:42:24      0:0 
+6306470.bat+      batch rrg-zingg+   11:30:06  72855360K   2754368K  06:01.205 5-17:42:24      0:0 
+6306470.ext+     extern rrg-zingg+   11:30:06    138360K      1064K   00:00:00   00:00:00      0:0 

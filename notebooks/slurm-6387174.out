@@ -1,0 +1,50 @@
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+===============================================================================
+If you are having trouble logging in, please see:
+https://docs.computecanada.ca/wiki/SSH_Keys_Pilot 
+
+Si vous rencontrez des difficultés pour vous authentifier, veuillez consulter: 
+https://docs.computecanada.ca/wiki/SSH_Keys_Pilot/fr
+===============================================================================
+
+Submitted batch job 6393400
+
+scontrol show jobid 6387174
+JobId=6387174 JobName=euler_p3
+   UserId=tmontoya(3046870) GroupId=zingg(6000086) MCS_label=N/A
+   Priority=961914 Nice=0 Account=rrg-zingg-ad QOS=normal
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=11:30:02 TimeLimit=12:00:00 TimeMin=N/A
+   SubmitTime=2021-11-08T06:28:25 EligibleTime=2021-11-08T06:28:25
+   AccrueTime=2021-11-08T06:28:25
+   StartTime=2021-11-08T06:29:37 EndTime=2021-11-08T17:59:39 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2021-11-08T06:29:37
+   Partition=compute AllocNode:Sid=nia-login01:165365
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=nia0995
+   BatchHost=nia0995
+   NumNodes=1 NumCPUs=80 NumTasks=40 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=80,mem=175000M,node=1,billing=40
+   Socks/Node=* NtasksPerN:B:S:C=40:0:*:* CoreSpec=*
+   MinCPUsNode=40 MinMemoryNode=175000M MinTmpDiskNode=0
+   Features=[skylake|cascade] DelayBoot=00:00:00
+   OverSubscribe=NO Contiguous=0 Licenses=(null) Network=(null)
+   Command=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/submit_euler_p3.sh
+   WorkDir=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks
+   StdErr=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6387174.out
+   StdIn=/dev/null
+   StdOut=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6387174.out
+   Power=
+   MailUser=tmontoya@scinet.local MailType=NONE
+
+sacct -j 6387174
+       JobID    JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+6387174        euler_p3 rrg-zingg+   11:30:02                        04:27.303 5-17:39:38      0:0 
+6387174.bat+      batch rrg-zingg+   11:30:02  72859708K   2730852K  04:27.303 5-17:39:38      0:0 
+6387174.ext+     extern rrg-zingg+   11:30:02    138360K       880K   00:00:00   00:00:00      0:0 
+
+kernel messages produced during job executions:
+[Nov 8 04:52] CIFS PidTable: buckets 64
+[  +0.004656] CIFS BufTable: buckets 64
