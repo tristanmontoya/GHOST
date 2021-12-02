@@ -141,13 +141,14 @@ def advection_driver(a=np.sqrt(2),
         if restart and os.path.isfile(
             "../results/" +  project_title + "/data.json"):
             
-            with open("../results/" +  project_title + "/data.json", "r") as file:
+            with open("../results/" +  project_title + "/data.json", 
+                "r") as file:
                 data = json.load(file)
             
             print("loaded from time step ", data["write_times"][-1][0])
-        
-            solver.load_solution("../results/" +  project_title + "/",
-                                    times[-1][0])
+
+            solver.load_solution("../results/" +  project_title + "/", 
+                data["write_times"][-1][0])
     
     return solver
           
@@ -278,13 +279,14 @@ def euler_driver(mach_number=0.4, theta=np.pi/4, p=2, M=10, L=10.0,
         if restart and os.path.isfile(
             "../results/" +  project_title + "/data.json"):
             
-            with open("../results/" +  project_title + "/data.json", "r") as file:
+            with open("../results/" +  project_title + "/data.json",
+                "r") as file:
                 data = json.load(file)
             
             print("loaded from time step ", data["write_times"][-1][0])
         
-            solver.load_solution("../results/" +  project_title + "/",
-                times[-1][0])
+            solver.load_solution("../results/" +  project_title + "/", 
+                data["write_times"][-1][0])
     
     return solver
 
@@ -307,14 +309,14 @@ def write_output_advection(a=np.sqrt(2), p=2, p_map=1, M=8,
                                 form="strong", run=False, restart=True, 
                                 new_mesh=False)
     
-    weak = advection_driver(a=np.sqrt(2), 
+    weak = advection_driver(a=a, 
                             p=p, M=M, L=L,
                             p_map=p_map, c=correction_type, 
                             discretization_type=discretization_type,
                             upwind_parameter=float(upwind_parameter),
                             form="weak", run=False, restart=True, 
                             new_mesh=False)
-    
+
     strong.post_process(error_quadrature_degree=4*p)
     weak.post_process(error_quadrature_degree=4*p)
 

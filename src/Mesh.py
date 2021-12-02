@@ -86,8 +86,7 @@ class Mesh(ABC):
     def add_bcs_by_indicators(self, indicator, bc_index):
         
         # indicator function is defined such that it is zero everywhere except
-        # for the boundary where this bc is being imposed (lines/faces 
-        # should have thickness for tolerance)
+        # for the boundary where this bc is being imposed (up to tolerance)
         
         # have to loop through all facets and see which ones have midpoints 
         # on which indicated boundary
@@ -159,6 +158,8 @@ class Mesh(ABC):
                             break
                         
         
+    # coeffs is the hyperplane such that 
+    # coeffs[0]*x[0] + ... + coeffs[d-1]*x[d-1] = coeffs[d] 
     @staticmethod
     def hyperplane_indicator(coeffs, tol, x):
         if np.abs(np.dot(coeffs[0:-1], x) - coeffs[-1]) < tol:

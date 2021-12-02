@@ -603,9 +603,9 @@ class SpatialDiscretization:
             mesh_plot = plt.figure()
             ax = plt.axes()
             ax.axes.yaxis.set_visible(False)
-            plt.xlim([self.mesh.xmin[0] 
+            plt.xlim([self.mesh.x_min[0] 
                       - 0.025 * self.mesh.extent[0], 
-                      self.mesh.xmax[0] 
+                      self.mesh.x_max[0] 
                       + 0.025 * self.mesh.extent[0]])
             plt.xlabel("$x$")
             
@@ -648,14 +648,14 @@ class SpatialDiscretization:
             
             mesh_plot = plt.figure()
             ax = plt.axes()
-            ax.set_xlim([self.mesh.xmin[0] 
+            ax.set_xlim([self.mesh.x_min[0] 
                          - 0.025 * self.mesh.extent[0],
-                          self.mesh.xmax[0] 
+                          self.mesh.x_max[0] 
                           + 0.025 * self.mesh.extent[0]])
             
-            ax.set_ylim([self.mesh.xmin[1] 
+            ax.set_ylim([self.mesh.x_min[1] 
                          - 0.025 * self.mesh.extent[1],
-                          self.mesh.xmax[1] 
+                          self.mesh.x_max[1] 
                           + 0.025 * self.mesh.extent[1]]) 
                          
             ax.set_aspect('equal')

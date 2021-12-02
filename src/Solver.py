@@ -448,7 +448,7 @@ class Solver:
             self.u_tilde = [[np.asarray(data[k][e])
                         for e in range(0, len(data[k]))]
                         for k in range (0, len(data))]
-    
+        
 
     def post_process(self, visualization_resolution=10, 
                      error_quadrature_degree=10,

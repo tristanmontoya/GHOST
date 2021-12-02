@@ -31,7 +31,7 @@ As GHOST was developed for use as a test bed for numerical schemes and to run nu
 
 ## Usage
 
-The basic usage of GHOST is demonstrated in the included Jupyter notebook `notebooks/example_usage.ipynb`, in which the linear advection equation is solved on a periodic square domain with a sinusoidal initial condition. The Jupyter notebooks used for the computations in the referenced manuscript are also provided (see `notebooks/advection_driver.ipynb` and `notebooks/euler_driver.ipynb`).
+The basic usage of GHOST is demonstrated in the Jupyter notebooks provided in the `examples` directory, in which the periodic linear advection equation is solved in one and two dimensions. The Jupyter notebooks used for the computations in the referenced manuscript are also provided (see `notebooks/advection_driver.ipynb` and `notebooks/euler_driver.ipynb`).
 
 ## Dependencies
 
