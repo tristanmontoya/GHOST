@@ -1,0 +1,36 @@
+
+scontrol show jobid 6552772
+JobId=6552772 JobName=euler_p3
+   UserId=tmontoya(3046870) GroupId=zingg(6000086) MCS_label=N/A
+   Priority=1173337 Nice=0 Account=rrg-zingg-ad QOS=normal
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:25 TimeLimit=12:00:00 TimeMin=N/A
+   SubmitTime=2021-12-08T11:29:10 EligibleTime=2021-12-08T11:29:10
+   AccrueTime=2021-12-08T11:29:10
+   StartTime=2021-12-08T11:30:15 EndTime=2021-12-08T11:30:40 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2021-12-08T11:30:15
+   Partition=compute AllocNode:Sid=nia-login01:60232
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=nia0476
+   BatchHost=nia0476
+   NumNodes=1 NumCPUs=80 NumTasks=40 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=80,mem=175000M,node=1,billing=40
+   Socks/Node=* NtasksPerN:B:S:C=40:0:*:* CoreSpec=*
+   MinCPUsNode=40 MinMemoryNode=175000M MinTmpDiskNode=0
+   Features=[skylake|cascade] DelayBoot=00:00:00
+   OverSubscribe=NO Contiguous=0 Licenses=(null) Network=(null)
+   Command=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/submit_euler_p3.sh
+   WorkDir=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks
+   StdErr=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6552772.out
+   StdIn=/dev/null
+   StdOut=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6552772.out
+   Power=
+   MailUser=tmontoya@scinet.local MailType=NONE
+
+sacct -j 6552772
+       JobID    JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+6552772        euler_p3 rrg-zingg+   00:00:25                        02:32.820  04:38.723      0:0 
+6552772.bat+      batch rrg-zingg+   00:00:25    138528K      1244K  02:32.820  04:38.722      0:0 
+6552772.ext+     extern rrg-zingg+   00:00:25    138360K       872K   00:00:00   00:00:00      0:0 

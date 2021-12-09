@@ -1,0 +1,51 @@
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+===============================================================================
+If you are having trouble logging in, please see:
+https://docs.computecanada.ca/wiki/SSH_Keys_Pilot 
+
+Si vous rencontrez des difficultés pour vous authentifier, veuillez consulter: 
+https://docs.computecanada.ca/wiki/SSH_Keys_Pilot/fr
+===============================================================================
+
+SBATCH WARNING: 
+ You have requested the maximum amount of time.  If this jobs does not actually
+ need this amount of time, it may run sooner if you request less time.
+SBATCH: 1 warning was found.
+SBATCH: Job submission will be attempted despite warnings.
+Submitted batch job 6554559
+
+scontrol show jobid 6548654
+JobId=6548654 JobName=euler_p4
+   UserId=tmontoya(3046870) GroupId=zingg(6000086) MCS_label=N/A
+   Priority=1104894 Nice=0 Account=rrg-zingg-ad QOS=normal
+   JobState=COMPLETING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=23:30:07 TimeLimit=1-00:00:00 TimeMin=N/A
+   SubmitTime=2021-12-07T15:06:57 EligibleTime=2021-12-07T15:06:57
+   AccrueTime=2021-12-07T15:06:57
+   StartTime=2021-12-07T18:55:16 EndTime=2021-12-08T18:25:23 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2021-12-07T18:55:16
+   Partition=compute AllocNode:Sid=nia-login06:294568
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=nia1464
+   BatchHost=nia1464
+   NumNodes=1 NumCPUs=80 NumTasks=40 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=80,mem=175000M,node=1,billing=40
+   Socks/Node=* NtasksPerN:B:S:C=40:0:*:* CoreSpec=*
+   MinCPUsNode=40 MinMemoryNode=175000M MinTmpDiskNode=0
+   Features=[skylake|cascade] DelayBoot=00:00:00
+   OverSubscribe=NO Contiguous=0 Licenses=(null) Network=(null)
+   Command=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/submit_euler_p4.sh
+   WorkDir=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks
+   StdErr=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6548654.out
+   StdIn=/dev/null
+   StdOut=/gpfs/fs0/scratch/z/zingg/tmontoya/GHOST/notebooks/slurm-6548654.out
+   Power=
+   MailUser=tmontoya@scinet.local MailType=NONE
+
+sacct -j 6548654
+       JobID    JobName    Account    Elapsed  MaxVMSize     MaxRSS  SystemCPU    UserCPU ExitCode 
+------------ ---------- ---------- ---------- ---------- ---------- ---------- ---------- -------- 
+6548654        euler_p4 rrg-zingg+   23:30:07                        06:31.166 9-18:28:21      0:0 
+6548654.bat+      batch rrg-zingg+   23:30:07  73060424K   3125844K  06:31.165 9-18:28:21      0:0 
+6548654.ext+     extern rrg-zingg+   23:30:07    138360K      1064K   00:00:00   00:00:00      0:0 
