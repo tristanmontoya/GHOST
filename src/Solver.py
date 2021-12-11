@@ -189,9 +189,6 @@ class Solver:
                 form=params["form"],
                 solution_representation=params["solution_representation"],
                 correction=params["correction"])
-                
-            if "facet_integration_rule" in params:
-                raise NotImplementedError
         
         elif params["integration_type"] == "collocation":
                 
@@ -693,7 +690,7 @@ class Solver:
     def calculate_conserved_integral(self):
         
             # must have the same quadrature points for u_h_error
-            return np.array([sum([np.ones(self.discretization.N_omega[
+            return np.array([sum([np.ones(self.discretization.n_vol_nodes[
                 self.discretization.element_to_discretization[k]]).T @
                                       self.discretization.W[
                                           self.discretization.element_to_discretization[k]] 

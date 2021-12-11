@@ -166,11 +166,11 @@ class Euler(ConservationLaw):
         
         def f(self, u):
             
-            N_omega = u.shape[1]
-            nodal_flux = np.zeros([N_omega, self.N_eq, self.d])
+            n_vol_nodes = u.shape[1]
+            nodal_flux = np.zeros([n_vol_nodes, self.N_eq, self.d])
             
-            # u size N_eq x N_omega
-            for i in range(0, N_omega):
+            # u size N_eq x n_vol_nodes
+            for i in range(0, n_vol_nodes):
                 nodal_flux[i,:,:] = self.flux_tensor(u[:,i])
                 
             return [nodal_flux[:,:,m].T for m in range(0, self.d)]

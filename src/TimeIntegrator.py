@@ -24,7 +24,6 @@ class TimeIntegrator:
                 spatial_discretization.mesh.extent)/(
                     spatial_discretization.mesh.N_el ** (
                         1.0/spatial_discretization.d))
-                    
         return beta/(2*max(spatial_discretization.p) + 1.0)*h/wave_speed
         
 

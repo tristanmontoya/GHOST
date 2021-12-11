@@ -51,7 +51,7 @@ class SpatialDiscretization:
         # volume nodes/weights
         self.x_hat = x_hat
         self.W = W
-        self.N_omega = [x_hat[i].shape[1] for i in range(0,self.N_d)]
+        self.n_vol_nodes = [x_hat[i].shape[1] for i in range(0,self.N_d)]
         
         # number of facets per element
         self.N_fac = [len(x_hat_fac[i]) for i in range(0,self.N_d)]
@@ -59,7 +59,7 @@ class SpatialDiscretization:
         # facet nodes/weights
         self.x_hat_fac = x_hat_fac
         self.B = B
-        self.N_gamma = [[x_hat_fac[i][zeta].shape[1] 
+        self.n_fac_nodes = [[x_hat_fac[i][zeta].shape[1] 
                          for zeta in range(0,self.N_fac[i])] 
                         for i in range(0,self.N_d)]
        
@@ -109,17 +109,17 @@ class SpatialDiscretization:
     def map_unit_to_facets(ref_nodes, element_type="triangle"):
 
         # send (d-1)-dimensional reference facet to facets bounding ref. elem.
-        N_gamma = ref_nodes.shape[0]
+        n_fac_nodes = ref_nodes.shape[0]
         
         if element_type == "triangle":
 
-            bottom = np.reshape(np.array([ref_nodes,-np.ones(N_gamma)]),
-                                (2,N_gamma))
-            left = np.reshape(np.array([-np.ones(N_gamma),
-                                        np.flip(ref_nodes)]),(2,N_gamma))
+            bottom = np.reshape(np.array([ref_nodes,-np.ones(n_fac_nodes)]),
+                                (2,n_fac_nodes))
+            left = np.reshape(np.array([-np.ones(n_fac_nodes),
+                                        np.flip(ref_nodes)]),(2,n_fac_nodes))
             hypotenuse = np.array([[1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)],
                        [-1.0/np.sqrt(2.0), 1.0/np.sqrt(2.0)]]) @ np.array(
-                           [np.sqrt(2.0)*np.flip(ref_nodes), np.zeros(N_gamma)])
+                           [np.sqrt(2.0)*np.flip(ref_nodes), np.zeros(n_fac_nodes)])
 
             # counter-clockwise ordering of all nodes, so neighbouring 
             # edges always have reversed order 
@@ -142,7 +142,7 @@ class SpatialDiscretization:
             
             # assume all nodes are counterclockwise ordered
             self.facet_permutation = [
-                [np.eye(self.N_gamma[
+                [np.eye(self.n_fac_nodes[
                     self.element_to_discretization[k]][zeta])[::-1]
                  for zeta in range(0,self.mesh.N_fac[k])] 
                                       for k in range(0,self.mesh.N_el)]
@@ -251,9 +251,9 @@ class SpatialDiscretization:
         
             # init jacobian at volume and facet nodes
             self.G.append(
-                np.zeros([self.N_omega[i], self.d, self.d]))
+                np.zeros([self.n_vol_nodes[i], self.d, self.d]))
             self.G_fac.append([
-                np.zeros([self.N_gamma[i][zeta], self.d, self.d])
+                np.zeros([self.n_fac_nodes[i][zeta], self.d, self.d])
                 for zeta in range(0,self.mesh.N_fac[k])])
             
             # Evaluate derivatives of modal basis for geometry mapping
@@ -283,40 +283,40 @@ class SpatialDiscretization:
             # inverse Jacobian
             self.G_inv.append(np.array([ 
                 np.linalg.inv(self.G[k][j,:,:])
-                for j in range(0,self.N_omega[i])]))
+                for j in range(0,self.n_vol_nodes[i])]))
             
             self.G_inv_fac.append([np.array([ 
                 np.linalg.inv(self.G_fac[k][zeta][j,:,:])
-                for j in range(0,self.N_gamma[i][zeta])]) 
+                for j in range(0,self.n_fac_nodes[i][zeta])]) 
                 for zeta in range(0,self.mesh.N_fac[k])]) 
             
             # Jacobian determinant
             self.J.append(
                 np.array([np.linalg.det(self.G[k][j,:,:]) 
-                          for j in range(0,self.N_omega[i])]))
+                          for j in range(0,self.n_vol_nodes[i])]))
             
             self.J_fac.append([np.array([np.linalg.det(
                 self.G_fac[k][zeta][j,:,:]) 
-                          for j in range(0,self.N_gamma[i][zeta])]) 
+                          for j in range(0,self.n_fac_nodes[i][zeta])]) 
                                  for zeta in range(0, self.mesh.N_fac[k])])
             
             # Unscaled normal vectors
             n_unscl = [np.array([
                 self.J_fac[k][zeta][j]*self.G_inv_fac[k][zeta][j,:,:].T @ 
                 self.n_hat[i][zeta]
-                for j in range(0,self.N_gamma[i][zeta])])
+                for j in range(0,self.n_fac_nodes[i][zeta])])
                 for zeta in range(0,self.mesh.N_fac[k])]
             
             # facet Jacobian
             self.Jf.append([np.array([np.linalg.norm(
                 n_unscl[zeta][j,:]) 
-                for j in range(0,self.N_gamma[i][zeta])])
+                for j in range(0,self.n_fac_nodes[i][zeta])])
                 for zeta in range(0,self.mesh.N_fac[k])])
             
             # scale unit normal vectors (i.e. divide by facet Jacobian)
             self.n.append([np.array(
                 [n_unscl[zeta][j,:]/self.Jf[k][zeta][j]
-                for j in range(0,self.N_gamma[i][zeta])]).T
+                for j in range(0,self.n_fac_nodes[i][zeta])]).T
                 for zeta in range(0,self.mesh.N_fac[k])])
             
         self.test_normals()
@@ -615,7 +615,7 @@ class SpatialDiscretization:
                 #plot node positions
                 if plot_nodes:
                     ax.plot(self.x[k][0,:], 
-                      np.zeros(self.N_omega[
+                      np.zeros(self.n_vol_nodes[
                           self.element_to_discretization[k]]), "o",
                       markersize=markersize,
                       color = current_color)
