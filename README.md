@@ -33,7 +33,7 @@ As GHOST was developed for the prototyping and demonstration of numerical scheme
 
 The basic usage of GHOST is demonstrated in the Jupyter notebooks provided in the `examples` directory, in which the periodic linear advection equation is solved in one and two dimensions. The Jupyter notebooks used for the computations in the referenced manuscript are also provided (see `notebooks/advection_driver.ipynb` and `notebooks/euler_driver.ipynb`).
 
-## Data availability
+## Results
 
 The tables in the manuscript (consistent with the version provided in the  `manuscript` directory of this repository) were generated using the Jupyter notebooks `notebooks/make_tables_advection.ipynb` and `notebooks/make_tables_euler.ipynb`, which retrieve data from the `results` directory for each set of discretization parameters. The subdirectory names for the linear advection and Euler equations are formatted as `advection_pAbBcCtD_E` and `euler_m04pAcCtD_E`, respectively, using the following parameters:
 
@@ -45,7 +45,7 @@ The tables in the manuscript (consistent with the version provided in the  `manu
 
 `D` - discretization type (`1` for Quadrature I, `2` for Collocation, `3` for Quadrature II)
 
-`E` - residual formulation (`strong` or `weak`).
+`E` - residual formulation (`strong` or `weak`)
 ## Dependencies
 
 [NumPy](https://numpy.org/), [scipy](https://scipy.org/), [matplotlib](https://matplotlib.org/), [quadpy](https://github.com/nschloe/quadpy)
