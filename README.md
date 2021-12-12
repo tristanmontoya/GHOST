@@ -37,7 +37,7 @@ The basic usage of GHOST is demonstrated in the Jupyter notebooks provided in th
 
 The tables in the manuscript (consistent with the version provided in the  `manuscript` directory of this repository) were generated using the Jupyter notebooks `notebooks/make_tables_advection.ipynb` and `notebooks/make_tables_euler.ipynb`, which retrieve data from the `results` directory for each set of discretization parameters. The subdirectory names for the linear advection and Euler equations are formatted as `advection_pAbBcCtD_E` and `euler_m04pAcCtD_E`, respectively, using the following parameters:
 
-`A` -  polynomial degree of the discretization
+`A` -  polynomial degree of the discretization (`2`, `3`, or `4`)
 
 `B` - upwinding parameter for the numerical flux (`0` for central flux, `1` for upwind flux)
 
@@ -45,7 +45,7 @@ The tables in the manuscript (consistent with the version provided in the  `manu
 
 `D` - discretization type (`1` for Quadrature I, `2` for Collocation, `3` for Quadrature II)
 
-`E` - determines the form of the semi-discrete residual (i.e. `strong` or `weak`).
+`E` - residual formulation (`strong` or `weak`).
 ## Dependencies
 
 [NumPy](https://numpy.org/), [scipy](https://scipy.org/), [matplotlib](https://matplotlib.org/), [quadpy](https://github.com/nschloe/quadpy)
