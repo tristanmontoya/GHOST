@@ -14,20 +14,24 @@ As GHOST was developed for the prototyping and demonstration of numerical scheme
 
 ### Supported PDEs
 
-- Linear advection equation (constant advection coefficient)
+- Linear advection equation (constant advection velocity)
 - Euler equations (compressible flow, ideal gas with constant specific heat)
 
 ### Supported discretization options
 
-- Discontinuous Galerkin methods and energy-stable flux reconstruction schemes using Vincent-Castonguay-Jameson-Huynh (VCJH) correction fields, implemented in strong and weak form
+- Discontinuous Galerkin methods and energy-stable flux reconstruction schemes using Vincent-Castonguay-Jameson-Huynh (VCJH) correction fields, implemented in strong and weak conservation form in generalized curvilinear coordinates
 - Nodal (Lagrange) or modal (orthonormal) bases
 - Quadrature-based or collocation-based treatment of nonlinear fluxes
 - Fourth-order Runge-Kutta or explicit Euler time marching
-
 ### Supported numerical flux functions
 
 - Standard upwind/central/blended numerical flux for linear advection
 - Roe's approximate Riemann solver for Euler equations 
+### Post-processing and visualization
+- Calculation of L<sup>2</sup> norms of error relative to exact/reference solutions using quadrature rules of arbitrary order
+- Evaluation of primary conservation and energy balances
+- High-resolution visualization of numerical solutions of arbitrary polynomial degree on general curvilinear meshes
+
 
 ## Usage
 
