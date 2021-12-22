@@ -27,7 +27,7 @@ As GHOST was developed for the prototyping and demonstration of numerical scheme
 
 - Standard upwind/central/blended numerical flux for linear advection
 - Roe's approximate Riemann solver for Euler equations 
-### Post-processing and visualization
+### Post-processing and visualization tools
 - Calculation of L<sup>2</sup> norms of error relative to exact/reference solutions using quadrature rules of arbitrary order
 - Evaluation of primary conservation and energy balances
 - High-resolution visualization of numerical solutions of arbitrary polynomial degree on general curvilinear meshes
