@@ -549,7 +549,7 @@ class SpatialDiscretization:
                                @ sum([f_contravariant[k][m].T*self.n_hat[i][zeta][m] 
                                       for m in range(0,self.d)])).T)
                   
-            # apply pre-computeds strong or weak volume and facet matrices
+            # apply pre-computed strong or weak volume and facet matrices
             return [np.array([sum([self.vol[k][m] @ f_contravariant[k][m][e,:] 
                                       for m in range(0,self.d)])
                      + sum([self.fac[k][zeta] @ 
