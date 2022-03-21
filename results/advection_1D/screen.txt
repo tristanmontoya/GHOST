@@ -1,5 +1,5 @@
- dt =  0.005
- writing every  200  time steps, total  200
- time step:  200 t:  1.0000000000000007 wall time:  0.31134796142578125
- writing time step  200 t =  1.0000000000000007
+ dt =  0.0035714285714285713
+ writing every  280  time steps, total  280
+ time step:  280 t:  0.999999999999997 wall time:  0.22641372680664062
+ writing time step  280 t =  0.999999999999997
  simulation complete!
