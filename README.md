@@ -1,7 +1,7 @@
 # Generalized High-Order Solver Toolbox (GHOST)
 GHOST is a simple yet flexible Python implementation of discontinuous Galerkin and flux reconstruction methods for first-order systems of conservation laws within the framework described in:
 
-Tristan Montoya and David W. Zingg, "A unifying algebraic framework for discontinuous Galerkin and flux reconstruction methods based on the summation-by-parts property." Preprint, [arXiv:2101.10478v1](https://arxiv.org/abs/2101.10478) (2021).
+Tristan Montoya and David W. Zingg, [A unifying algebraic framework for discontinuous Galerkin and flux reconstruction methods based on the summation-by-parts property.](https://tristanmontoya.github.io/papers/MontoyaZinggJSC22.pdf) Journal of Scientific Computing 92, article no. 87, 2022.
 
 As GHOST was developed for the prototyping and demonstration of numerical schemes and to run numerical experiments for simple model problems in support of the theoretical studies in the above manuscript, competitive performance for practical problems is not expected.
 
@@ -39,7 +39,7 @@ The basic usage of GHOST is demonstrated in the Jupyter notebooks provided in th
 
 ## Results
 
-The tables in the manuscript (consistent with the version provided in the  `manuscript` directory of this repository) were generated using the Jupyter notebooks `notebooks/make_tables_advection.ipynb` and `notebooks/make_tables_euler.ipynb`, which retrieve data from the `results` directory for each set of discretization parameters. The subdirectory names for the linear advection and Euler equations are formatted as `advection_pAbBcCtD_E` and `euler_m04pAcCtD_E`, respectively, using the following parameters:
+The tables in the [manuscript](https://tristanmontoya.github.io/papers/MontoyaZinggJSC22.pdf) were generated using the Jupyter notebooks `notebooks/make_tables_advection.ipynb` and `notebooks/make_tables_euler.ipynb`, which retrieve data from the `results` directory for each set of discretization parameters. The subdirectory names for the linear advection and Euler equations are formatted as `advection_pAbBcCtD_E` and `euler_m04pAcCtD_E`, respectively, using the following parameters:
 
 `A` -  polynomial degree of the discretization (`2`, `3`, or `4`)
 
