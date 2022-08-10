@@ -1,7 +1,7 @@
 # Generalized High-Order Solver Toolbox (GHOST)
 GHOST is a simple yet flexible Python implementation of discontinuous Galerkin and flux reconstruction methods for first-order systems of conservation laws within the framework described in:
 
-Tristan Montoya and David W. Zingg, [A unifying algebraic framework for discontinuous Galerkin and flux reconstruction methods based on the summation-by-parts property.](https://tristanmontoya.github.io/papers/MontoyaZinggJSC22.pdf) Journal of Scientific Computing 92, article no. 87, 2022.
+Tristan Montoya and David W. Zingg, [A unifying algebraic framework for discontinuous Galerkin and flux reconstruction methods based on the summation-by-parts property.](https://tristanmontoya.github.io/papers/MontoyaZinggJSC22.pdf) Journal of Scientific Computing 92, 2022.
 
 As GHOST was developed for the prototyping and demonstration of numerical schemes and to run numerical experiments for simple model problems in support of the theoretical studies in the above manuscript, competitive performance for practical problems is not expected.
 
